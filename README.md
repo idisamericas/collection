@@ -1,37 +1,81 @@
 # IDIS Americas GSX 2026 WebAR Coin
-## Build 38 — State Voiceover Final Five-Second Thank You
+## Build 39 — Persistent Digital Collection
 
 Production repo: `idisamericas/collection`
 
-## Atlanta / State side
+## New homepage collection
 
-`assets/audio/state-voiceover.mp3` remains the master timeline.
+A horizontal coin carousel now sits directly below the IDIS logo and above
+the main `We See More Than Security.` copy.
 
-The Thank You screen now begins exactly during the final five seconds of
-the voiceover.
+The carousel always contains five positions.
 
-Example if the MP3 is 24 seconds long:
+Before the physical GSX 2026 coin is scanned, the first position is a teal
+outlined placeholder. Four additional teal outlined positions represent future
+collectibles.
 
-- 0:00 to 0:19 — Atlanta layered parallax experience
-- 0:19 — Thank You section starts
-- 0:19 to 0:24 — final five seconds of voiceover continue under Thank You
-- 0:24 — audio ends
-- Thank You fades out
-- `SCAN COIN NOW` returns
+After either side of the physical GSX 2026 coin is successfully recognized,
+the browser stores this coin ID in `localStorage`:
 
-The code uses the actual MP3 duration, so no manual duration value is needed.
+`idis-digital-coin-collection-v1`
 
-## IDIS side
+The first collection position changes to:
 
-Unchanged from Build 37 / Build 36 abstract parallax version.
+- actual `assets/reference/GSX2026-Coin-Back.png`
+- GSX 2026
+- Year: 2026
+- Date: Sep 14–16
+- Location: Atlanta, GA
+- Tap to Replay Experience
 
-## Required audio
+This persists on the same browser/device.
 
-`assets/audio/state-voiceover.mp3`
+## Replay without the physical coin
+
+After the GSX coin is collected, tapping it from the homepage launches the
+Atlanta/state layered experience directly.
+
+Collection replay:
+- does NOT start MindAR
+- does NOT request the camera
+- does NOT require the physical coin
+- still requests motion permission where required
+- still plays `state-voiceover.mp3`
+- still uses the final-five-second Thank You sequence
+- returns to the homepage when complete
+
+The normal `START THE EXPERIENCE` button still launches the live camera scanner.
+
+## Important behavior
+
+Only a real MindAR target recognition unlocks the collectible. Replaying the
+saved item does not create an unlock.
+
+Both sides of the GSX coin unlock the same collectible because they are two
+faces of the same physical coin.
+
+## Required runtime files
+
+Keep:
+- `assets/targets/gsx2026-two-sided.mind`
+- `assets/audio/state-voiceover.mp3`
+- `assets/video/idis-showcase-alpha.webm`
+- `assets/parallax/atlanta/layer-1-back.mp4`
+- `assets/parallax/atlanta/layer-2-middle.png`
+- `assets/parallax/atlanta/layer-3-front.png`
+
+Included:
+- `assets/reference/GSX2026-Coin-Back.png`
+- `assets/reference/coin-front.png`
+- `assets/ui/idis-logo.png`
 
 ## Test
 
-`https://idisamericas.github.io/collection/?v=38`
+Main:
+`https://idisamericas.github.io/collection/?v=39`
+
+Collection-only visual preview:
+`https://idisamericas.github.io/collection/collection-preview.html?v=39`
 
 Console:
-`[IDIS WebAR] Build 38 State Finale: 20260825-statefinale38`
+`[IDIS WebAR] Build 39 Collection Carousel: 20260825-collection39`

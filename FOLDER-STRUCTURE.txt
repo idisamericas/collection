@@ -1,19 +1,19 @@
-IDIS-GSX2026-InteractiveScene-v37-StateVoiceover-FULL/
+IDIS-GSX2026-InteractiveScene-v39-CollectionCarousel-FULL/
 ├── index.html
 ├── ar.js
 ├── styles.css
 ├── camera-test.html
 ├── abstract-background-preview.html
+├── collection-preview.html
 ├── idis-media-test.html
 ├── README.md
 ├── DEPLOYMENT-CHECKLIST.txt
 ├── .nojekyll
 └── assets/
     ├── audio/
-    │   ├── state-voiceover.mp3              [ADD YOUR MP3]
-    │   └── README-STATE-VOICEOVER.txt
+    │   └── state-voiceover.mp3              [KEEP / ADD]
     ├── ui/
-    │   └── idis-logo.png
+    │   └── idis-logo.png                    [INCLUDED]
     ├── targets/
     │   └── gsx2026-two-sided.mind           [KEEP CURRENT]
     ├── video/
@@ -21,8 +21,8 @@ IDIS-GSX2026-InteractiveScene-v37-StateVoiceover-FULL/
     ├── parallax/
     │   └── atlanta/
     │       ├── layer-1-back.mp4             [KEEP CURRENT]
-    │       ├── layer-2-middle.png            [KEEP CURRENT]
-    │       └── layer-3-front.png             [KEEP CURRENT]
+    │       ├── layer-2-middle.png           [KEEP CURRENT]
+    │       └── layer-3-front.png            [KEEP CURRENT]
     └── reference/
-        ├── GSX2026-Coin-Back.png
-        └── coin-front.png
+        ├── GSX2026-Coin-Back.png             [INCLUDED]
+        └── coin-front.png                    [INCLUDED]

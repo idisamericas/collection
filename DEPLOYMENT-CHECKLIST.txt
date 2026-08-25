@@ -1,22 +1,37 @@
-BUILD 38
+BUILD 39 COLLECTION CAROUSEL
 
 REPLACE:
 [ ] index.html
 [ ] ar.js
 [ ] styles.css
 
-KEEP / ADD:
+OPTIONAL:
+[ ] collection-preview.html
+
+KEEP:
+[ ] assets/reference/GSX2026-Coin-Back.png
+[ ] assets/reference/coin-front.png
+[ ] assets/ui/idis-logo.png
+[ ] assets/targets/gsx2026-two-sided.mind
 [ ] assets/audio/state-voiceover.mp3
+[ ] assets/video/idis-showcase-alpha.webm
+[ ] Atlanta parallax media
 
-ATLANTA TEST:
-[ ] MP3 begins with Atlanta presentation
-[ ] layered visuals remain through all but final 5 seconds
-[ ] at 5 seconds remaining Thank You begins
-[ ] final 5 seconds of audio continue under Thank You
-[ ] audio ending triggers Thank You fade-out
-[ ] scan UI returns after fade-out
-[ ] no 30-second timer
-[ ] switching to IDIS before finale stops Atlanta audio
-
-IDIS:
-[ ] unchanged
+TEST FRESH BROWSER / CLEARED SITE DATA:
+[ ] Homepage shows 0 / 5
+[ ] GSX slot shows teal circular placeholder
+[ ] Future slots show teal outline circles
+[ ] locked GSX card does not launch replay
+[ ] scan EITHER side of physical GSX coin
+[ ] finish/close and return home
+[ ] homepage now shows actual GSX2026-Coin-Back.png
+[ ] collection shows 1 / 5
+[ ] card shows Year / Date / Location
+[ ] refresh page, collection remains unlocked
+[ ] tap collected coin
+[ ] Atlanta interaction launches WITHOUT camera
+[ ] state voiceover starts
+[ ] tilt / drag / pinch work
+[ ] final 5 sec Thank You works
+[ ] after ending, homepage returns
+[ ] START THE EXPERIENCE still launches camera scanner

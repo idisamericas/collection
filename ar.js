@@ -7,7 +7,7 @@
   target recognition; both presentations render as detached HTML/video.
 */
 
-console.info('[IDIS WebAR] Build 38 State Finale: 20260825-statefinale38');
+console.info('[IDIS WebAR] Build 39 Collection Carousel: 20260825-collection39');
 
 document.addEventListener('DOMContentLoaded', () => {
   const scene = document.querySelector('#ar-scene');
@@ -66,6 +66,15 @@ document.addEventListener('DOMContentLoaded', () => {
   const guestNameInput = document.querySelector('#guest-name');
   const guestNameField = document.querySelector('.guest-name-field');
 
+  const collectionCarousel =
+    document.querySelector('#collection-carousel');
+
+  const collectionCount =
+    document.querySelector('#collection-count');
+
+  const gsxCollectionCard =
+    document.querySelector('#collection-gsx2026');
+
   const endCard = document.querySelector('#end-card');
   const personalizedThanksLine1 = document.querySelector('#personalized-thanks-line1');
   const personalizedThanksLine2 = document.querySelector('#personalized-thanks-line2');
@@ -92,7 +101,17 @@ document.addEventListener('DOMContentLoaded', () => {
   const ATLANTA_THANK_YOU_LEAD_SECONDS = 5;
 
   const GUEST_NAME_STORAGE_KEY = 'idis-gsx2026-guest-name';
+
+  const COLLECTION_STORAGE_KEY =
+    'idis-digital-coin-collection-v1';
+
+  const GSX_2026_COIN_ID =
+    'gsx2026-atlanta';
+
+  const COLLECTION_TOTAL_SLOTS = 5;
+
   let guestName = '';
+  let collectedCoinIds = new Set();
 
   let arSystem = null;
   let starting = false;
@@ -102,6 +121,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // null = scanner mode. atlanta/idis = interactive presentation mode.
   let currentSide = null;
+
+  // When true, the Atlanta experience was launched from the saved collection
+  // and does not require MindAR, camera permission, or the physical coin.
+  let collectionReplayMode = false;
 
   // Atlanta / state voiceover.
   let atlantaVoiceoverPrimed = false;
@@ -846,6 +869,225 @@ document.addEventListener('DOMContentLoaded', () => {
         !!guestName
       );
     }
+  }
+
+  /* ------------------------------------------------------------------------
+     DIGITAL COIN COLLECTION
+
+     Unlocks are stored only in this browser/device. The collection does not
+     require an account or server-side profile.
+  ------------------------------------------------------------------------ */
+
+  function readCoinCollection() {
+    try {
+      const raw =
+        window.localStorage.getItem(
+          COLLECTION_STORAGE_KEY
+        );
+
+      if (!raw) {
+        return new Set();
+      }
+
+      const parsed =
+        JSON.parse(raw);
+
+      const ids =
+        Array.isArray(parsed)
+          ? parsed
+          : (
+              parsed &&
+              Array.isArray(parsed.coins)
+                ? parsed.coins
+                : []
+            );
+
+      return new Set(
+        ids.filter(
+          id =>
+            typeof id === 'string' &&
+            id.length > 0
+        )
+      );
+    } catch (_) {
+      return new Set();
+    }
+  }
+
+  function saveCoinCollection() {
+    try {
+      window.localStorage.setItem(
+        COLLECTION_STORAGE_KEY,
+        JSON.stringify({
+          version: 1,
+          coins: Array.from(collectedCoinIds),
+          updatedAt: Date.now()
+        })
+      );
+    } catch (_) {
+      // Browser storage restrictions should never block the experience.
+    }
+  }
+
+  function renderCoinCollection() {
+    const hasGSX =
+      collectedCoinIds.has(
+        GSX_2026_COIN_ID
+      );
+
+    if (gsxCollectionCard) {
+      gsxCollectionCard.classList.toggle(
+        'is-unlocked',
+        hasGSX
+      );
+
+      gsxCollectionCard.classList.toggle(
+        'is-locked',
+        !hasGSX
+      );
+
+      gsxCollectionCard.setAttribute(
+        'aria-disabled',
+        hasGSX
+          ? 'false'
+          : 'true'
+      );
+
+      gsxCollectionCard.setAttribute(
+        'aria-label',
+        hasGSX
+          ? 'GSX 2026 Atlanta coin collected. Tap to replay the Atlanta experience.'
+          : 'GSX 2026 Atlanta coin. Scan the physical coin to unlock it.'
+      );
+    }
+
+    if (collectionCount) {
+      const collected =
+        Math.min(
+          collectedCoinIds.size,
+          COLLECTION_TOTAL_SLOTS
+        );
+
+      collectionCount.textContent =
+        `${collected} / ${COLLECTION_TOTAL_SLOTS}`;
+    }
+  }
+
+  function loadCoinCollection() {
+    collectedCoinIds =
+      readCoinCollection();
+
+    renderCoinCollection();
+  }
+
+  function unlockGSX2026Coin() {
+    if (
+      collectedCoinIds.has(
+        GSX_2026_COIN_ID
+      )
+    ) {
+      return false;
+    }
+
+    collectedCoinIds.add(
+      GSX_2026_COIN_ID
+    );
+
+    saveCoinCollection();
+    renderCoinCollection();
+
+    return true;
+  }
+
+  async function launchCollectedAtlantaExperience(event) {
+    if (event) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
+
+    if (
+      !collectedCoinIds.has(
+        GSX_2026_COIN_ID
+      ) ||
+      starting ||
+      active
+    ) {
+      return;
+    }
+
+    // This click is itself a valid user gesture for motion + audio permission.
+    primeAtlantaVoiceover();
+
+    if (!motionTiltEnabled) {
+      try {
+        await enablePhoneTilt();
+      } catch (_) {}
+    }
+
+    if (guestNameInput) {
+      saveGuestName(
+        guestNameInput.value
+      );
+    }
+
+    ++sessionToken;
+
+    collectionReplayMode = true;
+    starting = false;
+    active = true;
+    currentSide = null;
+
+    hideError();
+    hideEndCard();
+    clearPresentationTimer();
+    stopAtlantaVoiceover(true);
+    hideAllPresentations();
+    hidePresentationControls();
+    stopSwitchWatcher();
+    resetGestureState();
+
+    document.body.classList.add(
+      'collection-replay-mode'
+    );
+
+    intro.classList.add('hidden');
+
+    setARUI(true);
+    hideScanUI();
+
+    // Re-zero from the sensor sample taken during this explicit user tap.
+    resetPhoneTiltNeutral();
+
+    beginPresentation(
+      'atlanta',
+      'collection'
+    );
+  }
+
+  function exitCollectionReplayToHome() {
+    ++sessionToken;
+
+    active = false;
+    starting = false;
+    currentSide = null;
+
+    resetAtlantaThankYouFinale();
+    stopAtlantaVoiceover(true);
+    hideAllPresentations();
+    hidePresentationControls();
+    hideScanUI();
+    hideError();
+
+    collectionReplayMode = false;
+
+    document.body.classList.remove(
+      'collection-replay-mode'
+    );
+
+    setARUI(false);
+    intro.classList.remove('hidden');
+
+    renderCoinCollection();
   }
 
   function updatePersonalizedThanks(variant = 'atlanta') {
@@ -3270,7 +3512,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (now - oppositeVisibleSince >= OPPOSITE_FACE_HOLD_MS) {
           oppositeVisibleSince = 0;
-          beginPresentation(oppositeSide);
+          beginPresentation(oppositeSide, 'scan');
         }
       } else {
         oppositeVisibleSince = 0;
@@ -3311,6 +3553,11 @@ document.addEventListener('DOMContentLoaded', () => {
     hideEndCard();
     resetAtlantaThankYouFinale();
 
+    if (collectionReplayMode) {
+      exitCollectionReplayToHome();
+      return;
+    }
+
     currentSide = null;
     oppositeVisibleSince = 0;
     resetGestureState();
@@ -3344,8 +3591,16 @@ document.addEventListener('DOMContentLoaded', () => {
     );
   }
 
-  function beginPresentation(side) {
+  function beginPresentation(side, source = 'scan') {
     if (!active || endCardActive) return;
+
+    /*
+      Either face belongs to the same physical GSX 2026 collectible.
+      Only a REAL scan can unlock it. Replays never create an unlock.
+    */
+    if (source === 'scan') {
+      unlockGSX2026Coin();
+    }
 
     // If the same face is recognized again during its active media session,
     // do nothing. It does not restart the voiceover or cinematic sequence.
@@ -3385,14 +3640,14 @@ document.addEventListener('DOMContentLoaded', () => {
     // Scanner mode -> Atlanta begins.
     // IDIS presentation -> Atlanta immediately replaces it.
     // Atlanta already showing -> ignore.
-    beginPresentation('atlanta');
+    beginPresentation('atlanta', 'scan');
   }
 
   function foundIDIS() {
     // Scanner mode -> IDIS begins.
     // Atlanta presentation -> IDIS immediately replaces it.
     // IDIS already showing -> ignore.
-    beginPresentation('idis');
+    beginPresentation('idis', 'scan');
   }
 
   // IMPORTANT:
@@ -3407,6 +3662,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
   async function startAR() {
     if (starting || active) return;
+
+    collectionReplayMode = false;
+
+    document.body.classList.remove(
+      'collection-replay-mode'
+    );
 
     // Prime the state-side MP3 while this function still has the original
     // START THE EXPERIENCE user gesture. Do this before any await.
@@ -3507,6 +3768,12 @@ document.addEventListener('DOMContentLoaded', () => {
       event.stopPropagation();
     }
 
+    if (collectionReplayMode) {
+      hideEndCard();
+      exitCollectionReplayToHome();
+      return;
+    }
+
     ++sessionToken;
 
     active = false;
@@ -3543,8 +3810,15 @@ document.addEventListener('DOMContentLoaded', () => {
     guide.classList.add('hidden');
     sideChip.classList.add('hidden');
 
+    collectionReplayMode = false;
+
+    document.body.classList.remove(
+      'collection-replay-mode'
+    );
+
     setARUI(false);
     intro.classList.remove('hidden');
+    renderCoinCollection();
   }
 
   /* ------------------------------------------------------------------------
@@ -3688,8 +3962,9 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Restore remembered visitor name on page load.
+  // Restore remembered visitor name + collected coins on page load.
   loadRememberedGuestName();
+  loadCoinCollection();
 
   if (guestNameInput) {
     guestNameInput.addEventListener('change', () => {
@@ -3770,6 +4045,13 @@ document.addEventListener('DOMContentLoaded', () => {
     { passive: false }
   );
 
+  if (gsxCollectionCard) {
+    gsxCollectionCard.addEventListener(
+      'click',
+      launchCollectedAtlantaExperience
+    );
+  }
+
   startButton.addEventListener('click', startAR);
   retryButton.addEventListener('click', startAR);
 
@@ -3804,6 +4086,11 @@ document.addEventListener('DOMContentLoaded', () => {
     clearPresentationTimer();
     hideAllPresentations();
     hidePresentationControls();
+
+    collectionReplayMode = false;
+    document.body.classList.remove(
+      'collection-replay-mode'
+    );
     stopSwitchWatcher();
     disablePhoneTilt();
 

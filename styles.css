@@ -1861,3 +1861,412 @@ iframe#idis-youtube-player {
    The Thank You card begins while the final five seconds of
    state-voiceover.mp3 continue playing underneath it.
 ============================================================================ */
+
+
+/* ==========================================================================
+   BUILD 39: PERSISTENT COLLECTION CAROUSEL
+   Cache key: 20260825-collection39
+============================================================================ */
+
+.coin-collection {
+  position: relative;
+  z-index: 3;
+  width: 100%;
+  margin-top: 18px;
+}
+
+.collection-heading {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 10px;
+}
+
+.collection-heading > div {
+  min-width: 0;
+}
+
+.collection-kicker {
+  display: block;
+  color: var(--idis-teal-soft);
+  font-size: 9px;
+  font-weight: 850;
+  line-height: 1;
+  letter-spacing: .18em;
+}
+
+.collection-subtitle {
+  display: block;
+  margin-top: 5px;
+  color: rgba(255,255,255,.42);
+  font-size: 9px;
+  font-weight: 650;
+  letter-spacing: .04em;
+}
+
+.collection-count {
+  flex: 0 0 auto;
+  color: rgba(255,255,255,.72);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: .10em;
+}
+
+.collection-carousel {
+  display: flex;
+  gap: 11px;
+  width: calc(100% + 26px);
+  margin-right: -26px;
+  padding: 2px 26px 10px 0;
+  overflow-x: auto;
+  overflow-y: visible;
+  scroll-snap-type: x proximity;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+.collection-carousel::-webkit-scrollbar {
+  display: none;
+}
+
+.collection-card {
+  position: relative;
+  flex: 0 0 150px;
+  min-width: 150px;
+  height: 178px;
+  padding: 11px;
+  scroll-snap-align: start;
+  overflow: hidden;
+  border-radius: 18px;
+  border: 1px solid rgba(101,255,241,.18);
+  background:
+    linear-gradient(145deg, rgba(8,28,33,.85), rgba(4,11,15,.72));
+  color: #fff;
+  text-align: left;
+  box-shadow:
+    0 15px 34px rgba(0,0,0,.28),
+    inset 0 1px 0 rgba(255,255,255,.04);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+button.collection-card {
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+.collection-card-featured {
+  transition:
+    transform .24s ease,
+    border-color .24s ease,
+    box-shadow .24s ease,
+    background .24s ease;
+}
+
+.collection-card-featured.is-unlocked {
+  border-color: rgba(101,255,241,.38);
+  background:
+    radial-gradient(circle at 50% 18%, rgba(24,201,195,.13), transparent 48%),
+    linear-gradient(145deg, rgba(7,31,36,.93), rgba(4,11,15,.80));
+  box-shadow:
+    0 18px 42px rgba(0,0,0,.34),
+    0 0 0 1px rgba(24,201,195,.08),
+    0 0 34px rgba(24,201,195,.08);
+}
+
+.collection-card-featured.is-unlocked:active {
+  transform: scale(.975);
+}
+
+.collection-coin-shell {
+  position: relative;
+  width: 78px;
+  height: 78px;
+  margin: 0 auto 9px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+}
+
+.collection-coin-shell::before {
+  content: "";
+  position: absolute;
+  inset: -5px;
+  border-radius: 50%;
+  border: 1px solid rgba(101,255,241,.48);
+  box-shadow:
+    0 0 0 4px rgba(24,201,195,.035),
+    0 8px 24px rgba(0,0,0,.42),
+    0 0 24px rgba(24,201,195,.11);
+}
+
+.collection-coin-placeholder {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background:
+    radial-gradient(circle, rgba(24,201,195,.08), rgba(2,9,11,.52) 68%);
+  color: rgba(101,255,241,.55);
+  font-size: 31px;
+  font-weight: 200;
+  transition: opacity .30s ease, transform .30s ease;
+}
+
+.collection-coin-image {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  border-radius: 50%;
+  opacity: 0;
+  transform: scale(.82) rotate(-5deg);
+  filter:
+    drop-shadow(0 10px 15px rgba(0,0,0,.48))
+    drop-shadow(0 0 10px rgba(24,201,195,.10));
+  transition:
+    opacity .42s ease,
+    transform .55s cubic-bezier(.16,.84,.26,1);
+}
+
+.collection-card.is-unlocked .collection-coin-image {
+  opacity: 1;
+  transform: scale(1) rotate(0);
+}
+
+.collection-card.is-unlocked .collection-coin-placeholder {
+  opacity: 0;
+  transform: scale(.72);
+}
+
+.collection-collected-badge {
+  position: absolute;
+  right: -10px;
+  bottom: 0;
+  padding: 4px 7px;
+  border-radius: 999px;
+  border: 1px solid rgba(101,255,241,.25);
+  background: rgba(3,20,23,.88);
+  color: var(--idis-teal-soft);
+  font-size: 6px;
+  font-weight: 900;
+  letter-spacing: .10em;
+  opacity: 0;
+  transform: translateY(4px);
+  transition: opacity .28s ease, transform .28s ease;
+}
+
+.collection-card.is-unlocked .collection-collected-badge {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.collection-card-copy > strong {
+  display: block;
+  color: rgba(255,255,255,.92);
+  font-size: 11px;
+  font-weight: 850;
+  letter-spacing: .055em;
+}
+
+.collection-locked-copy {
+  margin-top: 7px;
+  max-width: 110px;
+  color: rgba(255,255,255,.34);
+  font-size: 7px;
+  font-weight: 800;
+  line-height: 1.35;
+  letter-spacing: .11em;
+}
+
+.collection-unlocked-copy {
+  display: none;
+  margin-top: 5px;
+}
+
+.collection-card.is-unlocked .collection-locked-copy {
+  display: none;
+}
+
+.collection-card.is-unlocked .collection-unlocked-copy {
+  display: block;
+}
+
+.collection-meta {
+  display: grid;
+  grid-template-columns: 1fr 1.25fr;
+  gap: 3px 7px;
+  margin: 0;
+}
+
+.collection-meta div {
+  min-width: 0;
+}
+
+.collection-meta div:last-child {
+  grid-column: 1 / -1;
+}
+
+.collection-meta dt {
+  margin: 0;
+  color: rgba(101,255,241,.55);
+  font-size: 5px;
+  font-weight: 900;
+  letter-spacing: .12em;
+}
+
+.collection-meta dd {
+  margin: 1px 0 0;
+  color: rgba(255,255,255,.76);
+  font-size: 7px;
+  font-weight: 760;
+  letter-spacing: .035em;
+  white-space: nowrap;
+}
+
+.collection-replay-label {
+  display: block;
+  margin-top: 5px;
+  color: var(--idis-teal-soft);
+  font-size: 6px;
+  font-weight: 900;
+  letter-spacing: .09em;
+}
+
+.collection-card-future {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  background:
+    radial-gradient(circle at 50% 35%, rgba(24,201,195,.055), transparent 45%),
+    rgba(4,11,15,.50);
+}
+
+.collection-future-ring {
+  width: 76px;
+  height: 76px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  margin-bottom: 13px;
+  border: 1px solid rgba(101,255,241,.34);
+  color: rgba(101,255,241,.30);
+  font-size: 28px;
+  font-weight: 200;
+  box-shadow:
+    0 9px 26px rgba(0,0,0,.34),
+    0 0 24px rgba(24,201,195,.075),
+    inset 0 0 18px rgba(24,201,195,.035);
+}
+
+.collection-future-ring.future-ring-small {
+  width: 65px;
+  height: 65px;
+  filter: blur(.15px);
+}
+
+.collection-card-future strong {
+  color: rgba(255,255,255,.34);
+  font-size: 8px;
+  font-weight: 850;
+  letter-spacing: .10em;
+}
+
+.collection-card-future small {
+  margin-top: 5px;
+  color: rgba(255,255,255,.22);
+  font-size: 6px;
+  font-weight: 800;
+  letter-spacing: .12em;
+}
+
+/*
+  Collection replay mode launches the Atlanta experience without starting
+  MindAR or the camera. The existing detached Atlanta layers own the screen.
+*/
+body.collection-replay-mode #ar-container {
+  background:
+    radial-gradient(circle at 50% 30%, #083a40 0%, #02191d 42%, #000 100%) !important;
+}
+
+body.collection-replay-mode #ar-footer {
+  display: none !important;
+}
+
+/* Keep the main copy from colliding with the new shelf. */
+#intro .intro-copy {
+  margin-top: auto;
+}
+
+@media (max-width: 420px) {
+  .coin-collection {
+    margin-top: 14px;
+  }
+
+  .collection-carousel {
+    gap: 9px;
+  }
+
+  .collection-card {
+    flex-basis: 136px;
+    min-width: 136px;
+    height: 166px;
+    padding: 10px;
+  }
+
+  .collection-coin-shell {
+    width: 69px;
+    height: 69px;
+    margin-bottom: 8px;
+  }
+
+  .collection-future-ring {
+    width: 68px;
+    height: 68px;
+  }
+
+  .collection-future-ring.future-ring-small {
+    width: 59px;
+    height: 59px;
+  }
+}
+
+@media (max-height: 760px) {
+  .coin-collection {
+    margin-top: 10px;
+  }
+
+  .collection-card {
+    height: 148px;
+  }
+
+  .collection-coin-shell {
+    width: 61px;
+    height: 61px;
+    margin-bottom: 6px;
+  }
+
+  .collection-future-ring {
+    width: 60px;
+    height: 60px;
+    margin-bottom: 9px;
+  }
+
+  .collection-subtitle {
+    display: none;
+  }
+
+  .intro-copy p {
+    margin-top: 14px;
+  }
+
+  .intro-actions {
+    margin-top: 18px;
+  }
+}

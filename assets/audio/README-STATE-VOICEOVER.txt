@@ -1,23 +1,27 @@
-REQUIRED ATLANTA / STATE AUDIO FILE
+REQUIRED ATLANTA / STATE AUDIO
 
 Filename:
 state-voiceover.mp3
 
-Exact GitHub path:
+Path:
 assets/audio/state-voiceover.mp3
 
-BUILD 37 BEHAVIOR
-- Starts when the Atlanta/state side is recognized.
-- Plays behind the Atlanta layered parallax visuals.
-- The 30-second timer has been removed.
-- When the MP3 ends naturally, the Atlanta Thank You card appears.
-- Flipping to the IDIS side stops and resets the MP3.
-- Closing AR stops and resets the MP3.
-- Re-scanning the same Atlanta side while it is already active does not restart it.
+BUILD 38 TIMELINE
 
-RECOMMENDED MP3
-- 128 to 192 kbps is more than enough for voiceover
-- 44.1 or 48 kHz
-- mono is acceptable and smaller
-- normalize voice clearly for phone speakers
-- trim silence from the beginning and end
+Example for a 20-second MP3:
+
+0:00      Atlanta presentation + voiceover begin
+0:15      Thank You screen begins
+0:15-0:20 Thank You screen remains while voiceover finishes
+0:20      MP3 ends
+0:20+     Thank You screen fades out
+          scanning returns
+
+The code calculates this automatically from the MP3 duration.
+No fixed 30-second timer exists.
+
+IMPORTANT
+- The last five seconds of the MP3 are now the Thank You section.
+- The voiceover keeps playing underneath the Thank You card.
+- When the MP3 ends, the card fades out over the existing ~0.9 sec fade.
+- Flipping to the IDIS side before the finale stops and resets the MP3.
