@@ -1686,103 +1686,154 @@ iframe#idis-youtube-player {
 
 
 /* ==========================================================================
-   BUILD 35: HYBRID 360 VIDEO SPHERE MODE
-   Cache key: 20260821-sphere35
+   BUILD 36: ABSTRACT TEAL/BLUE PARALLAX ENVIRONMENT
+   Sphere mode has been removed completely.
+   Cache key: 20260825-abstract36
 ============================================================================ */
 
-/*
-  DEPTH STACK
-  100  One Solution. One Company.
-   45  YouTube panel
-   10  opening transparent WebM
-    7  immersive 360 sphere
-    5  black / dark-teal safety backdrop
-    0  live camera
-*/
-
-.idis-sphere-canvas {
+.idis-abstract-bg {
   position: absolute;
   inset: 0;
-  z-index: 7;
-  display: block;
-  width: 100%;
-  height: 100%;
+  z-index: 6;
+  overflow: hidden;
   opacity: 0;
-  background: transparent;
   pointer-events: none;
+  isolation: isolate;
 
-  transition:
-    opacity 1400ms cubic-bezier(.22,.61,.36,1),
-    filter 1400ms cubic-bezier(.22,.61,.36,1);
+  background:
+    radial-gradient(circle at 22% 24%, rgba(0,205,205,.46) 0%, rgba(0,205,205,.16) 20%, transparent 46%),
+    radial-gradient(circle at 82% 28%, rgba(0,100,255,.45) 0%, rgba(0,100,255,.15) 23%, transparent 50%),
+    radial-gradient(circle at 58% 88%, rgba(0,116,137,.48) 0%, rgba(0,87,108,.18) 27%, transparent 53%),
+    linear-gradient(145deg, #001116 0%, #032f3b 35%, #05334b 64%, #06182b 100%);
 
-  filter:
-    brightness(.78)
-    saturate(1.08)
-    contrast(1.04);
-
-  will-change: opacity, filter;
+  transition: opacity 1600ms cubic-bezier(.22,.61,.36,1);
+  will-change: opacity;
 }
 
-.idis-sphere-canvas.sphere-visible {
+.idis-abstract-bg.is-visible {
   opacity: 1;
 }
 
-.idis-sphere-video-source {
+.idis-gradient-field {
   position: absolute;
-  width: 2px;
-  height: 2px;
-  left: -10px;
-  top: -10px;
-  opacity: .001;
+  inset: -10%;
+  z-index: 1;
+  transform: scale(1.08);
+  transform-origin: 50% 50%;
   pointer-events: none;
+  will-change: transform;
+
+  background:
+    radial-gradient(ellipse at 28% 38%, rgba(20,236,229,.20) 0%, rgba(20,236,229,.06) 24%, transparent 51%),
+    radial-gradient(ellipse at 74% 54%, rgba(15,106,255,.24) 0%, rgba(15,106,255,.07) 28%, transparent 55%);
+
+  filter: blur(34px) saturate(1.12);
 }
 
-/*
-  Once the sphere is actually playing, the frozen transparent WebM dissolves
-  away so the user visually enters the panoramic environment.
-*/
-.idis-showcase-canvas.is-frozen.sphere-transition-out {
-  opacity: 0 !important;
-  transition:
-    opacity 1400ms cubic-bezier(.22,.61,.36,1) !important;
-}
-
-.idis-showcase-video-source.webgl-fallback-visible.sphere-transition-out {
-  opacity: 0 !important;
-  transition:
-    opacity 1400ms cubic-bezier(.22,.61,.36,1) !important;
-}
-
-/*
-  A subtle edge treatment helps the sphere feel less like a flat rectangle.
-  The dark center / teal outer background remains underneath as a fallback.
-*/
-.idis-cinematic::after {
-  content: "";
+.idis-plus-field {
   position: absolute;
-  inset: 0;
+  inset: -7%;
   z-index: 8;
   pointer-events: none;
-  opacity: 0;
-  background:
-    radial-gradient(
-      circle at 50% 50%,
-      transparent 0%,
-      transparent 48%,
-      rgba(0, 18, 21, .12) 72%,
-      rgba(0, 12, 14, .30) 100%
-    );
-  transition: opacity 1400ms ease;
+  overflow: hidden;
+  transform-style: preserve-3d;
+  -webkit-transform-style: preserve-3d;
 }
 
-.idis-cinematic.sphere-mode::after {
-  opacity: 1;
+.idis-plus-layer {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+  -webkit-transform-style: preserve-3d;
+  will-change: transform;
+  pointer-events: none;
+}
+
+.idis-plus {
+  position: absolute;
+  left: var(--x);
+  top: var(--y);
+  color: rgba(220,255,255,var(--o));
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: var(--s);
+  line-height: 1;
+  font-weight: 300;
+  text-shadow: 0 0 calc(var(--s) * .22) rgba(79,235,239,.17);
+  filter: blur(var(--b));
+  transform: translate3d(-50%,-50%,0);
+  transform-origin: 50% 50%;
+  animation: idisPlusFloat var(--d) ease-in-out infinite alternate;
+  will-change: transform, opacity;
+}
+
+.plus-depth-near .idis-plus {
+  color: rgba(233,255,255,var(--o));
+  text-shadow:
+    0 3px 14px rgba(0,0,0,.24),
+    0 0 22px rgba(67,225,237,.22);
+}
+
+@keyframes idisPlusFloat {
+  from {
+    transform: translate3d(-50%,-50%,0) translateY(-7px) rotate(-2deg);
+  }
+  to {
+    transform: translate3d(-50%,-50%,0) translateY(9px) rotate(3deg);
+  }
+}
+
+.idis-showcase-canvas.is-frozen.abstract-transition-out {
+  opacity: 0 !important;
+  filter: blur(7px) !important;
+  transform: translate(-50%,-50%) scale(1.035) !important;
+
+  transition:
+    opacity 1600ms cubic-bezier(.22,.61,.36,1),
+    filter 1600ms cubic-bezier(.22,.61,.36,1),
+    transform 1600ms cubic-bezier(.22,.61,.36,1) !important;
+}
+
+.idis-showcase-video-source.webgl-fallback-visible.abstract-transition-out {
+  opacity: 0 !important;
+  filter: blur(7px) !important;
+
+  transition:
+    opacity 1600ms cubic-bezier(.22,.61,.36,1),
+    filter 1600ms cubic-bezier(.22,.61,.36,1) !important;
+}
+
+/* Old backdrop is no longer part of the active DOM. */
+.idis-cinematic-backdrop {
+  display: none !important;
+}
+
+.idis-feature-logo {
+  text-shadow:
+    0 2px 5px rgba(0,0,0,.78),
+    0 9px 21px rgba(0,0,0,.54) !important;
+}
+
+@media (max-width: 420px) {
+  .idis-abstract-bg {
+    background:
+      radial-gradient(circle at 16% 26%, rgba(0,202,202,.44) 0%, rgba(0,202,202,.13) 24%, transparent 48%),
+      radial-gradient(circle at 88% 35%, rgba(0,99,255,.42) 0%, rgba(0,99,255,.12) 26%, transparent 51%),
+      linear-gradient(155deg, #001115 0%, #02323d 42%, #062743 75%, #071727 100%);
+  }
+
+  .idis-plus-field {
+    inset: -10%;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .idis-sphere-canvas,
-  .idis-showcase-canvas.is-frozen.sphere-transition-out,
-  .idis-showcase-video-source.webgl-fallback-visible.sphere-transition-out {
-    transition-duration: 200ms !important;
+  .idis-plus {
+    animation: none;
+  }
+
+  .idis-abstract-bg,
+  .idis-showcase-canvas.is-frozen.abstract-transition-out,
+  .idis-showcase-video-source.webgl-fallback-visible.abstract-transition-out {
+    transition-duration: 220ms !important;
   }
 }

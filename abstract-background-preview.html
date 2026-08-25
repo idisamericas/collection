@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>IDIS Abstract Parallax Preview</title>
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#001116;color:#fff;font-family:Arial,Helvetica,sans-serif}
+#root{
+  position:fixed;inset:0;overflow:hidden;
+  background:
+    radial-gradient(circle at 22% 24%,rgba(0,205,205,.46),rgba(0,205,205,.16) 20%,transparent 46%),
+    radial-gradient(circle at 82% 28%,rgba(0,100,255,.45),rgba(0,100,255,.15) 23%,transparent 50%),
+    radial-gradient(circle at 58% 88%,rgba(0,116,137,.48),rgba(0,87,108,.18) 27%,transparent 53%),
+    linear-gradient(145deg,#001116,#032f3b 35%,#05334b 64%,#06182b);
+  perspective:900px;
+}
+#gradient{position:absolute;inset:-10%;filter:blur(34px);background:
+radial-gradient(ellipse at 28% 38%,rgba(20,236,229,.20),transparent 51%),
+radial-gradient(ellipse at 74% 54%,rgba(15,106,255,.24),transparent 55%);will-change:transform}
+.layer{position:absolute;inset:-7%;transform-style:preserve-3d;will-change:transform}
+.plus{position:absolute;left:var(--x);top:var(--y);font-size:var(--s);opacity:var(--o);filter:blur(var(--b));
+transform:translate(-50%,-50%);font-weight:300;text-shadow:0 0 20px rgba(79,235,239,.22)}
+#stage{position:absolute;inset:0;transform-style:preserve-3d;pointer-events:none;will-change:transform}
+#tag{position:absolute;left:50%;top:39%;transform:translate3d(-50%,-50%,320px);font-size:clamp(12px,2vw,18px);
+font-weight:700;white-space:nowrap;text-shadow:0 3px 9px rgba(0,0,0,.7)}
+#video{position:absolute;left:50%;top:58%;width:min(92vw,900px);aspect-ratio:16/9;transform:translate3d(-50%,-50%,70px);
+border-radius:16px;background:rgba(0,14,20,.78);border:1px solid rgba(255,255,255,.12);box-shadow:0 28px 80px rgba(0,0,0,.55);
+display:grid;place-items:center;text-align:center;padding:30px}
+#touch{position:absolute;inset:0;z-index:20;touch-action:none;cursor:grab}
+#hint{position:absolute;left:50%;bottom:18px;transform:translateX(-50%);z-index:30;background:rgba(0,0,0,.54);
+padding:9px 14px;border-radius:999px;font-size:12px;white-space:nowrap}
+</style>
+</head>
+<body>
+<div id="root">
+  <div id="gradient"></div>
+
+  <div class="layer" data-depth=".10">
+    <span class="plus" style="--x:8%;--y:18%;--s:14px;--b:4px;--o:.18">+</span>
+    <span class="plus" style="--x:72%;--y:12%;--s:19px;--b:5px;--o:.15">+</span>
+    <span class="plus" style="--x:90%;--y:69%;--s:12px;--b:4px;--o:.17">+</span>
+  </div>
+  <div class="layer" data-depth=".20">
+    <span class="plus" style="--x:16%;--y:48%;--s:24px;--b:2.8px;--o:.26">+</span>
+    <span class="plus" style="--x:80%;--y:38%;--s:20px;--b:3.2px;--o:.22">+</span>
+    <span class="plus" style="--x:58%;--y:82%;--s:27px;--b:2.6px;--o:.22">+</span>
+  </div>
+  <div class="layer" data-depth=".34">
+    <span class="plus" style="--x:9%;--y:70%;--s:34px;--b:1.4px;--o:.30">+</span>
+    <span class="plus" style="--x:88%;--y:22%;--s:30px;--b:1.2px;--o:.28">+</span>
+    <span class="plus" style="--x:67%;--y:60%;--s:38px;--b:1.5px;--o:.26">+</span>
+  </div>
+  <div class="layer" data-depth=".52">
+    <span class="plus" style="--x:4%;--y:31%;--s:52px;--b:.3px;--o:.27">+</span>
+    <span class="plus" style="--x:93%;--y:78%;--s:46px;--b:.5px;--o:.24">+</span>
+  </div>
+
+  <div id="stage">
+    <div id="tag">One Solution. One Company.</div>
+    <div id="video"><div><strong style="font-size:clamp(22px,5vw,44px)">YouTube Feature Plane</strong><br>
+    <span style="opacity:.65">This represents the floating feature video in the AR experience.</span></div></div>
+  </div>
+
+  <div id="touch" aria-label="Drag to preview parallax"></div>
+  <div id="hint">DRAG TO PREVIEW PARALLAX</div>
+</div>
+<script>
+(() => {
+  const gradient = document.querySelector('#gradient');
+  const layers = [...document.querySelectorAll('.layer')];
+  const stage = document.querySelector('#stage');
+  const touch = document.querySelector('#touch');
+
+  let panX=0,panY=0,targetX=0,targetY=0,drag=false,lastX=0,lastY=0;
+
+  touch.addEventListener('pointerdown',e=>{
+    drag=true;lastX=e.clientX;lastY=e.clientY;
+    try{touch.setPointerCapture(e.pointerId)}catch(_){}
+  });
+
+  touch.addEventListener('pointermove',e=>{
+    if(!drag)return;
+    targetX=Math.max(-innerWidth*.38,Math.min(innerWidth*.38,targetX+(e.clientX-lastX)));
+    targetY=Math.max(-innerHeight*.30,Math.min(innerHeight*.30,targetY+(e.clientY-lastY)));
+    lastX=e.clientX;lastY=e.clientY;
+  });
+
+  const end=e=>{drag=false;try{touch.releasePointerCapture(e.pointerId)}catch(_){}};
+  touch.addEventListener('pointerup',end);
+  touch.addEventListener('pointercancel',end);
+
+  function frame(){
+    requestAnimationFrame(frame);
+    panX+=(targetX-panX)*.075;
+    panY+=(targetY-panY)*.075;
+
+    gradient.style.transform=`translate3d(${(panX*.025).toFixed(1)}px,${(panY*.022).toFixed(1)}px,0) scale(1.08)`;
+
+    layers.forEach((layer,i)=>{
+      const d=parseFloat(layer.dataset.depth);
+      layer.style.transform=`translate3d(${(panX*d).toFixed(1)}px,${(panY*d).toFixed(1)}px,${18+i*28}px)`;
+    });
+
+    const rx=Math.max(-8,Math.min(8,-panY/innerHeight*10));
+    const ry=Math.max(-9,Math.min(9,panX/innerWidth*12));
+    stage.style.transform=`rotateX(${rx.toFixed(2)}deg) rotateY(${ry.toFixed(2)}deg)`;
+  }
+  frame();
+})();
+</script>
+</body>
+</html>
