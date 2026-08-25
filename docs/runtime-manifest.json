@@ -1,0 +1,78 @@
+{
+  "build": "35 Sphere Mode FULL",
+  "cache_version": "20260821-sphere35",
+  "files": [
+    {
+      "path": "index.html",
+      "included_in_zip": true,
+      "required_for_runtime": true,
+      "size_bytes": 12647
+    },
+    {
+      "path": "ar.js",
+      "included_in_zip": true,
+      "required_for_runtime": true,
+      "size_bytes": 91057
+    },
+    {
+      "path": "styles.css",
+      "included_in_zip": true,
+      "required_for_runtime": true,
+      "size_bytes": 47975
+    },
+    {
+      "path": "camera-test.html",
+      "included_in_zip": true,
+      "required_for_runtime": true,
+      "size_bytes": 4103
+    },
+    {
+      "path": "sphere-mode-preview.html",
+      "included_in_zip": true,
+      "required_for_runtime": true,
+      "size_bytes": 9426
+    },
+    {
+      "path": "assets/ui/idis-logo.png",
+      "included_in_zip": true,
+      "required_for_runtime": true,
+      "size_bytes": 65698
+    },
+    {
+      "path": "assets/targets/gsx2026-two-sided.mind",
+      "included_in_zip": false,
+      "required_for_runtime": true,
+      "size_bytes": null
+    },
+    {
+      "path": "assets/video/idis-showcase-alpha.webm",
+      "included_in_zip": false,
+      "required_for_runtime": true,
+      "size_bytes": null
+    },
+    {
+      "path": "assets/video/idis-sphere-360.mp4",
+      "included_in_zip": false,
+      "required_for_runtime": true,
+      "size_bytes": null
+    },
+    {
+      "path": "assets/parallax/atlanta/layer-1-back.mp4",
+      "included_in_zip": false,
+      "required_for_runtime": true,
+      "size_bytes": null
+    },
+    {
+      "path": "assets/parallax/atlanta/layer-2-middle.png",
+      "included_in_zip": false,
+      "required_for_runtime": true,
+      "size_bytes": null
+    },
+    {
+      "path": "assets/parallax/atlanta/layer-3-front.png",
+      "included_in_zip": false,
+      "required_for_runtime": true,
+      "size_bytes": null
+    }
+  ]
+}
