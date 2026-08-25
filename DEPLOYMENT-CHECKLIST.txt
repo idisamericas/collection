@@ -1,31 +1,22 @@
-BUILD 37 DEPLOYMENT CHECKLIST
+BUILD 38
 
 REPLACE:
 [ ] index.html
 [ ] ar.js
 [ ] styles.css
 
-ADD:
+KEEP / ADD:
 [ ] assets/audio/state-voiceover.mp3
 
-KEEP:
-[ ] assets/ui/idis-logo.png
-[ ] assets/targets/gsx2026-two-sided.mind
-[ ] assets/video/idis-showcase-alpha.webm
-[ ] assets/parallax/atlanta/layer-1-back.mp4
-[ ] assets/parallax/atlanta/layer-2-middle.png
-[ ] assets/parallax/atlanta/layer-3-front.png
-
 ATLANTA TEST:
-[ ] Scan Atlanta side
-[ ] voiceover starts at presentation unlock
-[ ] layers reveal normally
-[ ] no 30-second timer visible
-[ ] drag/pinch/tilt still work
-[ ] MP3 ending triggers Thank You card
-[ ] opposite-side scan stops voiceover
-[ ] close button stops voiceover
-[ ] returning to Atlanta starts voiceover from beginning
+[ ] MP3 begins with Atlanta presentation
+[ ] layered visuals remain through all but final 5 seconds
+[ ] at 5 seconds remaining Thank You begins
+[ ] final 5 seconds of audio continue under Thank You
+[ ] audio ending triggers Thank You fade-out
+[ ] scan UI returns after fade-out
+[ ] no 30-second timer
+[ ] switching to IDIS before finale stops Atlanta audio
 
-IDIS TEST:
-[ ] Build 36 IDIS sequence remains unchanged
+IDIS:
+[ ] unchanged

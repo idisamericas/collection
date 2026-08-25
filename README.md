@@ -1,62 +1,37 @@
 # IDIS Americas GSX 2026 WebAR Coin
-## Build 37 — State Voiceover Duration
+## Build 38 — State Voiceover Final Five-Second Thank You
 
 Production repo: `idisamericas/collection`
 
-Production Pages URL:
-`https://idisamericas.github.io/collection/`
+## Atlanta / State side
 
-## Atlanta / State side — targetIndex 0
+`assets/audio/state-voiceover.mp3` remains the master timeline.
 
-The fixed 30-second countdown has been removed.
+The Thank You screen now begins exactly during the final five seconds of
+the voiceover.
 
-The presentation duration is now controlled by:
+Example if the MP3 is 24 seconds long:
 
-`assets/audio/state-voiceover.mp3`
+- 0:00 to 0:19 — Atlanta layered parallax experience
+- 0:19 — Thank You section starts
+- 0:19 to 0:24 — final five seconds of voiceover continue under Thank You
+- 0:24 — audio ends
+- Thank You fades out
+- `SCAN COIN NOW` returns
 
-Flow:
+The code uses the actual MP3 duration, so no manual duration value is needed.
 
-1. Atlanta/state side is recognized.
-2. `state-voiceover.mp3` begins.
-3. Atlanta layers reveal on the existing 1 / 2 / 3-second visual timing.
-4. Drag, pinch, and phone tilt remain active.
-5. The voiceover continues for its natural duration.
-6. When the MP3 fires its `ended` event, the Atlanta Thank You card appears.
-7. After the closing card, scanning mode returns.
+## IDIS side
 
-If the visitor flips to the IDIS side before the MP3 ends, the Atlanta
-voiceover is stopped and reset immediately.
+Unchanged from Build 37 / Build 36 abstract parallax version.
 
-## IDIS side — targetIndex 1
-
-Unchanged from Build 36:
-- transparent coin WebM
-- final frame freeze
-- abstract teal/blue plus-symbol parallax
-- One Solution. One Company.
-- YouTube feature
-- See you next time, {Name}
-- SEE SECURITY SMARTER
-
-## New required file
+## Required audio
 
 `assets/audio/state-voiceover.mp3`
-
-The MP3 itself was not provided in this chat, so the package contains the
-correct audio folder and instructions but not the actual voiceover file.
-
-## Existing runtime files to preserve
-
-- assets/targets/gsx2026-two-sided.mind
-- assets/video/idis-showcase-alpha.webm
-- assets/parallax/atlanta/layer-1-back.mp4
-- assets/parallax/atlanta/layer-2-middle.png
-- assets/parallax/atlanta/layer-3-front.png
 
 ## Test
 
-`https://idisamericas.github.io/collection/?v=37`
+`https://idisamericas.github.io/collection/?v=38`
 
 Console:
-
-`[IDIS WebAR] Build 37 State Voiceover: 20260825-statevoice37`
+`[IDIS WebAR] Build 38 State Finale: 20260825-statefinale38`

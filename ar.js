@@ -7,7 +7,7 @@
   target recognition; both presentations render as detached HTML/video.
 */
 
-console.info('[IDIS WebAR] Build 37 State Voiceover: 20260825-statevoice37');
+console.info('[IDIS WebAR] Build 38 State Finale: 20260825-statefinale38');
 
 document.addEventListener('DOMContentLoaded', () => {
   const scene = document.querySelector('#ar-scene');
@@ -88,6 +88,9 @@ document.addEventListener('DOMContentLoaded', () => {
   const END_CARD_MS = 6000;
   const END_CARD_FADE_OUT_MS = 900;
 
+  // Atlanta thank-you begins during the final five seconds of the MP3.
+  const ATLANTA_THANK_YOU_LEAD_SECONDS = 5;
+
   const GUEST_NAME_STORAGE_KEY = 'idis-gsx2026-guest-name';
   let guestName = '';
 
@@ -103,6 +106,8 @@ document.addEventListener('DOMContentLoaded', () => {
   // Atlanta / state voiceover.
   let atlantaVoiceoverPrimed = false;
   let atlantaVoiceoverPlaying = false;
+  let atlantaThankYouLeadTimer = null;
+  let atlantaThankYouFinaleActive = false;
 
   let endCardTimer = null;
   let endCardFadeTimer = null;
@@ -1307,7 +1312,168 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
+  function clearAtlantaThankYouLeadTimer() {
+    if (atlantaThankYouLeadTimer) {
+      clearTimeout(atlantaThankYouLeadTimer);
+      atlantaThankYouLeadTimer = null;
+    }
+  }
+
+  function resetAtlantaThankYouFinale() {
+    clearAtlantaThankYouLeadTimer();
+    atlantaThankYouFinaleActive = false;
+  }
+
+  function showAtlantaVoiceoverEndCard() {
+    clearEndCardTimers();
+
+    endCardVariant = 'atlanta';
+    updatePersonalizedThanks('atlanta');
+
+    if (!endCard) {
+      return;
+    }
+
+    endCardActive = true;
+    atlantaThankYouFinaleActive = true;
+
+    endCard.classList.remove(
+      'hidden',
+      'phase-in',
+      'phase-out',
+      'is-idis-closing'
+    );
+
+    void endCard.offsetWidth;
+
+    endCard.classList.add('phase-in');
+    endCard.setAttribute(
+      'aria-hidden',
+      'false'
+    );
+  }
+
+  function beginAtlantaThankYouFinale() {
+    if (
+      !active ||
+      currentSide !== 'atlanta' ||
+      atlantaThankYouFinaleActive
+    ) {
+      return;
+    }
+
+    clearAtlantaThankYouLeadTimer();
+
+    /*
+      Hide only the Atlanta visuals.
+      Keep the MP3 playing underneath the Thank You screen for its final
+      five seconds.
+    */
+    hideAtlantaPresentation({
+      keepVoiceover: true
+    });
+
+    hidePresentationControls();
+    hideScanUI();
+
+    oppositeVisibleSince = 0;
+    resetGestureState();
+
+    showAtlantaVoiceoverEndCard();
+  }
+
+  function finishAtlantaThankYouFinale() {
+    clearAtlantaThankYouLeadTimer();
+
+    if (!atlantaThankYouFinaleActive) {
+      return;
+    }
+
+    atlantaVoiceoverPlaying = false;
+    atlantaThankYouFinaleActive = false;
+
+    if (!endCard) {
+      finishEndCardToScan();
+      return;
+    }
+
+    clearEndCardTimers();
+
+    endCard.classList.remove('phase-in');
+    endCard.classList.add('phase-out');
+
+    endCardTimer = setTimeout(() => {
+      endCardTimer = null;
+      finishEndCardToScan();
+    }, END_CARD_FADE_OUT_MS);
+  }
+
+  function scheduleAtlantaThankYouFinale() {
+    clearAtlantaThankYouLeadTimer();
+
+    if (
+      !atlantaVoiceover ||
+      !atlantaVoiceoverPlaying ||
+      currentSide !== 'atlanta' ||
+      atlantaThankYouFinaleActive
+    ) {
+      return;
+    }
+
+    const duration =
+      atlantaVoiceover.duration;
+
+    const currentTime =
+      atlantaVoiceover.currentTime || 0;
+
+    if (
+      !Number.isFinite(duration) ||
+      duration <= 0
+    ) {
+      return;
+    }
+
+    const secondsUntilFinale =
+      duration -
+      currentTime -
+      ATLANTA_THANK_YOU_LEAD_SECONDS;
+
+    if (secondsUntilFinale <= 0) {
+      beginAtlantaThankYouFinale();
+      return;
+    }
+
+    atlantaThankYouLeadTimer = setTimeout(() => {
+      atlantaThankYouLeadTimer = null;
+
+      if (
+        !atlantaVoiceover ||
+        !atlantaVoiceoverPlaying ||
+        currentSide !== 'atlanta' ||
+        atlantaThankYouFinaleActive
+      ) {
+        return;
+      }
+
+      const remaining =
+        atlantaVoiceover.duration -
+        atlantaVoiceover.currentTime;
+
+      if (
+        Number.isFinite(remaining) &&
+        remaining <=
+          ATLANTA_THANK_YOU_LEAD_SECONDS + 0.35
+      ) {
+        beginAtlantaThankYouFinale();
+      } else {
+        // Metadata or playback timing shifted. Recalculate from live media.
+        scheduleAtlantaThankYouFinale();
+      }
+    }, secondsUntilFinale * 1000);
+  }
+
   function stopAtlantaVoiceover(reset = true) {
+    clearAtlantaThankYouLeadTimer();
     atlantaVoiceoverPlaying = false;
 
     if (!atlantaVoiceover) return;
@@ -1349,6 +1515,7 @@ document.addEventListener('DOMContentLoaded', () => {
       playPromise
         .then(() => {
           atlantaVoiceoverPlaying = true;
+          scheduleAtlantaThankYouFinale();
         })
         .catch(error => {
           atlantaVoiceoverPlaying = false;
@@ -1360,6 +1527,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     } else {
       atlantaVoiceoverPlaying = true;
+      scheduleAtlantaThankYouFinale();
     }
   }
 
@@ -1409,13 +1577,16 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  function hideAtlantaPresentation() {
+  function hideAtlantaPresentation(options = {}) {
     cancelAnimationFrame(presentationRAF);
     presentationRAF = 0;
 
     clearBackVideoTimer();
     stopBackVideo(true);
-    stopAtlantaVoiceover(true);
+
+    if (!options.keepVoiceover) {
+      stopAtlantaVoiceover(true);
+    }
 
     overlay.classList.remove('is-visible');
     overlay.classList.add('hidden');
@@ -1438,6 +1609,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function showAtlantaPresentation() {
     hideAtlantaPresentation();
+    resetAtlantaThankYouFinale();
 
     overlay.classList.remove('hidden');
     overlay.classList.add('is-visible');
@@ -3127,6 +3299,7 @@ document.addEventListener('DOMContentLoaded', () => {
     cancelAnimationFrame(presentationRAF);
     presentationRAF = 0;
 
+    resetAtlantaThankYouFinale();
     hideAtlantaPresentation();
 
     if (!options.keepIDISCinematic) {
@@ -3136,6 +3309,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function finishEndCardToScan() {
     hideEndCard();
+    resetAtlantaThankYouFinale();
 
     currentSide = null;
     oppositeVisibleSince = 0;
@@ -3381,17 +3555,74 @@ document.addEventListener('DOMContentLoaded', () => {
   if (atlantaVoiceover) {
     prepareAtlantaVoiceover();
 
+    // Metadata may arrive after play() has already started.
+    const refreshAtlantaFinaleSchedule = () => {
+      if (
+        atlantaVoiceoverPlaying &&
+        currentSide === 'atlanta' &&
+        !atlantaThankYouFinaleActive
+      ) {
+        scheduleAtlantaThankYouFinale();
+      }
+    };
+
+    atlantaVoiceover.addEventListener(
+      'loadedmetadata',
+      refreshAtlantaFinaleSchedule
+    );
+
+    atlantaVoiceover.addEventListener(
+      'durationchange',
+      refreshAtlantaFinaleSchedule
+    );
+
+    // timeupdate is a fallback in case a mobile browser throttles timers.
+    atlantaVoiceover.addEventListener(
+      'timeupdate',
+      () => {
+        if (
+          !atlantaVoiceoverPlaying ||
+          currentSide !== 'atlanta' ||
+          atlantaThankYouFinaleActive
+        ) {
+          return;
+        }
+
+        const duration =
+          atlantaVoiceover.duration;
+
+        const remaining =
+          duration -
+          atlantaVoiceover.currentTime;
+
+        if (
+          Number.isFinite(duration) &&
+          duration > 0 &&
+          remaining <=
+            ATLANTA_THANK_YOU_LEAD_SECONDS
+        ) {
+          beginAtlantaThankYouFinale();
+        }
+      }
+    );
+
     atlantaVoiceover.addEventListener(
       'ended',
       () => {
         atlantaVoiceoverPlaying = false;
+        clearAtlantaThankYouLeadTimer();
 
         if (
           active &&
-          currentSide === 'atlanta' &&
-          !endCardActive
+          currentSide === 'atlanta'
         ) {
-          endPresentationToScan();
+          if (atlantaThankYouFinaleActive) {
+            finishAtlantaThankYouFinale();
+          } else {
+            // Fallback for unusual media metadata behavior.
+            beginAtlantaThankYouFinale();
+            finishAtlantaThankYouFinale();
+          }
         }
       }
     );
@@ -3400,6 +3631,7 @@ document.addEventListener('DOMContentLoaded', () => {
       'error',
       () => {
         atlantaVoiceoverPlaying = false;
+        clearAtlantaThankYouLeadTimer();
 
         console.warn(
           'state-voiceover.mp3 could not be loaded. ' +
