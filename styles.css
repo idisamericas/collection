@@ -1837,3 +1837,18 @@ iframe#idis-youtube-player {
     transition-duration: 220ms !important;
   }
 }
+
+
+/* ==========================================================================
+   BUILD 37: ATLANTA / STATE VOICEOVER-DRIVEN DURATION
+   Cache key: 20260825-statevoice37
+============================================================================ */
+
+#atlanta-voiceover {
+  display: none !important;
+}
+
+/* The presentation UI now contains only the drag/pinch hint. */
+.presentation-ui {
+  justify-content: center;
+}

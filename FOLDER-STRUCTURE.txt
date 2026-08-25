@@ -1,4 +1,4 @@
-IDIS-GSX2026-InteractiveScene-v36-AbstractParallax-FULL/
+IDIS-GSX2026-InteractiveScene-v37-StateVoiceover-FULL/
 ├── index.html
 ├── ar.js
 ├── styles.css
@@ -9,17 +9,20 @@ IDIS-GSX2026-InteractiveScene-v36-AbstractParallax-FULL/
 ├── DEPLOYMENT-CHECKLIST.txt
 ├── .nojekyll
 └── assets/
+    ├── audio/
+    │   ├── state-voiceover.mp3              [ADD YOUR MP3]
+    │   └── README-STATE-VOICEOVER.txt
     ├── ui/
     │   └── idis-logo.png
     ├── targets/
-    │   └── gsx2026-two-sided.mind          [COPY CURRENT]
+    │   └── gsx2026-two-sided.mind           [KEEP CURRENT]
     ├── video/
-    │   └── idis-showcase-alpha.webm        [COPY CURRENT]
+    │   └── idis-showcase-alpha.webm         [KEEP CURRENT]
     ├── parallax/
     │   └── atlanta/
-    │       ├── layer-1-back.mp4            [COPY CURRENT]
-    │       ├── layer-2-middle.png           [COPY CURRENT]
-    │       └── layer-3-front.png            [COPY CURRENT]
+    │       ├── layer-1-back.mp4             [KEEP CURRENT]
+    │       ├── layer-2-middle.png            [KEEP CURRENT]
+    │       └── layer-3-front.png             [KEEP CURRENT]
     └── reference/
         ├── GSX2026-Coin-Back.png
         └── coin-front.png

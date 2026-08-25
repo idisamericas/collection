@@ -1,15 +1,14 @@
-BUILD 36 DEPLOYMENT
+BUILD 37 DEPLOYMENT CHECKLIST
 
 REPLACE:
 [ ] index.html
 [ ] ar.js
 [ ] styles.css
 
-OPTIONAL:
-[ ] abstract-background-preview.html
-[ ] camera-test.html
+ADD:
+[ ] assets/audio/state-voiceover.mp3
 
-KEEP/COPY:
+KEEP:
 [ ] assets/ui/idis-logo.png
 [ ] assets/targets/gsx2026-two-sided.mind
 [ ] assets/video/idis-showcase-alpha.webm
@@ -17,21 +16,16 @@ KEEP/COPY:
 [ ] assets/parallax/atlanta/layer-2-middle.png
 [ ] assets/parallax/atlanta/layer-3-front.png
 
-NOT USED:
-[ ] idis-sphere-360.mp4
-[ ] sphere-mode-preview.html
+ATLANTA TEST:
+[ ] Scan Atlanta side
+[ ] voiceover starts at presentation unlock
+[ ] layers reveal normally
+[ ] no 30-second timer visible
+[ ] drag/pinch/tilt still work
+[ ] MP3 ending triggers Thank You card
+[ ] opposite-side scan stops voiceover
+[ ] close button stops voiceover
+[ ] returning to Atlanta starts voiceover from beginning
 
-TEST:
-[ ] Start Experience
-[ ] Camera
-[ ] Atlanta side
-[ ] IDIS transparent coin
-[ ] final frame freezes
-[ ] final frame hold
-[ ] dissolve to abstract background
-[ ] plus-symbol parallax
-[ ] phone tilt all directions
-[ ] drag / pinch
-[ ] One Solution. One Company.
-[ ] YouTube
-[ ] IDIS closing card
+IDIS TEST:
+[ ] Build 36 IDIS sequence remains unchanged

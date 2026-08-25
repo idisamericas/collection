@@ -1,10 +1,5 @@
-idis-logo.png is included.
+idis-logo.png is used for landing and closing screens.
 
-It is used on:
-- landing page
-- AR header
-- closing card
-
-The IDIS feature scene no longer uses a floating logo.
-It uses the foreground text:
+The IDIS feature scene uses:
 One Solution. One Company.
+instead of a floating IDIS logo.

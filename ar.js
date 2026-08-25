@@ -7,7 +7,7 @@
   target recognition; both presentations render as detached HTML/video.
 */
 
-console.info('[IDIS WebAR] Build 36 Abstract Parallax: 20260825-abstract36');
+console.info('[IDIS WebAR] Build 37 State Voiceover: 20260825-statevoice37');
 
 document.addEventListener('DOMContentLoaded', () => {
   const scene = document.querySelector('#ar-scene');
@@ -43,7 +43,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const gestureSurface = document.querySelector('#presentation-gesture-surface');
   const presentationUI = document.querySelector('#presentation-ui');
-  const presentationSeconds = document.querySelector('#presentation-seconds');
+
+  const atlantaVoiceover =
+    document.querySelector('#atlanta-voiceover');
 
   const idisCinematic = document.querySelector('#idis-cinematic');
   const idisAbstractBg = document.querySelector('#idis-abstract-bg');
@@ -70,7 +72,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const TARGET_FILE = './assets/targets/gsx2026-two-sided.mind';
 
-  const PRESENTATION_MS = 30000; // Atlanta keeps the 30-second interactive timer.
   const HOME_DELAY_MS = 3000;
 
   // IDIS is now media-driven.
@@ -99,11 +100,9 @@ document.addEventListener('DOMContentLoaded', () => {
   // null = scanner mode. atlanta/idis = interactive presentation mode.
   let currentSide = null;
 
-  // Presentation timing.
-  let presentationStartedAt = 0;
-  let presentationDeadline = 0;
-  let presentationTimeout = null;
-  let countdownRAF = 0;
+  // Atlanta / state voiceover.
+  let atlantaVoiceoverPrimed = false;
+  let atlantaVoiceoverPlaying = false;
 
   let endCardTimer = null;
   let endCardFadeTimer = null;
@@ -1192,19 +1191,175 @@ document.addEventListener('DOMContentLoaded', () => {
     } catch (_) {}
   }
 
+  function warmAudio(audio) {
+    if (!audio) return;
+
+    try {
+      audio.preload = 'auto';
+
+      if (audio.readyState < 2) {
+        audio.load();
+      }
+    } catch (_) {}
+  }
+
   function scheduleMediaWarmup() {
     if (mediaWarmupScheduled) return;
     mediaWarmupScheduled = true;
 
     const warm = () => {
       warmVideo(layerBack);
-      setTimeout(() => warmVideo(idisShowcaseVideo), 500);
+      warmAudio(atlantaVoiceover);
+
+      setTimeout(
+        () => warmVideo(idisShowcaseVideo),
+        500
+      );
     };
 
     if ('requestIdleCallback' in window) {
       window.requestIdleCallback(warm, { timeout: 1400 });
     } else {
       setTimeout(warm, 900);
+    }
+  }
+
+  /* ------------------------------------------------------------------------
+     ATLANTA / STATE VOICEOVER
+
+     state-voiceover.mp3 is the master duration for targetIndex 0.
+     There is no fixed presentation timer.
+  ------------------------------------------------------------------------ */
+
+  function prepareAtlantaVoiceover() {
+    if (!atlantaVoiceover) return;
+
+    try {
+      atlantaVoiceover.preload = 'auto';
+      atlantaVoiceover.loop = false;
+      atlantaVoiceover.volume = 1;
+      atlantaVoiceover.playsInline = true;
+      atlantaVoiceover.setAttribute(
+        'playsinline',
+        ''
+      );
+    } catch (_) {}
+  }
+
+  function primeAtlantaVoiceover() {
+    if (
+      !atlantaVoiceover ||
+      atlantaVoiceoverPrimed
+    ) {
+      return;
+    }
+
+    prepareAtlantaVoiceover();
+
+    /*
+      Mobile browsers prefer audio to be touched by the original
+      START THE EXPERIENCE gesture. Prime this exact audio element silently
+      and reset it before the coin is scanned.
+    */
+    try {
+      atlantaVoiceover.muted = true;
+      atlantaVoiceover.currentTime = 0;
+
+      const playPromise =
+        atlantaVoiceover.play();
+
+      if (
+        playPromise &&
+        typeof playPromise.then === 'function'
+      ) {
+        playPromise
+          .then(() => {
+            try {
+              atlantaVoiceover.pause();
+              atlantaVoiceover.currentTime = 0;
+              atlantaVoiceover.muted = false;
+              atlantaVoiceoverPrimed = true;
+            } catch (_) {}
+          })
+          .catch(error => {
+            console.warn(
+              'Atlanta voiceover prime warning:',
+              error
+            );
+
+            try {
+              atlantaVoiceover.muted = false;
+            } catch (_) {}
+          });
+      } else {
+        try {
+          atlantaVoiceover.pause();
+          atlantaVoiceover.currentTime = 0;
+          atlantaVoiceover.muted = false;
+          atlantaVoiceoverPrimed = true;
+        } catch (_) {}
+      }
+    } catch (error) {
+      console.warn(
+        'Atlanta voiceover prime warning:',
+        error
+      );
+    }
+  }
+
+  function stopAtlantaVoiceover(reset = true) {
+    atlantaVoiceoverPlaying = false;
+
+    if (!atlantaVoiceover) return;
+
+    try {
+      atlantaVoiceover.pause();
+    } catch (_) {}
+
+    if (reset) {
+      try {
+        atlantaVoiceover.currentTime = 0;
+      } catch (_) {}
+    }
+  }
+
+  function startAtlantaVoiceover() {
+    if (!atlantaVoiceover) {
+      console.warn(
+        'Atlanta voiceover element is missing.'
+      );
+      return;
+    }
+
+    prepareAtlantaVoiceover();
+    stopAtlantaVoiceover(true);
+
+    try {
+      atlantaVoiceover.muted = false;
+      atlantaVoiceover.currentTime = 0;
+    } catch (_) {}
+
+    const playPromise =
+      atlantaVoiceover.play();
+
+    if (
+      playPromise &&
+      typeof playPromise.then === 'function'
+    ) {
+      playPromise
+        .then(() => {
+          atlantaVoiceoverPlaying = true;
+        })
+        .catch(error => {
+          atlantaVoiceoverPlaying = false;
+
+          console.warn(
+            'Atlanta voiceover could not autoplay:',
+            error
+          );
+        });
+    } else {
+      atlantaVoiceoverPlaying = true;
     }
   }
 
@@ -1260,6 +1415,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     clearBackVideoTimer();
     stopBackVideo(true);
+    stopAtlantaVoiceover(true);
 
     overlay.classList.remove('is-visible');
     overlay.classList.add('hidden');
@@ -1287,6 +1443,9 @@ document.addEventListener('DOMContentLoaded', () => {
     overlay.classList.add('is-visible');
 
     revealStartedAt = performance.now();
+
+    // The voiceover and visual reveal start from the same presentation unlock.
+    startAtlantaVoiceover();
 
     // Staged reveal:
     // 0.0s -> 1.0s = front/top fades in
@@ -2888,7 +3047,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
      targetFound remains the primary switch trigger. This second path watches
      MindAR's target entity visibility so an opposite face can interrupt the
-     detached 30-second presentation even on phones where a second targetFound
+     detached media-driven presentation even on phones where a second targetFound
      callback is slow or inconsistent.
 
      maxTrack:2 is enabled on the scene.
@@ -2952,57 +3111,16 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   /* ------------------------------------------------------------------------
-     30 SECOND PRESENTATION SESSION
+     MEDIA-DRIVEN PRESENTATION SESSION
+
+     Atlanta ends from the MP3 `ended` event.
+     IDIS ends from its own cinematic media sequence.
+     No fixed countdown remains.
   ------------------------------------------------------------------------ */
 
   function clearPresentationTimer() {
-    if (presentationTimeout) {
-      clearTimeout(presentationTimeout);
-      presentationTimeout = null;
-    }
-
-    cancelAnimationFrame(countdownRAF);
-    countdownRAF = 0;
-  }
-
-  function updateCountdown() {
-    if (!currentSide || !presentationDeadline) {
-      countdownRAF = 0;
-      return;
-    }
-
-    const remaining = Math.max(
-      0,
-      presentationDeadline - performance.now()
-    );
-
-    presentationSeconds.textContent =
-      String(Math.ceil(remaining / 1000));
-
-    if (remaining > 0) {
-      countdownRAF =
-        requestAnimationFrame(updateCountdown);
-    } else {
-      countdownRAF = 0;
-    }
-  }
-
-  function startPresentationTimer() {
-    clearPresentationTimer();
-
-    presentationStartedAt = performance.now();
-    presentationDeadline =
-      presentationStartedAt + PRESENTATION_MS;
-
-    presentationSeconds.textContent = '30';
-
-    presentationTimeout = setTimeout(() => {
-      presentationTimeout = null;
-      endPresentationToScan();
-    }, PRESENTATION_MS);
-
-    countdownRAF =
-      requestAnimationFrame(updateCountdown);
+    // Legacy cleanup hook intentionally retained for safe call-site reuse.
+    // There is no fixed presentation timer in Build 37.
   }
 
   function hideAllPresentations(options = {}) {
@@ -3022,14 +3140,6 @@ document.addEventListener('DOMContentLoaded', () => {
     currentSide = null;
     oppositeVisibleSince = 0;
     resetGestureState();
-
-    const timerChip =
-      presentationSeconds &&
-      presentationSeconds.closest('.presentation-timer');
-
-    if (timerChip) {
-      timerChip.style.display = '';
-    }
 
     // Camera + MindAR stay live underneath.
     setARUI(true);
@@ -3063,11 +3173,11 @@ document.addEventListener('DOMContentLoaded', () => {
   function beginPresentation(side) {
     if (!active || endCardActive) return;
 
-    // If the same face is recognized again during its 30-second session,
-    // do nothing. It does NOT restart the timer.
+    // If the same face is recognized again during its active media session,
+    // do nothing. It does not restart the voiceover or cinematic sequence.
     if (currentSide === side) return;
 
-    // A DIFFERENT face immediately cuts the previous timer short.
+    // A different face immediately replaces the active presentation.
     clearPresentationTimer();
     hideAllPresentations();
 
@@ -3082,25 +3192,12 @@ document.addEventListener('DOMContentLoaded', () => {
     hideScanUI();
     showPresentationControls();
 
-    const timerChip =
-      presentationSeconds &&
-      presentationSeconds.closest('.presentation-timer');
-
     if (side === 'atlanta') {
-      // Atlanta remains the existing 30-second interactive experience.
-      if (timerChip) {
-        timerChip.style.display = '';
-      }
-
+      // Atlanta duration is now driven entirely by state-voiceover.mp3.
       showAtlantaPresentation();
-      startPresentationTimer();
     } else {
-      // IDIS duration is driven by its media sequence.
+      // IDIS duration is driven by its cinematic media sequence.
       clearPresentationTimer();
-
-      if (timerChip) {
-        timerChip.style.display = 'none';
-      }
 
       // Run the detached IDIS cinematic sequence plus the live preserve-3D
       // phone/drag parallax render loop.
@@ -3137,6 +3234,10 @@ document.addEventListener('DOMContentLoaded', () => {
   async function startAR() {
     if (starting || active) return;
 
+    // Prime the state-side MP3 while this function still has the original
+    // START THE EXPERIENCE user gesture. Do this before any await.
+    primeAtlantaVoiceover();
+
     // Request motion access while we are still inside the user's Start AR tap.
     // On Android this usually resolves without a prompt; on iPhone Safari
     // this is where iOS may ask for Motion & Orientation access.
@@ -3160,6 +3261,7 @@ document.addEventListener('DOMContentLoaded', () => {
     hideError();
     hideEndCard();
     clearPresentationTimer();
+    stopAtlantaVoiceover(true);
     hideAllPresentations();
     hidePresentationControls();
     currentSide = null;
@@ -3239,6 +3341,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     hideEndCard();
     clearPresentationTimer();
+    stopAtlantaVoiceover(true);
     hideAllPresentations();
     hidePresentationControls();
     stopSwitchWatcher();
@@ -3273,6 +3376,38 @@ document.addEventListener('DOMContentLoaded', () => {
   /* ------------------------------------------------------------------------
      EVENTS
   ------------------------------------------------------------------------ */
+
+  // Atlanta / State voiceover media events.
+  if (atlantaVoiceover) {
+    prepareAtlantaVoiceover();
+
+    atlantaVoiceover.addEventListener(
+      'ended',
+      () => {
+        atlantaVoiceoverPlaying = false;
+
+        if (
+          active &&
+          currentSide === 'atlanta' &&
+          !endCardActive
+        ) {
+          endPresentationToScan();
+        }
+      }
+    );
+
+    atlantaVoiceover.addEventListener(
+      'error',
+      () => {
+        atlantaVoiceoverPlaying = false;
+
+        console.warn(
+          'state-voiceover.mp3 could not be loaded. ' +
+          'Keep it at assets/audio/state-voiceover.mp3.'
+        );
+      }
+    );
+  }
 
   // IDIS cinematic media events.
   if (idisShowcaseVideo) {

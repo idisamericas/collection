@@ -2,21 +2,15 @@ IDIS VIDEO ASSETS
 
 REQUIRED:
 assets/video/idis-showcase-alpha.webm
-- transparent opening showcase
-- VP9 WebM + alpha preferred
-- 1080p or smaller
-- 30 fps
-- no audio
 
-SPHERE:
-assets/video/idis-sphere-360.mp4
-- 2:1 equirectangular
-- recommended 2048 x 1024
-- H.264
-- 30 fps
-- no audio
-- web optimized / fast start
+BUILD 36 IDIS FLOW:
+1. WebM plays
+2. final frame freezes
+3. frame holds ~1.2 seconds
+4. coin dissolves over ~1.6 seconds
+5. abstract teal/blue plus-symbol environment remains
 
-YOUTUBE FEATURE:
+NO SPHERE VIDEO IS USED OR REFERENCED.
+
+YOUTUBE:
 https://youtu.be/G7vGMc4Z2os
-No local feature MP4 is required.
