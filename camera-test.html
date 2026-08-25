@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <meta name="theme-color" content="#02070a" />
+  <title>IDIS AR Camera Test</title>
+  <style>
+    * { box-sizing: border-box; }
+    html, body { margin: 0; min-height: 100%; background: #02070a; color: #fff; font-family: Arial, Helvetica, sans-serif; }
+    body { padding: 18px; }
+    main { width: min(760px, 100%); margin: 0 auto; }
+    h1 { margin: 8px 0; font-size: clamp(28px,7vw,52px); }
+    p { color: rgba(255,255,255,.72); line-height: 1.5; }
+    .video-wrap {
+      position: relative; width: 100%; aspect-ratio: 9/16; max-height: 70vh;
+      margin: 18px 0; overflow: hidden; border-radius: 18px; background: #061316;
+      border: 1px solid rgba(255,255,255,.10);
+    }
+    video { width: 100%; height: 100%; object-fit: cover; }
+    .status {
+      position: absolute; left: 12px; right: 12px; bottom: 12px; padding: 10px 12px;
+      border-radius: 12px; background: rgba(0,0,0,.58); backdrop-filter: blur(8px); font-size: 13px;
+    }
+    .actions { display: flex; gap: 10px; flex-wrap: wrap; }
+    button, a {
+      min-height: 46px; padding: 0 17px; display: inline-flex; align-items: center;
+      justify-content: center; border-radius: 999px; border: 1px solid rgba(255,255,255,.16);
+      color: #fff; background: #0c3438; font: inherit; font-weight: 700; text-decoration: none; cursor: pointer;
+    }
+    .secondary { background: transparent; }
+    pre {
+      white-space: pre-wrap; overflow-wrap: anywhere; color: #cfe9e8; background: #061316;
+      padding: 14px; border-radius: 14px; border: 1px solid rgba(255,255,255,.08);
+    }
+  </style>
+</head>
+<body>
+<main>
+  <div style="font-size:12px;letter-spacing:.12em;opacity:.62">IDIS WEBAR DIAGNOSTIC</div>
+  <h1>Camera Test</h1>
+  <p>This tests browser camera access only. If this works but AR does not, the issue is in tracking rather than camera permission.</p>
+  <div class="video-wrap">
+    <video id="camera" autoplay muted playsinline></video>
+    <div id="status" class="status">Camera has not started.</div>
+  </div>
+  <div class="actions">
+    <button id="start" type="button">START REAR CAMERA</button>
+    <button id="stop" class="secondary" type="button">STOP</button>
+    <a class="secondary" href="./">RETURN TO AR</a>
+  </div>
+  <pre id="details">Waiting for camera…</pre>
+</main>
+<script>
+(() => {
+  const video = document.querySelector('#camera');
+  const status = document.querySelector('#status');
+  const details = document.querySelector('#details');
+  let stream = null;
+
+  async function stopCamera() {
+    if (stream) stream.getTracks().forEach(track => track.stop());
+    stream = null;
+    video.srcObject = null;
+    status.textContent = 'Camera stopped.';
+  }
+
+  async function startCamera() {
+    await stopCamera();
+    status.textContent = 'Requesting rear camera…';
+    try {
+      stream = await navigator.mediaDevices.getUserMedia({
+        audio: false,
+        video: {
+          facingMode: { ideal: 'environment' },
+          width: { ideal: 1920 },
+          height: { ideal: 1080 },
+          frameRate: { ideal: 30, max: 30 }
+        }
+      });
+      video.srcObject = stream;
+      await video.play();
+      const track = stream.getVideoTracks()[0];
+      const settings = track && track.getSettings ? track.getSettings() : {};
+      status.textContent = `Camera ready • ${video.videoWidth || settings.width || 0} × ${video.videoHeight || settings.height || 0}`;
+      details.textContent = JSON.stringify({
+        secureContext: window.isSecureContext,
+        settings,
+        userAgent: navigator.userAgent
+      }, null, 2);
+    } catch (error) {
+      status.textContent = 'Camera error';
+      details.textContent = `${error.name}: ${error.message}`;
+      console.error(error);
+    }
+  }
+
+  document.querySelector('#start').addEventListener('click', startCamera);
+  document.querySelector('#stop').addEventListener('click', stopCamera);
+  addEventListener('pagehide', stopCamera);
+})();
+</script>
+</body>
+</html>

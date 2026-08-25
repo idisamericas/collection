@@ -1,0 +1,308 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="idis-build" content="20260821-sphere35" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" />
+  <meta name="theme-color" content="#02070a" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <link rel="preconnect" href="https://aframe.io" crossorigin />
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
+  <title>IDIS Americas | GSX 2026 AR Coin</title>
+  <meta name="description" content="Scan either side of the limited IDIS Americas GSX 2026 coin and unlock an augmented reality experience." />
+
+  <!-- Official MindAR A-Frame pairing used by the current documentation. -->
+  <!--
+    IMPORTANT: Do not add defer/async to these two scripts.
+    A-Frame must initialize before the browser upgrades <a-scene>, and
+    MindAR must execute only after the global AFRAME object exists.
+  -->
+  <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
+<link rel="stylesheet" href="./styles.css?v=20260821-sphere35" />
+  <script defer src="./ar.js?v=20260821-sphere35"></script>
+</head>
+<body>
+  <!--
+    IMPORTANT:
+    assets/targets/gsx2026-two-sided.mind must contain TWO targets in this exact order:
+      targetIndex 0 = Atlanta / Georgia side
+      targetIndex 1 = IDIS Americas side
+    See SETUP-TARGETS.html and README.md.
+  -->
+
+  <main id="app-ui" aria-live="polite">
+    <section id="intro" class="screen" aria-label="Start augmented reality experience">
+      <div class="intro-grid" aria-hidden="true"></div>
+      <div class="intro-glow glow-one" aria-hidden="true"></div>
+      <div class="intro-glow glow-two" aria-hidden="true"></div>
+
+      <div class="brand-lockup" aria-label="IDIS Americas">
+        <img class="idis-ui-logo intro-idis-logo"
+             src="./assets/ui/idis-logo.png?v=20260821-sphere35"
+             alt="IDIS Americas" />
+      </div>
+
+      <div class="intro-copy">
+        <div class="eyebrow">GSX 2026 • LIMITED COLLECTIBLE</div>
+        <h1>We See More<br />Than Security.</h1>
+        <p>
+          We see what matters. What connects us. What deserves to be protected.
+          Discover more with IDIS and take home something worth remembering.
+        </p>
+      </div>
+
+
+      <div class="guest-name-field">
+        <label for="guest-name">LET'S START WITH YOUR NAME</label>
+        <div class="guest-name-input-wrap">
+          <input id="guest-name"
+                 type="text"
+                 inputmode="text"
+                 autocomplete="name"
+                 maxlength="40"
+                 placeholder="Your name" />
+          <span id="guest-name-memory" class="guest-name-memory">REMEMBERED ON THIS DEVICE</span>
+        </div>
+      </div>
+
+      <div class="intro-actions">
+        <button id="start-ar" class="primary-button" type="button">
+          <span>START THE EXPERIENCE</span><b aria-hidden="true">↗</b>
+        </button>
+        <a class="secondary-link" href="./camera-test.html">CAMERA TEST</a>
+      </div>
+      <div class="privacy-note">Camera access is used only for the live AR experience.</div>
+    </section>
+
+    <header id="ar-header" class="ar-ui hidden">
+      <div class="mini-brand" aria-label="IDIS Americas">
+        <img class="idis-ui-logo header-idis-logo"
+             src="./assets/ui/idis-logo.png?v=20260821-sphere35"
+             alt="IDIS Americas" />
+      </div>
+      <button id="close-ar" class="icon-button" type="button" aria-label="Close augmented reality">×</button>
+    </header>
+
+    <div id="scan-status" class="ar-ui hidden" role="status">
+      <span class="status-dot" aria-hidden="true"></span>
+      <span id="status-copy">STARTING CAMERA</span>
+    </div>
+
+    <div id="scan-guide" class="ar-ui hidden" aria-hidden="true">
+      <div class="scan-ring"><span></span><span></span><span></span><span></span></div>
+      <div class="guide-copy">
+        <strong>SCAN EITHER SIDE</strong>
+        <span>Keep the coin centered and fill the circle</span>
+      </div>
+    </div>
+
+    <div id="side-chip" class="ar-ui side-chip hidden" aria-hidden="true">
+      <span id="side-chip-kicker">COIN SIDE</span>
+      <strong id="side-chip-copy">ATLANTA</strong>
+    </div>
+
+    <footer id="ar-footer" class="ar-ui hidden">
+      <div>
+        <span class="footer-kicker">GSX 2026</span>
+        <strong>ATLANTA, GEORGIA</strong>
+      </div>
+      <a href="https://idisamericas.com/" target="_blank" rel="noopener">EXPLORE IDIS <span>↗</span></a>
+    </footer>
+
+
+    <!--
+      Atlanta screen-upright parallax overlay.
+      These are normal HTML images, not planes parented to the coin.
+      That means they stay upright while the physical coin can rotate freely.
+    -->
+    <div id="atlanta-parallax" class="atlanta-parallax hidden" aria-hidden="true">
+      <div id="atlanta-background-wash" class="atlanta-background-wash"></div>
+      <div id="atlanta-parallax-stage" class="atlanta-parallax-stage">
+        <video id="atlanta-layer-back" class="atlanta-layer layer-back"
+               muted playsinline webkit-playsinline loop preload="metadata"
+               aria-hidden="true">
+          <source src="./assets/parallax/atlanta/layer-1-back.mp4?v=20260821-sphere35" type="video/mp4" />
+        </video>
+        <img id="atlanta-layer-middle" class="atlanta-layer layer-middle"
+             src="./assets/parallax/atlanta/layer-2-middle.png?v=20260821-sphere35" alt="" />
+        <img id="atlanta-layer-front" class="atlanta-layer layer-front"
+             src="./assets/parallax/atlanta/layer-3-front.png?v=20260821-sphere35" alt="" />
+      </div>
+    </div>
+
+
+
+    <!--
+      IDIS COIN FACE CINEMATIC SEQUENCE
+
+      1. IDIS face is recognized.
+      2. Transparent showcase video plays.
+      3. Its final frame freezes briefly.
+      4. A 360 video sphere fades in and the frozen WebM dissolves away.
+      5. "One Solution. One Company." and the YouTube feature float in front.
+      6. Personalized six-second end card finishes the experience.
+    -->
+    <div id="idis-cinematic"
+         class="idis-cinematic cinematic-hidden"
+         aria-hidden="true">
+
+      <!--
+        IDIS immersive safety background.
+        Current production behavior begins fading about 4 seconds into the
+        showcase and reaches full opacity over about 1.8 seconds.
+      -->
+      <div id="idis-cinematic-backdrop"
+           class="idis-cinematic-backdrop"
+           aria-hidden="true"></div>
+
+      <!--
+        IMMERSIVE SPHERE MODE
+        Preferred source: a 2:1 equirectangular 360 video.
+        Upload to: assets/video/idis-sphere-360.mp4
+
+        If that file is not available, the current WebM is used as a visual
+        fallback so the sphere system can still be tested. A normal flat WebM
+        will look stretched because it was not authored as a 360 panorama.
+      -->
+      <canvas id="idis-sphere-canvas"
+              class="idis-sphere-canvas cinematic-hidden"
+              aria-hidden="true"></canvas>
+
+      <video id="idis-sphere-video"
+             class="idis-sphere-video-source"
+             muted loop playsinline webkit-playsinline preload="none"
+             aria-hidden="true">
+        <source src="./assets/video/idis-sphere-360.mp4?v=20260821-sphere35"
+                type="video/mp4" />
+        <source src="./assets/video/idis-showcase-alpha.webm?v=20260821-sphere35"
+                type="video/webm" />
+      </video>
+
+      <!-- Visible transparent/composited showcase surface. -->
+      <canvas id="idis-showcase-canvas"
+              class="idis-showcase-canvas cinematic-hidden"
+              aria-hidden="true"></canvas>
+
+      <!--
+        Hidden decoder source.
+        WebGL draws this video onto the transparent canvas above.
+        This lets us preserve real VP9 alpha AND remove an accidentally
+        baked black background when the WebM was exported without alpha.
+      -->
+      <video id="idis-showcase-video"
+             class="idis-showcase-video-source"
+             muted playsinline webkit-playsinline preload="metadata"
+             aria-hidden="true">
+        <source src="./assets/video/idis-showcase-alpha.webm?v=20260821-sphere35"
+                type="video/webm" />
+      </video>
+
+      <div id="idis-feature-overlay"
+           class="idis-feature-overlay cinematic-hidden"
+           aria-hidden="true">
+
+        <!--
+          Preserve-3D stage:
+          - YouTube sits on the lower depth plane.
+          - "One Solution. One Company." sits farthest forward.
+        -->
+        <div id="idis-feature-stage"
+             class="idis-feature-stage">
+
+          <div id="idis-feature-video-layer"
+               class="idis-feature-video-layer">
+            <!--
+              This wrapper NEVER gets replaced by YouTube.
+              The YouTube API only replaces the inner player node.
+            -->
+            <div id="idis-feature-video-wrap"
+                 class="idis-feature-video">
+              <div id="idis-youtube-player"
+                   class="idis-youtube-player"
+                   data-youtube-id="G7vGMc4Z2os"
+                   aria-label="IDIS feature video"></div>
+            </div>
+          </div>
+
+          <div id="idis-feature-logo-layer"
+               class="idis-feature-logo-layer">
+            <div id="idis-feature-logo"
+                 class="idis-feature-logo"
+                 aria-label="One Solution. One Company.">
+              One Solution. One Company.
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+
+
+    <div id="end-card"
+         class="end-card hidden"
+         aria-live="polite"
+         aria-hidden="true">
+      <div class="end-card-bg"></div>
+      <div class="end-card-content">
+        <img class="end-card-logo"
+             src="./assets/ui/idis-logo.png?v=20260821-sphere35"
+             alt="IDIS Americas" />
+        <div id="personalized-thanks-line1" class="end-card-line1">Thank you,</div>
+        <div id="personalized-thanks-line2" class="end-card-line2">Guest</div>
+        <div class="end-card-tagline-wrap">
+          <div class="end-card-divider" aria-hidden="true"></div>
+          <div class="end-card-tagline">SEE SECURITY SMARTER</div>
+        </div>
+      </div>
+    </div>
+
+<!-- Interactive scene controls shown only after a coin face has been recognized. -->
+    <div id="presentation-ui" class="presentation-ui hidden" aria-hidden="true">
+      <div class="presentation-hint">DRAG • PINCH TO EXPLORE</div>
+      <div class="presentation-timer"><span id="presentation-seconds">30</span>s</div>
+    </div>
+
+    <div id="presentation-gesture-surface"
+         class="presentation-gesture-surface hidden"
+         aria-label="Interactive AR scene. Drag to move and pinch to zoom."></div>
+
+    <div id="error-card" class="error-card hidden" role="alert">
+      <button id="error-close" class="error-close" type="button" aria-label="Close error">×</button>
+      <strong id="error-title">AR could not start.</strong>
+      <p id="error-copy">Please allow camera access and reload the experience.</p>
+      <div class="error-actions">
+        <button id="retry-ar" type="button">TRY AGAIN</button>
+        <a id="setup-link" href="./SETUP-TARGETS.html">TARGET SETUP</a>
+      </div>
+    </div>
+  </main>
+
+  <!--
+    Dedicated AR stacking container.
+    MindAR appends its live camera <video> to sceneEl.parentNode, so keeping
+    the camera video and A-Frame scene inside one wrapper prevents the live
+    feed from being hidden behind the page or WebGL layer.
+  -->
+  <div id="ar-container" aria-hidden="true">
+  <a-scene
+    id="ar-scene"
+    class="ar-stage"
+    mindar-image="imageTargetSrc: ./assets/targets/gsx2026-two-sided.mind; autoStart: false; uiLoading: no; uiError: no; uiScanning: no; filterMinCF: 0.0001; filterBeta: 0.001; warmupTolerance: 8; missTolerance: 20; maxTrack: 2;"
+    color-space="sRGB"
+    renderer="colorManagement: true; alpha: true; antialias: false;"
+    vr-mode-ui="enabled: false"
+    device-orientation-permission-ui="enabled: false"
+    loading-screen="enabled: false"
+    embedded>
+<a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
+
+    <!-- Target order must match the order used in the MindAR compiler. -->
+    <a-entity id="atlanta-target" mindar-image-target="targetIndex: 0"></a-entity>
+    <a-entity id="idis-target" mindar-image-target="targetIndex: 1"></a-entity>
+  </a-scene>
+  </div>
+</body>
+</html>

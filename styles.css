@@ -1,0 +1,1788 @@
+:root {
+  --idis-teal: #18c9c3;
+  --idis-teal-soft: #65fff1;
+  --idis-purple: #8b5cff;
+  --idis-purple-soft: #c1a8ff;
+  --ink: #02070a;
+  --panel: rgba(4, 11, 15, 0.72);
+  --white: #f4f8f9;
+  --muted: rgba(244, 248, 249, 0.68);
+}
+
+* { box-sizing: border-box; }
+html, body { width: 100%; height: 100%; margin: 0; overflow: hidden; background: var(--ink); }
+body { font-family: Inter, Aptos, "Segoe UI", Arial, sans-serif; color: var(--white); touch-action: manipulation; }
+button, a { font: inherit; -webkit-tap-highlight-color: transparent; }
+button { cursor: pointer; }
+
+/* --------------------------------------------------------------------------
+   CAMERA / A-FRAME LAYERING
+   --------------------------------------------------------------------------
+   MindAR creates its camera <video> as a child of the A-Frame scene's parent.
+   A dedicated wrapper keeps the camera video, transparent WebGL canvas and HUD
+   in predictable layers on iOS, Android and desktop browsers.
+*/
+#ar-container {
+  position: fixed !important;
+  inset: 0 !important;
+  width: 100vw !important;
+  height: 100dvh !important;
+  min-height: 100vh;
+  overflow: hidden !important;
+  z-index: 1 !important;
+  background: #000 !important;
+  pointer-events: none !important;
+}
+
+#ar-scene {
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  z-index: 2 !important;
+  background: transparent !important;
+  pointer-events: none !important;
+}
+
+/* MindAR calculates top/left/width/height to keep tracking aligned.
+   We leave that geometry alone and only control visibility/layering. */
+#ar-container > video {
+  position: absolute !important;
+  z-index: 1 !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  display: block !important;
+  background: transparent !important;
+  pointer-events: none !important;
+}
+
+#ar-scene .a-canvas,
+#ar-container .a-canvas,
+.a-canvas {
+  position: absolute !important;
+  z-index: 2 !important;
+  background: transparent !important;
+  background-color: transparent !important;
+  pointer-events: none !important;
+}
+
+#app-ui {
+  position: fixed;
+  inset: 0;
+  z-index: 100000 !important;
+  pointer-events: none;
+}
+.screen, .ar-ui, .error-card { pointer-events: auto; }
+.hidden { opacity: 0 !important; visibility: hidden !important; pointer-events: none !important; }
+
+/* --------------------------------------------------------------------------
+   INTRO
+*/
+#intro {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  padding: max(28px, env(safe-area-inset-top)) 26px max(24px, env(safe-area-inset-bottom));
+  background:
+    radial-gradient(circle at 18% 18%, rgba(24,201,195,.18), transparent 32%),
+    radial-gradient(circle at 82% 74%, rgba(139,92,255,.18), transparent 34%),
+    linear-gradient(145deg, #020507 0%, #071116 52%, #04080b 100%);
+  transition: opacity .34s ease, visibility .34s ease;
+  overflow: hidden;
+}
+.intro-grid {
+  position: absolute;
+  inset: 0;
+  opacity: .12;
+  pointer-events: none;
+  background-image:
+    linear-gradient(rgba(255,255,255,.08) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.08) 1px, transparent 1px);
+  background-size: 42px 42px;
+  -webkit-mask-image: linear-gradient(to bottom, transparent, black 20%, black 76%, transparent);
+  mask-image: linear-gradient(to bottom, transparent, black 20%, black 76%, transparent);
+}
+.intro-glow { position:absolute; border-radius:50%; filter: blur(70px); pointer-events:none; opacity:.45; }
+.glow-one { width:240px; height:240px; background:rgba(24,201,195,.24); left:-100px; top:12%; }
+.glow-two { width:280px; height:280px; background:rgba(139,92,255,.20); right:-130px; bottom:12%; }
+
+.brand-lockup, .mini-brand { position: relative; z-index: 2; display: flex; align-items: center; gap: 11px; letter-spacing: .02em; }
+.brand-lockup > div { display: flex; align-items: baseline; gap: 8px; }
+.brand-lockup strong { font-size: 25px; letter-spacing: .025em; }
+.brand-lockup span:not(.brand-mark) { color: var(--idis-teal); font-weight: 700; font-size: 15px; }
+.brand-mark { display: inline-flex; width: 29px; height: 29px; position: relative; transform: rotate(-45deg); }
+.brand-mark i { position: absolute; width: 18px; height: 9px; border-radius: 2px; background: var(--idis-teal); box-shadow: 0 0 18px rgba(24,201,195,.28); }
+.brand-mark i:first-child { left: 0; top: 4px; }
+.brand-mark i:last-child { right: 0; bottom: 4px; }
+.brand-mark.mini { width: 18px; height: 18px; }
+.brand-mark.mini i { width: 12px; height: 6px; }
+
+.intro-copy { position: relative; z-index: 2; margin-top: auto; max-width: 620px; }
+.eyebrow { color: var(--idis-teal); font-size: 11px; font-weight: 800; letter-spacing: .19em; margin-bottom: 12px; }
+.intro-copy h1 { margin: 0; font-size: clamp(48px, 13vw, 88px); line-height: .88; letter-spacing: -.055em; font-weight: 720; }
+.intro-copy p { margin: 22px 0 0; max-width: 560px; color: var(--muted); font-size: 15px; line-height: 1.55; }
+.intro-copy p strong { color: var(--white); }
+.intro-actions { position: relative; z-index: 2; display: flex; align-items: center; gap: 14px; margin-top: 30px; }
+.primary-button { flex: 1; min-width: 0; border: 1px solid rgba(101,255,241,.34); background: linear-gradient(100deg, rgba(24,201,195,.20), rgba(139,92,255,.15)); color: white; padding: 18px 18px; border-radius: 16px; display: flex; justify-content: space-between; align-items: center; font-size: 11px; font-weight: 800; letter-spacing: .12em; backdrop-filter: blur(16px); box-shadow: 0 16px 60px rgba(0,0,0,.25); }
+.primary-button b { font-size: 22px; color: var(--idis-teal-soft); }
+.secondary-link { color: rgba(255,255,255,.65); text-decoration: none; font-size: 10px; font-weight: 800; letter-spacing:.12em; white-space:nowrap; }
+.privacy-note { position: relative; z-index: 2; margin-top: 10px; text-align: center; color: rgba(255,255,255,.42); font-size: 10px; }
+
+/* --------------------------------------------------------------------------
+   LIVE AR HUD
+*/
+#ar-header {
+  position: absolute;
+  left: 16px;
+  right: 16px;
+  top: max(16px, env(safe-area-inset-top));
+  z-index: 100010;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: opacity .22s ease;
+}
+.mini-brand { gap: 7px; font-size: 13px; text-shadow: 0 2px 12px rgba(0,0,0,.85); }
+.mini-brand span:last-child { color: var(--idis-teal); font-weight: 700; font-size: 10px; }
+.icon-button {
+  position: relative;
+  z-index: 100020;
+  width: 46px;
+  height: 46px;
+  border: 1px solid rgba(255,255,255,.28);
+  border-radius: 50%;
+  color: white;
+  background: rgba(3,8,11,.74);
+  backdrop-filter: blur(14px);
+  box-shadow: 0 7px 24px rgba(0,0,0,.35);
+  font-size: 31px;
+  line-height: 40px;
+  display: grid;
+  place-items: center;
+  padding: 0 0 4px;
+  touch-action: manipulation;
+}
+.icon-button:active { transform: scale(.94); }
+
+#scan-status {
+  position: absolute;
+  z-index: 100005;
+  top: calc(max(16px, env(safe-area-inset-top)) + 58px);
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 13px;
+  border: 1px solid rgba(255,255,255,.16);
+  border-radius: 999px;
+  background: rgba(4,9,12,.62);
+  backdrop-filter: blur(13px);
+  color: rgba(255,255,255,.86);
+  font-size: 9px;
+  letter-spacing: .15em;
+  font-weight: 800;
+  white-space: nowrap;
+  transition: opacity .22s ease;
+}
+.status-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--idis-purple); box-shadow: 0 0 14px var(--idis-purple); animation: statusPulse 1.2s ease-in-out infinite; }
+#scan-status.locked .status-dot { background: var(--idis-teal); box-shadow: 0 0 14px var(--idis-teal); }
+#scan-status.error .status-dot { background: #ff6b6b; box-shadow: 0 0 14px #ff6b6b; }
+
+#scan-guide { position: absolute; z-index: 100001; inset: 0; display: grid; place-items: center; transition: opacity .30s ease; pointer-events:none; }
+.scan-ring { width: min(72vw, 410px); aspect-ratio: 1; border: 1px solid rgba(255,255,255,.30); border-radius: 50%; position: relative; box-shadow: inset 0 0 70px rgba(24,201,195,.055), 0 0 50px rgba(0,0,0,.12); }
+.scan-ring::before { content:""; position:absolute; inset:-7px; border-radius:50%; border:1px solid rgba(24,201,195,.28); animation: guidePulse 2s ease-out infinite; }
+.scan-ring::after { content:""; position:absolute; inset:15%; border-radius:50%; border:1px dashed rgba(139,92,255,.22); animation: guideRotate 14s linear infinite; }
+.scan-ring span { position: absolute; width: 46px; height: 46px; border-color: var(--idis-teal); filter: drop-shadow(0 0 6px rgba(24,201,195,.4)); }
+.scan-ring span:nth-child(1) { left: 8%; top: 8%; border-left: 2px solid; border-top: 2px solid; border-radius: 12px 0 0 0; }
+.scan-ring span:nth-child(2) { right: 8%; top: 8%; border-right: 2px solid; border-top: 2px solid; border-radius: 0 12px 0 0; }
+.scan-ring span:nth-child(3) { left: 8%; bottom: 8%; border-left: 2px solid; border-bottom: 2px solid; border-radius: 0 0 0 12px; }
+.scan-ring span:nth-child(4) { right: 8%; bottom: 8%; border-right: 2px solid; border-bottom: 2px solid; border-radius: 0 0 12px 0; }
+.guide-copy { position: absolute; width: 100%; top: calc(50% + min(39vw, 225px)); display:flex; flex-direction:column; align-items:center; gap:5px; text-shadow:0 2px 8px rgba(0,0,0,.9); }
+.guide-copy strong { color: rgba(255,255,255,.90); font-size: 10px; letter-spacing: .20em; }
+.guide-copy span { color: rgba(255,255,255,.57); font-size: 10px; }
+
+.side-chip { position:absolute; z-index:100004; left:18px; top:calc(max(16px, env(safe-area-inset-top)) + 58px); padding:9px 11px; border-radius:11px; border:1px solid rgba(255,255,255,.14); background:rgba(4,9,12,.60); backdrop-filter:blur(12px); display:flex; flex-direction:column; gap:2px; }
+.side-chip span { font-size:7px; color:rgba(255,255,255,.52); letter-spacing:.17em; font-weight:800; }
+.side-chip strong { font-size:10px; color:var(--idis-teal-soft); letter-spacing:.08em; }
+
+#ar-footer {
+  position: absolute;
+  z-index: 100005;
+  left: 16px;
+  right: 16px;
+  bottom: max(16px, env(safe-area-inset-bottom));
+  padding: 13px 14px;
+  border-radius: 15px;
+  border: 1px solid rgba(255,255,255,.18);
+  background: rgba(4,9,12,.66);
+  backdrop-filter: blur(14px);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  transition: opacity .22s ease;
+}
+#ar-footer > div { display: flex; flex-direction: column; gap: 2px; }
+.footer-kicker { color: var(--idis-teal); font-size: 9px; letter-spacing: .18em; font-weight: 800; }
+#ar-footer strong { font-size: 12px; letter-spacing: .04em; }
+#ar-footer a { color: white; text-decoration: none; font-size: 9px; font-weight: 800; letter-spacing: .10em; white-space: nowrap; }
+#ar-footer a span { color: var(--idis-teal); font-size: 16px; }
+
+/* --------------------------------------------------------------------------
+   ERROR / SETUP STATE
+*/
+.error-card {
+  position: absolute;
+  z-index: 100030;
+  left: 20px;
+  right: 20px;
+  bottom: max(20px, env(safe-area-inset-bottom));
+  padding: 20px;
+  border: 1px solid rgba(255,255,255,.18);
+  border-radius: 18px;
+  background: rgba(6,12,16,.96);
+  backdrop-filter: blur(18px);
+  box-shadow: 0 18px 80px rgba(0,0,0,.5);
+  transition: opacity .22s ease;
+}
+.error-close { position:absolute; right:10px; top:9px; width:34px; height:34px; border:0; border-radius:50%; background:rgba(255,255,255,.07); color:white; font-size:22px; }
+.error-card > strong { display:block; font-size: 17px; padding-right:34px; }
+.error-card p { color: var(--muted); line-height: 1.48; font-size: 12px; margin:8px 0 15px; }
+.error-actions { display:flex; gap:9px; }
+.error-actions button, .error-actions a { flex:1; padding:13px 10px; border-radius:11px; text-align:center; text-decoration:none; font-size:10px; font-weight:900; letter-spacing:.10em; }
+.error-actions button { border:0; background:var(--idis-teal); color:#041012; }
+.error-actions a { border:1px solid rgba(255,255,255,.17); background:rgba(255,255,255,.05); color:white; }
+
+.preview-page { background: #05090c; }
+.preview-note { position: fixed; z-index: 10; top: 18px; left: 18px; display: flex; flex-direction: column; padding: 11px 13px; border: 1px solid rgba(255,255,255,.14); border-radius: 12px; background: rgba(4,9,12,.66); color: white; backdrop-filter: blur(12px); }
+.preview-note b { color: var(--idis-teal); font-size: 10px; letter-spacing: .16em; }
+.preview-note span { margin-top: 4px; color: rgba(255,255,255,.62); font-size: 11px; }
+
+@keyframes statusPulse { 0%,100% { transform:scale(.85); opacity:.65 } 50% { transform:scale(1.2); opacity:1 } }
+@keyframes guidePulse { 0% { transform:scale(.96); opacity:0 } 35% { opacity:.70 } 100% { transform:scale(1.08); opacity:0 } }
+@keyframes guideRotate { to { transform:rotate(360deg); } }
+
+@media (min-width: 740px) {
+  #intro { padding-left: 7vw; padding-right: 7vw; }
+  .intro-actions { width: 540px; }
+  .privacy-note { width: 540px; text-align:left; }
+}
+
+@media (max-width: 420px) {
+  .secondary-link { display:none; }
+  #ar-footer { padding:11px 12px; }
+  #ar-footer strong { font-size:11px; }
+}
+
+
+/* --------------------------------------------------------------------------
+   ATLANTA SCREEN-UPRIGHT PARALLAX
+   The physical coin remains visible through transparent areas in the PNGs.
+---------------------------------------------------------------------------- */
+.atlanta-parallax {
+  position: fixed;
+  inset: 0;
+  z-index: 9000;
+  pointer-events: none;
+  overflow: hidden;
+  opacity: 1;
+  visibility: visible;
+}
+
+.atlanta-parallax.hidden {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  display: block !important;
+}
+
+.atlanta-layer {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 1920px;
+  height: 1920px;
+  max-width: none;
+  object-fit: contain;
+  transform-origin: 50% 50%;
+  opacity: 0;
+  will-change: transform, opacity;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  image-rendering: auto;
+  filter: none;
+}
+
+.atlanta-parallax.is-visible .layer-back,
+.atlanta-parallax.is-visible .layer-middle {
+  animation: idisLayerBaseReveal 760ms cubic-bezier(.22,.61,.36,1) forwards;
+}
+
+.atlanta-parallax.is-visible .layer-front {
+  animation: idisLayerFrontReveal 1550ms cubic-bezier(.16,.84,.26,1) 500ms forwards;
+}
+
+@keyframes idisLayerBaseReveal {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes idisLayerFrontReveal {
+  0%   { opacity: 0; }
+  15%  { opacity: .10; }
+  100% { opacity: 1; }
+}
+
+
+/* Back layer can now be a 1080x1080 MP4 instead of a PNG. */
+video.atlanta-layer {
+  background: transparent;
+  object-fit: contain;
+}
+
+video.atlanta-layer::-webkit-media-controls,
+video.atlanta-layer::-webkit-media-controls-enclosure,
+video.atlanta-layer::-webkit-media-controls-panel {
+  display: none !important;
+  -webkit-appearance: none;
+}
+
+
+/* --------------------------------------------------------------------------
+   OFFICIAL IDIS UI LOGO
+---------------------------------------------------------------------------- */
+.idis-ui-logo {
+  display: block;
+  object-fit: contain;
+  height: auto;
+  max-height: 100%;
+  filter: drop-shadow(0 4px 14px rgba(0,0,0,.45));
+}
+
+.intro-idis-logo {
+  width: 150px;
+  max-width: 42vw;
+}
+
+.header-idis-logo {
+  width: 92px;
+  max-width: 28vw;
+}
+
+.mini-brand {
+  min-height: 28px;
+  display: flex;
+  align-items: center;
+}
+
+@media (max-width: 390px) {
+  .intro-idis-logo { width: 132px; }
+  .header-idis-logo { width: 82px; }
+}
+
+
+/* ==========================================================================
+   MOBILE-STABLE STAGED REVEAL + GENTLE 3D PERSPECTIVE
+   Reveal opacity is controlled by JavaScript, not CSS animation timing.
+   This avoids mobile Safari/Chrome animation restarts and caching quirks.
+============================================================================ */
+.atlanta-parallax {
+  perspective: 1450px;
+  -webkit-perspective: 1450px;
+  perspective-origin: 50% 50%;
+  -webkit-perspective-origin: 50% 50%;
+}
+
+.atlanta-parallax-stage {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+  -webkit-transform-style: preserve-3d;
+  will-change: transform;
+  pointer-events: none;
+}
+
+.atlanta-parallax.is-visible .layer-front,
+.atlanta-parallax.is-visible .layer-middle,
+.atlanta-parallax.is-visible .layer-back {
+  animation: none !important;
+  -webkit-animation: none !important;
+}
+
+/* Let the 3 layers participate in the perspective transform. */
+.atlanta-layer {
+  transform-style: preserve-3d;
+  -webkit-transform-style: preserve-3d;
+}
+
+
+/* ==========================================================================
+   BUILD 13: STRONGER MOBILE 3D DEPTH
+============================================================================ */
+.atlanta-parallax {
+  /*
+    Smaller perspective distance = more noticeable 3D.
+    820px is intentionally stronger than the previous 1450px.
+  */
+  perspective: 820px !important;
+  -webkit-perspective: 820px !important;
+}
+
+.atlanta-parallax-stage {
+  transform-style: preserve-3d !important;
+  -webkit-transform-style: preserve-3d !important;
+  backface-visibility: visible;
+  -webkit-backface-visibility: visible;
+}
+
+.atlanta-layer {
+  transform-style: preserve-3d !important;
+  -webkit-transform-style: preserve-3d !important;
+  backface-visibility: visible;
+  -webkit-backface-visibility: visible;
+}
+
+
+/* ==========================================================================
+   BUILD 15: 30-SECOND INTERACTIVE SCENE MODE
+============================================================================ */
+
+/* Once a coin is recognized, this transparent surface owns touch gestures.
+   The header/close button remains above it because the HUD uses z-index >100000. */
+.presentation-gesture-surface {
+  position: fixed;
+  inset: 0;
+  z-index: 9500;
+  pointer-events: auto;
+  touch-action: none;
+  -webkit-user-select: none;
+  user-select: none;
+  overscroll-behavior: none;
+  background: transparent;
+}
+
+.presentation-gesture-surface.hidden {
+  display: none !important;
+}
+
+.presentation-ui {
+  position: fixed;
+  left: 50%;
+  bottom: max(22px, calc(env(safe-area-inset-bottom) + 14px));
+  transform: translateX(-50%);
+  z-index: 100000;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  color: rgba(255,255,255,.82);
+  text-shadow: 0 2px 10px rgba(0,0,0,.8);
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: .11em;
+  transition: opacity .28s ease;
+}
+
+.presentation-ui.hidden {
+  display: none !important;
+}
+
+.presentation-hint,
+.presentation-timer {
+  padding: 8px 10px;
+  border: 1px solid rgba(255,255,255,.15);
+  border-radius: 999px;
+  background: rgba(3,8,11,.52);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.presentation-timer {
+  min-width: 42px;
+  text-align: center;
+  color: rgba(101,255,241,.95);
+}
+
+/* The interactive Atlanta scene is now centered to the PHONE viewport,
+   not the last physical coin position. */
+.atlanta-parallax {
+  perspective-origin: 50% 50% !important;
+  -webkit-perspective-origin: 50% 50% !important;
+}
+
+/* Give the scene a deep-but-clean 3D stack while the user drags it. */
+.atlanta-parallax-stage {
+  transform-origin: 50% 50% 0 !important;
+  -webkit-transform-origin: 50% 50% 0 !important;
+}
+
+@media (max-width: 390px) {
+  .presentation-ui {
+    bottom: max(16px, calc(env(safe-area-inset-bottom) + 10px));
+  }
+  .presentation-hint {
+    font-size: 8px;
+  }
+}
+
+
+/* ==========================================================================
+   BUILD 16: DARK TEAL IMMERSIVE BACKGROUND + RELIABLE FACE SWITCHING
+============================================================================ */
+
+.atlanta-background-wash {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 50% 42%,
+      rgba(11, 63, 68, .98) 0%,
+      rgba(3, 35, 39, .985) 42%,
+      rgba(1, 18, 21, .995) 100%);
+  opacity: 0;
+  will-change: opacity;
+}
+
+.atlanta-parallax-stage {
+  z-index: 1;
+}
+
+
+/* ==========================================================================
+   BUILD 17: REMEMBERED GUEST NAME + PERSONALIZED CENTER MESSAGE
+============================================================================ */
+
+.guest-name-field {
+  position: relative;
+  z-index: 2;
+  margin-top: 24px;
+  width: min(100%, 420px);
+}
+
+.guest-name-field > label {
+  display: block;
+  margin: 0 0 7px 2px;
+  color: rgba(255,255,255,.62);
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: .14em;
+}
+
+.guest-name-input-wrap {
+  position: relative;
+}
+
+#guest-name {
+  display: block;
+  width: 100%;
+  min-height: 48px;
+  padding: 13px 15px;
+  border: 1px solid rgba(255,255,255,.16);
+  border-radius: 13px;
+  outline: none;
+  background: rgba(3,10,13,.56);
+  color: #fff;
+  font: inherit;
+  font-size: 16px;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.035),
+    0 10px 28px rgba(0,0,0,.16);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  transition:
+    border-color .2s ease,
+    background .2s ease,
+    box-shadow .2s ease;
+}
+
+#guest-name::placeholder {
+  color: rgba(255,255,255,.34);
+}
+
+#guest-name:focus {
+  border-color: rgba(101,255,241,.58);
+  background: rgba(3,18,21,.72);
+  box-shadow:
+    0 0 0 3px rgba(101,255,241,.08),
+    0 12px 30px rgba(0,0,0,.2);
+}
+
+.guest-name-memory {
+  display: none;
+  margin: 7px 0 0 2px;
+  color: rgba(101,255,241,.58);
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: .10em;
+}
+
+.guest-name-field.has-memory .guest-name-memory {
+  display: block;
+}
+
+
+@media (max-width: 390px) {
+  .guest-name-field {
+    margin-top: 18px;
+  }
+}
+
+
+/* ==========================================================================
+   BUILD 18: 6-SECOND PERSONALIZED END CARD
+============================================================================ */
+
+.end-card {
+  position: fixed;
+  inset: 0;
+  z-index: 110000;
+  pointer-events: none;
+  overflow: hidden;
+  opacity: 1;
+  visibility: visible;
+}
+
+.end-card.hidden {
+  display: none !important;
+}
+
+.end-card-bg {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 50% 42%,
+      rgb(11, 63, 68) 0%,
+      rgb(3, 35, 39) 45%,
+      rgb(1, 18, 21) 100%);
+  opacity: 0;
+  transform: scale(1.03);
+  will-change: opacity, transform;
+}
+
+.end-card-content {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: min(90vw, 980px);
+  transform: translate(-50%, -50%);
+  text-align: center;
+  color: #fff;
+  opacity: 1;
+  pointer-events: none;
+  text-shadow:
+    0 3px 4px rgba(0,0,0,1),
+    0 7px 18px rgba(0,0,0,.92),
+    0 16px 42px rgba(0,0,0,.72);
+}
+
+.end-card-line1,
+.end-card-line2 {
+  opacity: 0;
+  will-change: opacity, transform, filter;
+}
+
+.end-card-line1 {
+  font-size: clamp(42px, 10vw, 104px);
+  line-height: .98;
+  font-weight: 760;
+  letter-spacing: -.045em;
+  transform: translateY(26px) scale(.965);
+  filter: blur(7px);
+}
+
+.end-card-line2 {
+  margin-top: 18px;
+  font-size: clamp(21px, 5vw, 48px);
+  line-height: 1.08;
+  font-weight: 650;
+  letter-spacing: .035em;
+  transform: translateY(20px);
+  filter: blur(5px);
+}
+
+/* JS toggles these phase classes so mobile browsers do not have to
+   restart long delayed keyframes. */
+.end-card.phase-in .end-card-bg {
+  animation: endCardBgIn 700ms cubic-bezier(.22,.61,.36,1) forwards;
+}
+
+.end-card.phase-in .end-card-line1 {
+  animation: endCardLine1In 950ms cubic-bezier(.16,.84,.26,1) 360ms forwards;
+}
+
+.end-card.phase-in .end-card-line2 {
+  animation: endCardLine2In 950ms cubic-bezier(.16,.84,.26,1) 720ms forwards;
+}
+
+.end-card.phase-out {
+  animation: endCardShellOut 900ms cubic-bezier(.4,0,.2,1) forwards;
+}
+
+@keyframes endCardBgIn {
+  from {
+    opacity: 0;
+    transform: scale(1.03);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes endCardLine1In {
+  0% {
+    opacity: 0;
+    transform: translateY(26px) scale(.965);
+    filter: blur(7px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0);
+  }
+}
+
+@keyframes endCardLine2In {
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+    filter: blur(5px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0);
+  }
+}
+
+@keyframes endCardShellOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .end-card.phase-in .end-card-bg,
+  .end-card.phase-in .end-card-line1,
+  .end-card.phase-in .end-card-line2,
+  .end-card.phase-out {
+    animation-duration: 1ms !important;
+    animation-delay: 0ms !important;
+  }
+}
+
+
+/* ==========================================================================
+   BUILD 20: END CARD LOGO + THANK YOU / NAME / DIVIDER TAGLINE
+============================================================================ */
+
+.end-card-content {
+  width: min(90vw, 980px);
+}
+
+.end-card-logo {
+  display: block;
+  width: clamp(120px, 20vw, 220px);
+  max-width: 52vw;
+  height: auto;
+  margin: 0 auto 26px;
+  opacity: 0;
+  transform: translateY(18px) scale(.98);
+  filter: blur(5px) drop-shadow(0 6px 16px rgba(0,0,0,.55));
+  will-change: opacity, transform, filter;
+}
+
+.end-card-line1,
+.end-card-line2,
+.end-card-tagline-wrap {
+  opacity: 0;
+  will-change: opacity, transform, filter;
+}
+
+.end-card-line1 {
+  font-size: clamp(34px, 7vw, 76px);
+  line-height: 1.0;
+  font-weight: 760;
+  letter-spacing: -.03em;
+  transform: translateY(26px) scale(.97);
+  filter: blur(7px);
+}
+
+.end-card-line2 {
+  margin-top: 8px;
+  font-size: clamp(42px, 10vw, 104px);
+  line-height: .98;
+  font-weight: 790;
+  letter-spacing: -.045em;
+  transform: translateY(26px) scale(.965);
+  filter: blur(7px);
+}
+
+.end-card-tagline-wrap {
+  margin-top: 26px;
+  transform: translateY(20px);
+  filter: blur(5px);
+}
+
+.end-card-divider {
+  width: min(360px, 58vw);
+  max-width: 100%;
+  height: 2px;
+  margin: 0 auto 16px;
+  background: linear-gradient(90deg,
+    rgba(255,255,255,0) 0%,
+    rgba(255,255,255,.62) 20%,
+    rgba(255,255,255,.95) 50%,
+    rgba(255,255,255,.62) 80%,
+    rgba(255,255,255,0) 100%);
+  box-shadow: 0 0 14px rgba(255,255,255,.12);
+}
+
+.end-card-tagline {
+  font-size: clamp(14px, 2.8vw, 24px);
+  line-height: 1.08;
+  font-weight: 760;
+  letter-spacing: .16em;
+}
+
+.end-card.phase-in .end-card-logo {
+  animation: endCardLogoIn 850ms cubic-bezier(.16,.84,.26,1) 140ms forwards;
+}
+
+.end-card.phase-in .end-card-line1 {
+  animation: endCardLine1In 900ms cubic-bezier(.16,.84,.26,1) 360ms forwards;
+}
+
+.end-card.phase-in .end-card-line2 {
+  animation: endCardLine2In 960ms cubic-bezier(.16,.84,.26,1) 560ms forwards;
+}
+
+.end-card.phase-in .end-card-tagline-wrap {
+  animation: endCardTaglineIn 900ms cubic-bezier(.16,.84,.26,1) 860ms forwards;
+}
+
+@keyframes endCardLogoIn {
+  0% {
+    opacity: 0;
+    transform: translateY(18px) scale(.98);
+    filter: blur(5px) drop-shadow(0 6px 16px rgba(0,0,0,.55));
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0) drop-shadow(0 8px 20px rgba(0,0,0,.58));
+  }
+}
+
+@keyframes endCardTaglineIn {
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+    filter: blur(5px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0);
+  }
+}
+
+@media (max-width: 390px) {
+  .end-card-logo {
+    margin-bottom: 22px;
+  }
+  .end-card-tagline-wrap {
+    margin-top: 22px;
+  }
+  .end-card-divider {
+    margin-bottom: 14px;
+  }
+}
+
+
+/* ==========================================================================
+   BUILD 21: HIDE NAME ENTRY WHEN A NAME IS ALREADY REMEMBERED
+============================================================================ */
+
+.guest-name-field.has-memory {
+  display: none !important;
+}
+
+
+/* ==========================================================================
+   BUILD 22: PHONE MOTION TILT
+============================================================================ */
+
+.atlanta-parallax-stage {
+  will-change: transform;
+}
+
+
+
+/* ==========================================================================
+   BUILD 23: FULL 4-DIRECTION PHONE TILT
+============================================================================ */
+
+.atlanta-parallax-stage {
+  will-change: transform;
+  transform-style: preserve-3d;
+  -webkit-transform-style: preserve-3d;
+}
+
+
+/* Build 24 uses accelerometer/gravity for a stronger, more reliable
+   up/down perspective response while the phone is upright. */
+
+
+/* ==========================================================================
+   BUILD 26: IDIS FACE CINEMATIC SEQUENCE
+============================================================================ */
+
+.cinematic-hidden {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+
+.idis-cinematic {
+  position: fixed;
+  inset: 0;
+  z-index: 9400;
+  overflow: hidden;
+  pointer-events: none;
+  opacity: 1;
+  visibility: visible;
+}
+
+/* Keep the live camera visible behind alpha video unless the video itself
+   fills the scene. */
+.idis-showcase-video {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  z-index: 2;
+  width: min(100vw, 1180px);
+  height: min(92vh, 1180px);
+  max-width: none;
+  object-fit: contain;
+  transform: translate(-50%, -50%) scale(.985);
+  transform-origin: 50% 50%;
+  opacity: 0;
+  background: transparent;
+  filter: blur(4px);
+  will-change: opacity, transform, filter;
+}
+
+.idis-showcase-video.is-entering {
+  animation: idisShowcaseIn 700ms cubic-bezier(.16,.84,.26,1) forwards;
+}
+
+.idis-showcase-video.is-frozen {
+  opacity: 1 !important;
+  visibility: visible !important;
+  transform: translate(-50%, -50%) scale(1);
+  filter: blur(0);
+}
+
+@keyframes idisShowcaseIn {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(.985);
+    filter: blur(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+    filter: blur(0);
+  }
+}
+
+
+.idis-feature-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  opacity: 1;
+  visibility: visible;
+  pointer-events: none;
+}
+
+.idis-feature-logo {
+  position: absolute;
+  left: 50%;
+  top: max(56px, calc(env(safe-area-inset-top) + 30px));
+  z-index: 3;
+  width: clamp(120px, 24vw, 220px);
+  max-width: 54vw;
+  height: auto;
+  opacity: 0;
+  transform: translate(-50%, -22px) scale(.94);
+  filter:
+    blur(6px)
+    drop-shadow(0 8px 22px rgba(0,0,0,.7));
+  will-change: opacity, transform, filter;
+}
+
+.idis-feature-overlay.logo-in .idis-feature-logo {
+  animation: idisCinematicLogoIn 820ms cubic-bezier(.16,.84,.26,1) forwards;
+}
+
+@keyframes idisCinematicLogoIn {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -22px) scale(.94);
+    filter:
+      blur(6px)
+      drop-shadow(0 8px 22px rgba(0,0,0,.7));
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0) scale(1);
+    filter:
+      blur(0)
+      drop-shadow(0 10px 24px rgba(0,0,0,.72));
+  }
+}
+
+.idis-feature-video {
+  position: absolute;
+  left: 50%;
+  top: 55%;
+  z-index: 2;
+  display: block;
+  width: min(92vw, 960px);
+  max-height: 68vh;
+  height: auto;
+  object-fit: contain;
+  opacity: 0;
+  transform: translate(-50%, -48%) scale(.975);
+  transform-origin: 50% 50%;
+  background: transparent;
+  filter: blur(4px);
+  box-shadow:
+    0 24px 72px rgba(0,0,0,.35);
+  will-change: opacity, transform, filter;
+}
+
+.idis-feature-overlay.video-in .idis-feature-video {
+  animation: idisFeatureVideoIn 650ms cubic-bezier(.16,.84,.26,1) forwards;
+}
+
+@keyframes idisFeatureVideoIn {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -48%) scale(.975);
+    filter: blur(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+    filter: blur(0);
+  }
+}
+
+.idis-cinematic.cinematic-exit {
+  animation: idisCinematicOut 620ms cubic-bezier(.4,0,.2,1) forwards;
+}
+
+@keyframes idisCinematicOut {
+  from { opacity: 1; }
+  to   { opacity: 0; }
+}
+
+@media (max-width: 420px) {
+  .idis-showcase-video {
+    width: 100vw;
+    height: 84vh;
+  }
+
+  .idis-feature-logo {
+    top: max(48px, calc(env(safe-area-inset-top) + 24px));
+    width: clamp(108px, 31vw, 170px);
+  }
+
+  .idis-feature-video {
+    width: 94vw;
+    max-height: 64vh;
+  }
+}
+
+
+/* ==========================================================================
+   BUILD 27: YOUTUBE FEATURE PLAYER
+============================================================================ */
+
+#idis-feature-youtube {
+  overflow: hidden;
+  background: #000;
+}
+
+#idis-feature-youtube iframe {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
+  min-height: min(52vw, 540px);
+  border: 0;
+  pointer-events: none;
+}
+
+@media (max-width: 420px) {
+  #idis-feature-youtube iframe {
+    min-height: 52vw;
+  }
+}
+
+
+/* ==========================================================================
+   BUILD 28: IDIS CINEMATIC LAYERING + ALPHA FIX
+   Authoritative overrides for Build 26/27 selectors.
+============================================================================ */
+
+/* Establish one predictable stacking context for the entire IDIS sequence. */
+.idis-cinematic {
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 9400 !important;
+  isolation: isolate;
+  overflow: hidden;
+  background: transparent !important;
+  pointer-events: none;
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+}
+
+/* The real <video> is now only a decoder source.
+   It is intentionally NOT the visible composited layer. */
+.idis-showcase-video-source {
+  position: absolute;
+  left: -4px;
+  top: -4px;
+  width: 2px;
+  height: 2px;
+  opacity: 0.001;
+  pointer-events: none;
+  object-fit: contain;
+}
+
+/* WebGL canvas displays the source video with:
+   1) native alpha when available
+   2) near-black key removal when alpha was accidentally baked opaque */
+.idis-showcase-canvas {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  z-index: 10;
+  display: block;
+  width: min(100vw, 1180px);
+  height: min(92vh, 1180px);
+  max-width: none;
+  object-fit: contain;
+  transform: translate(-50%, -50%) scale(.985);
+  transform-origin: 50% 50%;
+  opacity: 0;
+  background: transparent !important;
+  filter: blur(4px);
+  pointer-events: none;
+  will-change: opacity, transform, filter;
+  -webkit-transform-style: preserve-3d;
+  transform-style: preserve-3d;
+}
+
+.idis-showcase-canvas.is-entering {
+  animation: idisCanvasShowcaseIn 700ms cubic-bezier(.16,.84,.26,1) forwards;
+}
+
+.idis-showcase-canvas.is-frozen {
+  opacity: 1 !important;
+  visibility: visible !important;
+  transform: translate(-50%, -50%) scale(1);
+  filter: blur(0);
+}
+
+@keyframes idisCanvasShowcaseIn {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(.985);
+    filter: blur(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+    filter: blur(0);
+  }
+}
+
+/* If WebGL is unavailable we display the original video and use screen blend
+   as a fallback for a black-backed export. */
+.idis-showcase-video-source.webgl-fallback-visible {
+  left: 50%;
+  top: 50%;
+  z-index: 10;
+  width: min(100vw, 1180px);
+  height: min(92vh, 1180px);
+  opacity: 1;
+  transform: translate(-50%, -50%);
+  object-fit: contain;
+  mix-blend-mode: screen;
+  background: transparent !important;
+}
+
+
+/* Entire feature layer is above the showcase canvas. */
+.idis-feature-overlay {
+  position: absolute !important;
+  inset: 0 !important;
+  z-index: 30 !important;
+  isolation: isolate;
+  pointer-events: none;
+  overflow: visible;
+}
+
+/* Permanent wrapper. This is what gets animated, NOT the YouTube node. */
+#idis-feature-video-wrap {
+  position: absolute !important;
+  left: 50% !important;
+  top: 55% !important;
+  z-index: 40 !important;
+  display: block !important;
+  width: min(92vw, 960px) !important;
+  aspect-ratio: 16 / 9;
+  height: auto !important;
+  max-height: 68vh;
+  overflow: hidden;
+  opacity: 0;
+  transform: translate(-50%, -48%) scale(.975);
+  transform-origin: 50% 50%;
+  background: #000;
+  border-radius: 14px;
+  box-shadow:
+    0 24px 72px rgba(0,0,0,.48),
+    0 0 0 1px rgba(255,255,255,.08);
+  filter: blur(4px);
+  will-change: opacity, transform, filter;
+  -webkit-transform: translate(-50%, -48%) scale(.975) translateZ(0);
+}
+
+.idis-feature-overlay.video-in #idis-feature-video-wrap {
+  animation: idisYouTubeWrapIn 650ms cubic-bezier(.16,.84,.26,1) forwards;
+}
+
+@keyframes idisYouTubeWrapIn {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -48%) scale(.975);
+    filter: blur(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+    filter: blur(0);
+  }
+}
+
+.idis-youtube-player,
+.idis-youtube-player iframe,
+#idis-youtube-player,
+#idis-youtube-player iframe {
+  position: absolute !important;
+  inset: 0 !important;
+  display: block !important;
+  width: 100% !important;
+  height: 100% !important;
+  min-width: 100% !important;
+  min-height: 100% !important;
+  border: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+/* The IFrame API replaces #idis-youtube-player with an iframe using the same
+   id. These rules therefore work before AND after replacement. */
+iframe#idis-youtube-player {
+  position: absolute !important;
+  inset: 0 !important;
+  z-index: 1 !important;
+  width: 100% !important;
+  height: 100% !important;
+  border: 0 !important;
+  background: #000;
+  pointer-events: none;
+}
+
+/* Logo always wins the stacking order. */
+.idis-feature-logo {
+  position: absolute !important;
+  left: 50% !important;
+  top: max(54px, calc(env(safe-area-inset-top) + 28px)) !important;
+  z-index: 80 !important;
+  width: clamp(122px, 24vw, 224px) !important;
+  max-width: 54vw;
+  height: auto;
+  opacity: 0;
+  transform: translate(-50%, -22px) scale(.94) translateZ(0);
+  filter:
+    blur(6px)
+    drop-shadow(0 8px 22px rgba(0,0,0,.78));
+  will-change: opacity, transform, filter;
+  pointer-events: none;
+}
+
+.idis-feature-overlay.logo-in .idis-feature-logo {
+  animation: idisLayerFixLogoIn 820ms cubic-bezier(.16,.84,.26,1) forwards;
+}
+
+@keyframes idisLayerFixLogoIn {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -22px) scale(.94);
+    filter:
+      blur(6px)
+      drop-shadow(0 8px 22px rgba(0,0,0,.78));
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0) scale(1);
+    filter:
+      blur(0)
+      drop-shadow(0 10px 26px rgba(0,0,0,.82));
+  }
+}
+
+@media (max-width: 420px) {
+  .idis-showcase-canvas,
+  .idis-showcase-video-source.webgl-fallback-visible {
+    width: 100vw;
+    height: 84vh;
+  }
+
+  #idis-feature-video-wrap {
+    width: 94vw !important;
+    top: 56% !important;
+    border-radius: 10px;
+  }
+
+  .idis-feature-logo {
+    top: max(46px, calc(env(safe-area-inset-top) + 22px)) !important;
+    width: clamp(110px, 31vw, 174px) !important;
+  }
+}
+
+/* BUILD 29: 20260821-launchfix29 */
+
+/* BUILD 30 FAST LOAD: production startup optimization */
+
+/* BUILD 31 AR LOAD ORDER FIX: 20260821-arorder31 */
+
+
+/* ==========================================================================
+   BUILD 32: IDIS 6-SECOND BACKDROP + CUSTOM IDIS CLOSING COPY
+============================================================================ */
+
+/*
+  This layer sits above the live camera but below the transparent showcase.
+
+  Requested look:
+  BLACK in the center -> DARK TEAL toward the outside.
+
+  It begins at opacity 0.
+  JS adds .fade-in after the showcase has PLAYED for 6 seconds.
+  CSS then takes exactly 3 seconds to reach 80% opacity.
+*/
+.idis-cinematic-backdrop {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  pointer-events: none;
+
+  background:
+    radial-gradient(
+      circle at 50% 48%,
+      #000000 0%,
+      #000000 18%,
+      #001316 46%,
+      #03292e 72%,
+      #06434a 100%
+    );
+
+  opacity: 0;
+  visibility: visible;
+
+  transition:
+    opacity 3000ms cubic-bezier(.22,.61,.36,1);
+
+  will-change: opacity;
+}
+
+.idis-cinematic-backdrop.fade-in {
+  opacity: .80;
+}
+
+/*
+  Explicit production stacking for the IDIS sequence:
+
+  80  IDIS logo
+  40  YouTube
+  30  feature overlay
+  10  transparent/frozen showcase
+   5  black -> dark teal backdrop
+   0  live camera
+*/
+.idis-showcase-canvas {
+  z-index: 10 !important;
+}
+
+.idis-feature-overlay {
+  z-index: 30 !important;
+}
+
+#idis-feature-video-wrap {
+  z-index: 40 !important;
+}
+
+.idis-feature-logo {
+  z-index: 80 !important;
+}
+
+
+/* The same end-card layout is reused, but JS supplies IDIS-specific copy. */
+.end-card.is-idis-closing .end-card-line1 {
+  font-size: clamp(30px, 6.4vw, 68px);
+  letter-spacing: -.025em;
+}
+
+.end-card.is-idis-closing .end-card-line2 {
+  font-size: clamp(42px, 10vw, 104px);
+}
+
+
+
+/* ==========================================================================
+   BUILD 33: IDIS PRESERVE-3D YOUTUBE + HIGH-PARALLAX LOGO
+============================================================================ */
+
+/*
+  The overlay owns perspective.
+  The stage rotates as the phone tilts / user drags.
+  The logo and video are separate Z-depth planes.
+*/
+.idis-feature-overlay {
+  perspective: 920px;
+  -webkit-perspective: 920px;
+  perspective-origin: 50% 50%;
+  overflow: visible !important;
+}
+
+.idis-feature-stage {
+  position: absolute;
+  inset: 0;
+  z-index: 35;
+
+  transform-style: preserve-3d;
+  -webkit-transform-style: preserve-3d;
+
+  transform-origin: 50% 52%;
+  -webkit-transform-origin: 50% 52%;
+
+  will-change: transform;
+  pointer-events: none;
+}
+
+/* Lower / deeper plane: YouTube */
+.idis-feature-video-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 40;
+
+  transform-style: preserve-3d;
+  -webkit-transform-style: preserve-3d;
+
+  transform: translate3d(0, 0, 70px);
+  -webkit-transform: translate3d(0, 0, 70px);
+
+  will-change: transform;
+  pointer-events: none;
+}
+
+/* Highest / closest plane: IDIS logo */
+.idis-feature-logo-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 90;
+
+  transform-style: preserve-3d;
+  -webkit-transform-style: preserve-3d;
+
+  transform: translate3d(0, 0, 280px);
+  -webkit-transform: translate3d(0, 0, 280px);
+
+  will-change: transform;
+  pointer-events: none;
+}
+
+/*
+  Lower the logo from the top edge and place it in the upper-middle area.
+  It can overlap the top edge of the YouTube plane slightly as the scene tilts.
+*/
+.idis-feature-logo {
+  top: 33% !important;
+  z-index: 100 !important;
+  width: clamp(126px, 25vw, 230px) !important;
+}
+
+/*
+  Keep the YouTube panel centered slightly below the logo.
+  The outer .idis-feature-video-layer handles live parallax, so the existing
+  wrapper can keep its fade/scale entrance animation.
+*/
+#idis-feature-video-wrap {
+  top: 57% !important;
+  z-index: 45 !important;
+
+  transform-style: preserve-3d;
+  -webkit-transform-style: preserve-3d;
+
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+/* Additional depth shadow makes rotation read more clearly. */
+.idis-feature-overlay.video-in #idis-feature-video-wrap {
+  box-shadow:
+    0 28px 84px rgba(0,0,0,.54),
+    0 0 0 1px rgba(255,255,255,.10);
+}
+
+@media (max-width: 420px) {
+  .idis-feature-overlay {
+    perspective: 760px;
+    -webkit-perspective: 760px;
+  }
+
+  .idis-feature-logo {
+    top: 31% !important;
+    width: clamp(112px, 32vw, 180px) !important;
+  }
+
+  #idis-feature-video-wrap {
+    top: 58% !important;
+  }
+
+  .idis-feature-logo-layer {
+    transform: translate3d(0, 0, 240px);
+    -webkit-transform: translate3d(0, 0, 240px);
+  }
+
+  .idis-feature-video-layer {
+    transform: translate3d(0, 0, 58px);
+    -webkit-transform: translate3d(0, 0, 58px);
+  }
+}
+
+
+
+/* ==========================================================================
+   BUILD 34: IDIS TEXT TAGLINE + LARGER BACK VIDEO + FASTER FULL BACKDROP
+   Cache key: 20260821-idistext34
+============================================================================ */
+
+/* Make the transparent/frozen back video larger on the IDIS side. */
+.idis-showcase-canvas {
+  width: min(114vw, 1420px) !important;
+  height: min(98vh, 1420px) !important;
+}
+
+.idis-showcase-video-source.webgl-fallback-visible {
+  width: min(114vw, 1420px) !important;
+  height: min(98vh, 1420px) !important;
+}
+
+@media (max-width: 420px) {
+  .idis-showcase-canvas,
+  .idis-showcase-video-source.webgl-fallback-visible {
+    width: 112vw !important;
+    height: 88vh !important;
+  }
+}
+
+/*
+  Dark backdrop now feels stronger and quicker:
+  - full opacity
+  - faster transition
+*/
+.idis-cinematic-backdrop {
+  transition: opacity 1800ms cubic-bezier(.22,.61,.36,1) !important;
+}
+
+.idis-cinematic-backdrop.fade-in {
+  opacity: 1 !important;
+}
+
+/*
+  Keep the foreground text as the highest parallax plane, but replace the
+  floating logo image with a compact one-line tagline.
+*/
+.idis-feature-logo-layer {
+  transform: translate3d(0, 0, 320px) !important;
+  -webkit-transform: translate3d(0, 0, 320px) !important;
+}
+
+.idis-feature-logo {
+  position: absolute !important;
+  left: 50% !important;
+  top: 39% !important;
+  transform: translateX(-50%) !important;
+  -webkit-transform: translateX(-50%) !important;
+  width: auto !important;
+  max-width: 88vw;
+  padding: 0 !important;
+  margin: 0 !important;
+  color: #ffffff !important;
+  font-size: clamp(11px, 1.45vw, 18px) !important;
+  line-height: 1.1 !important;
+  font-weight: 700 !important;
+  letter-spacing: .02em !important;
+  text-transform: none !important;
+  text-align: center !important;
+  white-space: nowrap !important;
+  text-shadow:
+    0 2px 4px rgba(0,0,0,.72),
+    0 8px 18px rgba(0,0,0,.48) !important;
+  filter: none !important;
+  opacity: 0;
+}
+
+.idis-feature-overlay.logo-in .idis-feature-logo {
+  animation: idisTaglineIn 720ms cubic-bezier(.16,.84,.26,1) forwards;
+}
+
+@keyframes idisTaglineIn {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-16px) scale(.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0) scale(1);
+  }
+}
+
+@media (max-width: 420px) {
+  .idis-feature-logo {
+    top: 37% !important;
+    font-size: clamp(10px, 3.05vw, 14px) !important;
+    max-width: 92vw;
+  }
+
+  .idis-feature-logo-layer {
+    transform: translate3d(0, 0, 270px) !important;
+    -webkit-transform: translate3d(0, 0, 270px) !important;
+  }
+}
+
+
+/* ==========================================================================
+   BUILD 35: HYBRID 360 VIDEO SPHERE MODE
+   Cache key: 20260821-sphere35
+============================================================================ */
+
+/*
+  DEPTH STACK
+  100  One Solution. One Company.
+   45  YouTube panel
+   10  opening transparent WebM
+    7  immersive 360 sphere
+    5  black / dark-teal safety backdrop
+    0  live camera
+*/
+
+.idis-sphere-canvas {
+  position: absolute;
+  inset: 0;
+  z-index: 7;
+  display: block;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  background: transparent;
+  pointer-events: none;
+
+  transition:
+    opacity 1400ms cubic-bezier(.22,.61,.36,1),
+    filter 1400ms cubic-bezier(.22,.61,.36,1);
+
+  filter:
+    brightness(.78)
+    saturate(1.08)
+    contrast(1.04);
+
+  will-change: opacity, filter;
+}
+
+.idis-sphere-canvas.sphere-visible {
+  opacity: 1;
+}
+
+.idis-sphere-video-source {
+  position: absolute;
+  width: 2px;
+  height: 2px;
+  left: -10px;
+  top: -10px;
+  opacity: .001;
+  pointer-events: none;
+}
+
+/*
+  Once the sphere is actually playing, the frozen transparent WebM dissolves
+  away so the user visually enters the panoramic environment.
+*/
+.idis-showcase-canvas.is-frozen.sphere-transition-out {
+  opacity: 0 !important;
+  transition:
+    opacity 1400ms cubic-bezier(.22,.61,.36,1) !important;
+}
+
+.idis-showcase-video-source.webgl-fallback-visible.sphere-transition-out {
+  opacity: 0 !important;
+  transition:
+    opacity 1400ms cubic-bezier(.22,.61,.36,1) !important;
+}
+
+/*
+  A subtle edge treatment helps the sphere feel less like a flat rectangle.
+  The dark center / teal outer background remains underneath as a fallback.
+*/
+.idis-cinematic::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 8;
+  pointer-events: none;
+  opacity: 0;
+  background:
+    radial-gradient(
+      circle at 50% 50%,
+      transparent 0%,
+      transparent 48%,
+      rgba(0, 18, 21, .12) 72%,
+      rgba(0, 12, 14, .30) 100%
+    );
+  transition: opacity 1400ms ease;
+}
+
+.idis-cinematic.sphere-mode::after {
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .idis-sphere-canvas,
+  .idis-showcase-canvas.is-frozen.sphere-transition-out,
+  .idis-showcase-video-source.webgl-fallback-visible.sphere-transition-out {
+    transition-duration: 200ms !important;
+  }
+}

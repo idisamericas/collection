@@ -1,0 +1,45 @@
+IDIS GSX 2026 — DEPLOYMENT CHECKLIST
+
+ROOT
+[ ] index.html
+[ ] ar.js
+[ ] styles.css
+[ ] .nojekyll
+[ ] camera-test.html
+[ ] sphere-mode-preview.html
+
+UI
+[ ] assets/ui/idis-logo.png
+
+TARGET
+[ ] assets/targets/gsx2026-two-sided.mind
+    [ ] target 0 = Atlanta
+    [ ] target 1 = IDIS
+
+ATLANTA
+[ ] assets/parallax/atlanta/layer-1-back.mp4
+[ ] assets/parallax/atlanta/layer-2-middle.png
+[ ] assets/parallax/atlanta/layer-3-front.png
+
+IDIS
+[ ] assets/video/idis-showcase-alpha.webm
+[ ] assets/video/idis-sphere-360.mp4
+
+TEST
+[ ] Landing page
+[ ] Name memory
+[ ] Camera permission
+[ ] Atlanta scan
+[ ] IDIS scan
+[ ] Transparent opening
+[ ] Sphere transition
+[ ] Phone tilt all directions
+[ ] Drag / pinch
+[ ] YouTube feature
+[ ] One Solution. One Company.
+[ ] IDIS closing name
+[ ] Atlanta closing unchanged
+[ ] Opposite-side switching
+[ ] Close/reset
+[ ] Event Wi-Fi
+[ ] Cellular

@@ -1,0 +1,34 @@
+IDIS-GSX2026-InteractiveScene-v35-FULL/
+├── .nojekyll
+├── index.html
+├── ar.js
+├── styles.css
+├── camera-test.html
+├── sphere-mode-preview.html
+├── idis-media-test.html
+├── SETUP-TARGETS.html
+├── README.md
+├── DEPLOYMENT-CHECKLIST.txt
+├── FOLDER-STRUCTURE.txt
+├── assets/
+│   ├── ui/
+│   │   ├── idis-logo.png                    [INCLUDED]
+│   │   └── README-UI.txt
+│   ├── targets/
+│   │   ├── gsx2026-two-sided.mind           [COPY EXISTING WORKING FILE]
+│   │   └── README-TARGET.txt
+│   ├── video/
+│   │   ├── idis-showcase-alpha.webm         [ADD YOUR FILE]
+│   │   ├── idis-sphere-360.mp4              [ADD YOUR 360 FILE]
+│   │   └── README-MEDIA.txt
+│   ├── parallax/
+│   │   └── atlanta/
+│   │       ├── layer-1-back.mp4             [COPY EXISTING]
+│   │       ├── layer-2-middle.png            [COPY EXISTING]
+│   │       ├── layer-3-front.png             [COPY EXISTING]
+│   │       └── README-ATLANTA.txt
+│   └── reference/
+│       ├── GSX2026-Coin-Back.png             [INCLUDED]
+│       └── coin-front.png                    [INCLUDED]
+└── docs/
+    └── runtime-manifest.json
