@@ -7,7 +7,7 @@
   target recognition; both presentations render as detached HTML/video.
 */
 
-console.info('[IDIS WebAR] Build 42.1 3D Collection Coin Tuned: 20260826-coin3d421');
+console.info('[IDIS WebAR] Build 42.1 3D Collection Coin Tuned: 20260826-collectionshine43');
 
 document.addEventListener('DOMContentLoaded', () => {
   const scene = document.querySelector('#ar-scene');
@@ -1251,20 +1251,18 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
-    // Reuse the Atlanta preserve-3D interaction language, but tuned down
-    // so the coin feels premium and controlled rather than exaggerated.
     const rx = clamp(
-      gestureRX * 0.78 +
-        (phoneTilt?.x || 0) * 0.74,
-      -8,
-      8
+      gestureRX * 1.95 +
+        (phoneTilt?.x || 0) * 1.62,
+      -30,
+      30
     );
 
     const ry = clamp(
-      gestureRY * 0.84 +
-        (phoneTilt?.y || 0) * 0.78,
-      -9.5,
-      9.5
+      gestureRY * 2.08 +
+        (phoneTilt?.y || 0) * 1.72,
+      -30,
+      30
     );
 
     const x = panX * 0.05;
@@ -1282,19 +1280,58 @@ document.addEventListener('DOMContentLoaded', () => {
     collectionReplayCoinTilt.style.webkitTransform =
       tiltTransform;
 
-    if (collectionReplayCoinSheen) {
-      const sheenX = clamp(ry * 1.35, -18, 18);
-      const sheenY = clamp(-rx * 1.05, -14, 14);
+    if (collectionReplayCoin) {
+      const edgeX = clamp(ry * 0.20, -5.2, 5.2);
+      const edgeY = clamp(-rx * 0.17, -4.3, 4.3);
+      const shineAX = clamp(50 + ry * 2.25, 5, 95);
+      const shineAY = clamp(28 - rx * 2.0, 4, 94);
+      const shineBX = clamp(72 - ry * 1.65, 8, 96);
+      const shineBY = clamp(60 + rx * 1.25, 6, 96);
+      const metalX = clamp(46 + ry * 2.7, 3, 97);
+      const metalY = clamp(30 - rx * 2.35, 3, 97);
+      const rimRotation = 210 + ry * 2.4 - rx * 1.2;
+      const streakRotation = 116 + ry * 0.9 - rx * 0.7;
 
-      const sheenTransform =
-        `translate3d(${sheenX.toFixed(2)}px, ` +
-        `${sheenY.toFixed(2)}px, 3px)`;
-
-      collectionReplayCoinSheen.style.transform =
-        sheenTransform;
-
-      collectionReplayCoinSheen.style.webkitTransform =
-        sheenTransform;
+      collectionReplayCoin.style.setProperty(
+        '--coin-edge-x',
+        `${edgeX.toFixed(2)}px`
+      );
+      collectionReplayCoin.style.setProperty(
+        '--coin-edge-y',
+        `${edgeY.toFixed(2)}px`
+      );
+      collectionReplayCoin.style.setProperty(
+        '--coin-shine-a-x',
+        `${shineAX.toFixed(1)}%`
+      );
+      collectionReplayCoin.style.setProperty(
+        '--coin-shine-a-y',
+        `${shineAY.toFixed(1)}%`
+      );
+      collectionReplayCoin.style.setProperty(
+        '--coin-shine-b-x',
+        `${shineBX.toFixed(1)}%`
+      );
+      collectionReplayCoin.style.setProperty(
+        '--coin-shine-b-y',
+        `${shineBY.toFixed(1)}%`
+      );
+      collectionReplayCoin.style.setProperty(
+        '--coin-metal-x',
+        `${metalX.toFixed(1)}%`
+      );
+      collectionReplayCoin.style.setProperty(
+        '--coin-metal-y',
+        `${metalY.toFixed(1)}%`
+      );
+      collectionReplayCoin.style.setProperty(
+        '--coin-rim-rotation',
+        `${rimRotation.toFixed(1)}deg`
+      );
+      collectionReplayCoin.style.setProperty(
+        '--coin-streak-rotation',
+        `${streakRotation.toFixed(1)}deg`
+      );
     }
   }
 
