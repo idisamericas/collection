@@ -1,57 +1,30 @@
-# Build 40.1 Auth Hotfix
+# IDIS Collectible Experience Platform — Build 41 Local Lite
 
-This hotfix corrects the Supabase collector sign-in redirect and keeps both Magic Link and 6-digit OTP verification supported.
+This build is the lightweight, device-only version.
 
-Key fixes:
-- collector `signInWithOtp()` now passes the production `emailRedirectTo`
-- production redirect: `https://idisamericas.github.io/collection/`
-- returned Supabase auth tokens are cleaned from the browser address bar after session recovery
-- clearer hybrid Link / 6-digit Code UI messaging
-- Studio redirect remains `/collection/studio.html`
-- exact Supabase Dashboard steps for switching the email template to `{{ .Token }}` are in `docs/SETUP-SUPABASE.md`
+## What changed
+- Restored the proven A-Frame + MindAR script load order in `index.html` for camera stability.
+- Removed all cloud, account, email-code, and Supabase functionality.
+- Kept the local on-device collection and replay flow.
+- Added the new IDIS coin favicon at `assets/ui/favicon-coin.png`.
+- Kept the GSX collection carousel on the homepage.
+- Removed Studio, diagnostics, and cloud UI to keep the bundle lighter.
 
-# IDIS Collectible Experience Platform — Build 40
+## Local storage used
+- `idis-digital-coin-collection-v1`
+- `idis-gsx2026-guest-name`
 
-This build turns the GSX prototype into a local-first, cloud-ready, white-label platform baseline.
+## Required production assets to add back before deployment
+- `assets/targets/gsx2026-two-sided.mind`
+- `assets/audio/state-voiceover.mp3`
+- `assets/video/idis-showcase-alpha.webm`
+- `assets/parallax/atlanta/layer-1-back.mp4`
+- `assets/parallax/atlanta/layer-2-middle.png`
+- `assets/parallax/atlanta/layer-3-front.png`
+- `assets/ui/idis-logo.png`
 
-## What works without a database
-- GSX AR experience
-- Atlanta audio-driven finale
-- IDIS abstract parallax experience
-- persistent local collection
-- saved coin replay without camera
-- mobile My Collection showcase
-- graceful Device Only account state
-
-## What activates when Supabase is configured
-- passwordless email OTP account
-- persisted Supabase session
-- local collection -> cloud merge
-- cloud collection -> new-device restore
-- activity events
-- Studio authorization and collectible metadata management
-
-## Setup
-1. Deploy this folder to `idisamericas/collection`.
-2. Preserve/copy your production runtime media and `.mind` target into the existing paths.
-3. Follow `docs/SETUP-SUPABASE.md`.
-4. Test `diagnostics.html`.
-5. Test the homepage before testing AR.
-
-## Performance changes
-The homepage no longer downloads A-Frame or MindAR before the visitor chooses AR. The carousel uses `assets/thumbs/gsx2026-atlanta.webp` instead of the multi-megabyte reference PNG. The Supabase SDK is also lazy-loaded.
-
-## Production URLs
-- Main: `https://idisamericas.github.io/collection/?v=40`
-- Studio: `https://idisamericas.github.io/collection/studio.html?v=40`
-- Diagnostics: `https://idisamericas.github.io/collection/diagnostics.html?v=40`
-
-Build marker: `20260825-platform40`
-
-## Live cloud status
-
-The connected Supabase project is provisioned and seeded for Build 40. The browser-safe publishable key and project URL are already in `platform/platform-config.js`.
-
-Before production email sign-in, set Supabase Auth Site URL / redirect allow-list to the GitHub Pages collection URL as described in `docs/SETUP-SUPABASE.md`.
-
-The Studio remains intentionally role-protected. After the first admin account signs in, add that user to `organization_members` as `owner`.
+## Lightweight tips
+- Keep the Atlanta back video at 1080x1080 H.264, no audio.
+- Use WebP for static layer images when transparency allows.
+- Keep voiceover MP3 around 96–128 kbps mono.
+- Use the 640px WebP coin thumb for UI, not the full PNG.
