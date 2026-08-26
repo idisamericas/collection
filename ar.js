@@ -7,7 +7,7 @@
   target recognition; both presentations render as detached HTML/video.
 */
 
-console.info('[IDIS WebAR] Build 42.1 3D Collection Coin Tuned: 20260826-idisaudiolayers44');
+console.info('[IDIS WebAR] Build 44.2 Chicago Folders: 20260826-chicagofolders442');
 
 document.addEventListener('DOMContentLoaded', () => {
   const scene = document.querySelector('#ar-scene');
@@ -47,6 +47,9 @@ document.addEventListener('DOMContentLoaded', () => {
   const atlantaVoiceover =
     document.querySelector('#atlanta-voiceover');
 
+  const idisVoiceover =
+    document.querySelector('#idis-voiceover');
+
   const idisCinematic = document.querySelector('#idis-cinematic');
   const idisAbstractBg = document.querySelector('#idis-abstract-bg');
   const idisGradientField = document.querySelector('#idis-gradient-field');
@@ -54,14 +57,12 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('.idis-plus-layer')
   );
   const idisShowcaseVideo = document.querySelector('#idis-showcase-video');
+  const idisFeatureBottomVideo = document.querySelector('#idis-feature-bottom-video');
   const idisShowcaseCanvas = document.querySelector('#idis-showcase-canvas');
   const idisFeatureOverlay = document.querySelector('#idis-feature-overlay');
   const idisFeatureStage = document.querySelector('#idis-feature-stage');
   const idisFeatureBottomLayer = document.querySelector('#idis-feature-bottom-layer');
   const idisFeatureMiddleLayer = document.querySelector('#idis-feature-middle-layer');
-  const idisFeatureLogo = document.querySelector('#idis-feature-logo');
-  const idisFeatureVideoWrap = document.querySelector('#idis-feature-video-wrap');
-  const idisFeatureYouTubeHost = document.querySelector('#idis-youtube-player');
 
   const guestNameInput = document.querySelector('#guest-name');
   const guestNameField = document.querySelector('.guest-name-field');

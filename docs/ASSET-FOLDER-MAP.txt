@@ -1,0 +1,43 @@
+IDIS COLLECTION — CATEGORY-BASED ASSET STRUCTURE
+=================================================
+
+assets/
+├── audio/
+│   ├── state-voiceover.mp3                 [Atlanta — existing when supplied]
+│   ├── chicago-voiceover.mp3               [Chicago — add]
+│   └── idis-voiceover.mp3                  [Shared IDIS side — add/use]
+│
+├── parallax/
+│   ├── atlanta/
+│   │   ├── layer-1-back.mp4
+│   │   ├── layer-2-middle.png
+│   │   └── layer-3-front.png
+│   └── chicago/
+│       ├── layer-1-back.mp4
+│       ├── layer-2-middle.png
+│       └── layer-3-front.png
+│
+├── reference/
+│   ├── GSX2026-Coin-Back.png
+│   ├── APTATransform-2026-Coin-Back.png
+│   └── coin-front.png                      [shared IDIS artwork]
+│
+├── targets/
+│   ├── gsx2026-two-sided.mind              [Atlanta — existing when supplied]
+│   └── apta-transform-2026-chicago-two-sided.mind
+│
+├── thumbs/
+│   ├── gsx2026-atlanta.webp
+│   └── apta-transform-2026-chicago.webp
+│
+├── ui/
+│   └── shared interface assets
+│
+└── video/
+    └── shared IDIS-side / common video assets
+
+NAMING RULE
+-----------
+Use lowercase kebab-case for new runtime files.
+Keep city/event names in filenames whenever assets share a category folder.
+City-specific parallax files can keep the simple layer names because their city folder isolates them.
