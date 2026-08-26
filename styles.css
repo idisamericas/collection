@@ -2296,13 +2296,14 @@ body.collection-replay-mode #ar-footer {
 
 .collection-replay-coin-flight {
   position: relative;
-  width: clamp(210px, 54vw, 430px);
+  width: clamp(150px, 42vw, 250px);
+  max-width: min(68vw, 34vh);
   aspect-ratio: 1 / 1;
   opacity: 0;
   transform:
-    translate3d(0, 28vh, 520px)
-    scale(.56)
-    rotateZ(-9deg);
+    translate3d(0, 22vh, 440px)
+    scale(.52)
+    rotateZ(-7deg);
   transform-style: preserve-3d;
   -webkit-transform-style: preserve-3d;
   will-change: transform, opacity, filter;
@@ -2312,7 +2313,7 @@ body.collection-replay-mode #ar-footer {
 .collection-replay-coin-flight.is-entering {
   opacity: 1;
   transform:
-    translate3d(0, 0, 700px)
+    translate3d(0, 0, 560px)
     scale(1)
     rotateZ(0deg);
   filter: blur(0);
@@ -2325,9 +2326,9 @@ body.collection-replay-mode #ar-footer {
 .collection-replay-coin-flight.is-fading {
   opacity: 0;
   transform:
-    translate3d(0, -2vh, 675px)
-    scale(.965)
-    rotateZ(.5deg);
+    translate3d(0, -1.5vh, 545px)
+    scale(.955)
+    rotateZ(.35deg);
   filter: blur(2.2px);
   transition:
     opacity 1200ms cubic-bezier(.4,0,.2,1),
@@ -2400,8 +2401,8 @@ body.collection-replay-mode #ar-footer {
   object-fit: contain;
   transform: translateZ(2px);
   filter:
-    drop-shadow(0 28px 34px rgba(0,0,0,.56))
-    drop-shadow(0 0 18px rgba(24,201,195,.14));
+    drop-shadow(0 20px 28px rgba(0,0,0,.50))
+    drop-shadow(0 0 14px rgba(24,201,195,.12));
 }
 
 .collection-replay-coin-sheen {
@@ -2423,7 +2424,15 @@ body.collection-replay-mode #ar-footer {
 
 @media (max-width: 420px) {
   .collection-replay-coin-flight {
-    width: clamp(205px, 68vw, 315px);
+    width: clamp(148px, 48vw, 220px);
+    max-width: min(64vw, 31vh);
+  }
+}
+
+@media (max-height: 760px) {
+  .collection-replay-coin-flight {
+    width: clamp(140px, 40vw, 215px);
+    max-width: min(60vw, 28vh);
   }
 }
 

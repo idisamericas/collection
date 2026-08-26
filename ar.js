@@ -7,7 +7,7 @@
   target recognition; both presentations render as detached HTML/video.
 */
 
-console.info('[IDIS WebAR] Build 42 3D Collection Coin: 20260826-coin3d42');
+console.info('[IDIS WebAR] Build 42.1 3D Collection Coin Tuned: 20260826-coin3d421');
 
 document.addEventListener('DOMContentLoaded', () => {
   const scene = document.querySelector('#ar-scene');
@@ -1251,24 +1251,24 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
-    // Reuse the Atlanta preserve-3D interaction language, with slightly
-    // stronger rotation so the stacked edge slices reveal real thickness.
+    // Reuse the Atlanta preserve-3D interaction language, but tuned down
+    // so the coin feels premium and controlled rather than exaggerated.
     const rx = clamp(
-      gestureRX * 1.20 +
-        (phoneTilt?.x || 0) * 1.16,
-      -13,
-      13
+      gestureRX * 0.78 +
+        (phoneTilt?.x || 0) * 0.74,
+      -8,
+      8
     );
 
     const ry = clamp(
-      gestureRY * 1.24 +
-        (phoneTilt?.y || 0) * 1.20,
-      -15,
-      15
+      gestureRY * 0.84 +
+        (phoneTilt?.y || 0) * 0.78,
+      -9.5,
+      9.5
     );
 
-    const x = panX * 0.075;
-    const y = panY * 0.075;
+    const x = panX * 0.05;
+    const y = panY * 0.05;
 
     const tiltTransform =
       `translate3d(${x.toFixed(2)}px, ` +
@@ -1283,8 +1283,8 @@ document.addEventListener('DOMContentLoaded', () => {
       tiltTransform;
 
     if (collectionReplayCoinSheen) {
-      const sheenX = clamp(ry * 1.8, -24, 24);
-      const sheenY = clamp(-rx * 1.4, -18, 18);
+      const sheenX = clamp(ry * 1.35, -18, 18);
+      const sheenY = clamp(-rx * 1.05, -14, 14);
 
       const sheenTransform =
         `translate3d(${sheenX.toFixed(2)}px, ` +
