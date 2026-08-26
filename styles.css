@@ -2270,3 +2270,169 @@ body.collection-replay-mode #ar-footer {
     margin-top: 18px;
   }
 }
+
+
+/* ==========================================================================
+   BUILD 42: COLLECTION REPLAY REALISTIC 3D COIN
+   Cache key: 20260826-coin3d42
+============================================================================ */
+
+.collection-replay-coin {
+  position: fixed;
+  inset: 0;
+  z-index: 150000;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+  perspective: 1150px;
+  -webkit-perspective: 1150px;
+  transform-style: preserve-3d;
+  -webkit-transform-style: preserve-3d;
+}
+
+.collection-replay-coin.hidden {
+  display: none !important;
+}
+
+.collection-replay-coin-flight {
+  position: relative;
+  width: clamp(210px, 54vw, 430px);
+  aspect-ratio: 1 / 1;
+  opacity: 0;
+  transform:
+    translate3d(0, 28vh, 520px)
+    scale(.56)
+    rotateZ(-9deg);
+  transform-style: preserve-3d;
+  -webkit-transform-style: preserve-3d;
+  will-change: transform, opacity, filter;
+  filter: blur(1.5px);
+}
+
+.collection-replay-coin-flight.is-entering {
+  opacity: 1;
+  transform:
+    translate3d(0, 0, 700px)
+    scale(1)
+    rotateZ(0deg);
+  filter: blur(0);
+  transition:
+    transform 3000ms cubic-bezier(.16,.82,.18,1),
+    opacity 700ms ease-out,
+    filter 2200ms ease-out;
+}
+
+.collection-replay-coin-flight.is-fading {
+  opacity: 0;
+  transform:
+    translate3d(0, -2vh, 675px)
+    scale(.965)
+    rotateZ(.5deg);
+  filter: blur(2.2px);
+  transition:
+    opacity 1200ms cubic-bezier(.4,0,.2,1),
+    transform 1200ms ease-in,
+    filter 1200ms ease-in;
+}
+
+.collection-replay-coin-tilt {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+  -webkit-transform-style: preserve-3d;
+  transform-origin: 50% 50%;
+  will-change: transform;
+}
+
+.collection-replay-coin-object {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+  -webkit-transform-style: preserve-3d;
+  animation: collectionCoinHover 3.8s ease-in-out infinite alternate;
+}
+
+@keyframes collectionCoinHover {
+  from { transform: translate3d(0,-3px,0); }
+  to   { transform: translate3d(0,4px,0); }
+}
+
+.collection-coin-edge,
+.collection-replay-coin-face,
+.collection-replay-coin-sheen {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+/*
+  Ten recessed metal slices create the visible edge when the phone or drag
+  tilts the coin. No second image or WebGL context is required.
+*/
+.collection-coin-edge {
+  background:
+    radial-gradient(circle at 36% 28%,
+      #2e5960 0%,
+      #17343a 24%,
+      #071316 64%,
+      #020708 100%);
+  border: 1px solid rgba(94,255,242,.20);
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.025);
+}
+
+.edge-10 { transform: translateZ(-12px); filter: brightness(.42); }
+.edge-9  { transform: translateZ(-11px); filter: brightness(.46); }
+.edge-8  { transform: translateZ(-10px); filter: brightness(.50); }
+.edge-7  { transform: translateZ(-9px);  filter: brightness(.54); }
+.edge-6  { transform: translateZ(-8px);  filter: brightness(.58); }
+.edge-5  { transform: translateZ(-7px);  filter: brightness(.62); }
+.edge-4  { transform: translateZ(-6px);  filter: brightness(.66); }
+.edge-3  { transform: translateZ(-5px);  filter: brightness(.70); }
+.edge-2  { transform: translateZ(-4px);  filter: brightness(.75); }
+.edge-1  { transform: translateZ(-3px);  filter: brightness(.80); }
+
+.collection-replay-coin-face {
+  z-index: 4;
+  object-fit: contain;
+  transform: translateZ(2px);
+  filter:
+    drop-shadow(0 28px 34px rgba(0,0,0,.56))
+    drop-shadow(0 0 18px rgba(24,201,195,.14));
+}
+
+.collection-replay-coin-sheen {
+  z-index: 5;
+  transform: translateZ(3px);
+  background:
+    radial-gradient(circle at 31% 20%,
+      rgba(255,255,255,.25) 0%,
+      rgba(177,255,251,.11) 14%,
+      rgba(255,255,255,0) 38%),
+    linear-gradient(118deg,
+      transparent 30%,
+      rgba(255,255,255,.08) 48%,
+      transparent 65%);
+  mix-blend-mode: screen;
+  opacity: .62;
+  will-change: transform, opacity;
+}
+
+@media (max-width: 420px) {
+  .collection-replay-coin-flight {
+    width: clamp(205px, 68vw, 315px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .collection-replay-coin-flight.is-entering {
+    transition-duration: 350ms, 250ms, 250ms;
+  }
+
+  .collection-replay-coin-object {
+    animation: none;
+  }
+}

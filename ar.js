@@ -7,7 +7,7 @@
   target recognition; both presentations render as detached HTML/video.
 */
 
-console.info('[IDIS WebAR] Build 40 Platform: 20260825-platform40');
+console.info('[IDIS WebAR] Build 42 3D Collection Coin: 20260826-coin3d42');
 
 document.addEventListener('DOMContentLoaded', () => {
   const scene = document.querySelector('#ar-scene');
@@ -75,6 +75,21 @@ document.addEventListener('DOMContentLoaded', () => {
   const gsxCollectionCard =
     document.querySelector('#collection-gsx2026');
 
+  const collectionReplayCoin =
+    document.querySelector('#collection-replay-coin');
+
+  const collectionReplayCoinFlight =
+    document.querySelector('#collection-replay-coin-flight');
+
+  const collectionReplayCoinTilt =
+    document.querySelector('#collection-replay-coin-tilt');
+
+  const collectionReplayCoinFace =
+    document.querySelector('#collection-replay-coin-face');
+
+  const collectionReplayCoinSheen =
+    document.querySelector('#collection-replay-coin-sheen');
+
   const endCard = document.querySelector('#end-card');
   const personalizedThanksLine1 = document.querySelector('#personalized-thanks-line1');
   const personalizedThanksLine2 = document.querySelector('#personalized-thanks-line2');
@@ -110,6 +125,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const COLLECTION_TOTAL_SLOTS = 5;
 
+  // Collection replay coin intro timing:
+  // 3 seconds easing into center, 6 seconds holding, then a 1.2 second fade.
+  const COLLECTION_COIN_ENTER_MS = 3000;
+  const COLLECTION_COIN_HOLD_MS = 6000;
+  const COLLECTION_COIN_FADE_MS = 1200;
+
   let guestName = '';
   let collectedCoinIds = new Set();
 
@@ -125,6 +146,11 @@ document.addEventListener('DOMContentLoaded', () => {
   // When true, the Atlanta experience was launched from the saved collection
   // and does not require MindAR, camera permission, or the physical coin.
   let collectionReplayMode = false;
+
+  let collectionCoinEnterTimer = null;
+  let collectionCoinHoldTimer = null;
+  let collectionCoinHideTimer = null;
+  let collectionCoinIntroActive = false;
 
   // Atlanta / state voiceover.
   let atlantaVoiceoverPrimed = false;
@@ -1087,6 +1113,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     resetAtlantaThankYouFinale();
     stopAtlantaVoiceover(true);
+    hideCollectionReplayCoinIntro();
     hideAllPresentations();
     hidePresentationControls();
     hideScanUI();
@@ -1102,6 +1129,173 @@ document.addEventListener('DOMContentLoaded', () => {
     intro.classList.remove('hidden');
 
     renderCoinCollection();
+  }
+
+  function clearCollectionReplayCoinTimers() {
+    if (collectionCoinEnterTimer) {
+      clearTimeout(collectionCoinEnterTimer);
+      collectionCoinEnterTimer = null;
+    }
+
+    if (collectionCoinHoldTimer) {
+      clearTimeout(collectionCoinHoldTimer);
+      collectionCoinHoldTimer = null;
+    }
+
+    if (collectionCoinHideTimer) {
+      clearTimeout(collectionCoinHideTimer);
+      collectionCoinHideTimer = null;
+    }
+  }
+
+  function hideCollectionReplayCoinIntro() {
+    clearCollectionReplayCoinTimers();
+    collectionCoinIntroActive = false;
+
+    if (collectionReplayCoinFlight) {
+      collectionReplayCoinFlight.classList.remove(
+        'is-entering',
+        'is-fading'
+      );
+    }
+
+    if (collectionReplayCoin) {
+      collectionReplayCoin.classList.add('hidden');
+      collectionReplayCoin.setAttribute(
+        'aria-hidden',
+        'true'
+      );
+    }
+
+    if (collectionReplayCoinTilt) {
+      collectionReplayCoinTilt.style.transform = '';
+      collectionReplayCoinTilt.style.webkitTransform = '';
+    }
+  }
+
+  function showCollectionReplayCoinIntro() {
+    if (
+      !collectionReplayMode ||
+      !collectionReplayCoin ||
+      !collectionReplayCoinFlight
+    ) {
+      return;
+    }
+
+    hideCollectionReplayCoinIntro();
+
+    if (
+      collectionReplayCoinFace &&
+      !collectionReplayCoinFace.getAttribute('src')
+    ) {
+      const src =
+        collectionReplayCoinFace.dataset.src;
+
+      if (src) {
+        collectionReplayCoinFace.src = src;
+      }
+    }
+
+    collectionCoinIntroActive = true;
+
+    collectionReplayCoin.classList.remove('hidden');
+    collectionReplayCoin.setAttribute(
+      'aria-hidden',
+      'false'
+    );
+
+    // Force the start pose to paint before the three-second ease begins.
+    void collectionReplayCoinFlight.offsetWidth;
+
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        if (!collectionCoinIntroActive) return;
+        collectionReplayCoinFlight.classList.add(
+          'is-entering'
+        );
+      });
+    });
+
+    collectionCoinEnterTimer = setTimeout(() => {
+      collectionCoinEnterTimer = null;
+
+      if (!collectionCoinIntroActive) return;
+
+      // Hold centered for a full six seconds after the entrance completes.
+      collectionCoinHoldTimer = setTimeout(() => {
+        collectionCoinHoldTimer = null;
+
+        if (!collectionCoinIntroActive) return;
+
+        collectionReplayCoinFlight.classList.add(
+          'is-fading'
+        );
+
+        collectionCoinHideTimer = setTimeout(() => {
+          collectionCoinHideTimer = null;
+          hideCollectionReplayCoinIntro();
+        }, COLLECTION_COIN_FADE_MS);
+      }, COLLECTION_COIN_HOLD_MS);
+    }, COLLECTION_COIN_ENTER_MS);
+  }
+
+  function renderCollectionReplayCoinIntro(
+    phoneTilt,
+    gestureRX,
+    gestureRY
+  ) {
+    if (
+      !collectionCoinIntroActive ||
+      !collectionReplayCoinTilt
+    ) {
+      return;
+    }
+
+    // Reuse the Atlanta preserve-3D interaction language, with slightly
+    // stronger rotation so the stacked edge slices reveal real thickness.
+    const rx = clamp(
+      gestureRX * 1.20 +
+        (phoneTilt?.x || 0) * 1.16,
+      -13,
+      13
+    );
+
+    const ry = clamp(
+      gestureRY * 1.24 +
+        (phoneTilt?.y || 0) * 1.20,
+      -15,
+      15
+    );
+
+    const x = panX * 0.075;
+    const y = panY * 0.075;
+
+    const tiltTransform =
+      `translate3d(${x.toFixed(2)}px, ` +
+      `${y.toFixed(2)}px, 0) ` +
+      `rotateX(${rx.toFixed(3)}deg) ` +
+      `rotateY(${ry.toFixed(3)}deg)`;
+
+    collectionReplayCoinTilt.style.transform =
+      tiltTransform;
+
+    collectionReplayCoinTilt.style.webkitTransform =
+      tiltTransform;
+
+    if (collectionReplayCoinSheen) {
+      const sheenX = clamp(ry * 1.8, -24, 24);
+      const sheenY = clamp(-rx * 1.4, -18, 18);
+
+      const sheenTransform =
+        `translate3d(${sheenX.toFixed(2)}px, ` +
+        `${sheenY.toFixed(2)}px, 3px)`;
+
+      collectionReplayCoinSheen.style.transform =
+        sheenTransform;
+
+      collectionReplayCoinSheen.style.webkitTransform =
+        sheenTransform;
+    }
   }
 
   function updatePersonalizedThanks(variant = 'atlanta') {
@@ -1416,43 +1610,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     throw new Error('CAMERA_FRAME_TIMEOUT');
-  }
-
-  const AFRAME_URL = 'https://aframe.io/releases/1.5.0/aframe.min.js';
-  const MINDAR_URL = 'https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js';
-  let arLibrariesPromise = null;
-
-  function loadExternalScriptOnce(src, readyCheck) {
-    if (readyCheck()) return Promise.resolve();
-    const existing = document.querySelector(`script[data-runtime-src="${src}"]`);
-    if (existing) {
-      return new Promise((resolve,reject) => {
-        if (readyCheck()) return resolve();
-        existing.addEventListener('load', resolve, {once:true});
-        existing.addEventListener('error', () => reject(new Error(`Could not load ${src}`)), {once:true});
-      });
-    }
-    return new Promise((resolve,reject) => {
-      const script=document.createElement('script');
-      script.src=src;
-      script.async=false;
-      script.dataset.runtimeSrc=src;
-      script.onload=()=>{script.dataset.loaded='1';resolve();};
-      script.onerror=()=>reject(new Error(`Could not load ${src}`));
-      document.head.appendChild(script);
-    });
-  }
-
-  function ensureARLibraries() {
-    if (arLibrariesPromise) return arLibrariesPromise;
-    arLibrariesPromise = (async () => {
-      showScanUI('LOADING AR ENGINE');
-      await loadExternalScriptOnce(AFRAME_URL, () => Boolean(window.AFRAME));
-      await loadExternalScriptOnce(MINDAR_URL, () => document.querySelector(`script[data-runtime-src="${MINDAR_URL}"]`)?.dataset.loaded === '1');
-      // MindAR registers synchronously when its script evaluates. Give custom elements one frame to upgrade.
-      await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
-    })().catch(error => { arLibrariesPromise=null; throw error; });
-    return arLibrariesPromise;
   }
 
   async function waitForSceneSystem(maxMs = 8000) {
@@ -3288,24 +3445,23 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Subtle user-driven depth angle. It is tied to DRAG position,
     // not the physical coin.
+    const gestureRX = clamp(
+      -(panY / Math.max(1, window.innerHeight)) * 7,
+      -3.5,
+      3.5
+    );
+
+    const gestureRY = clamp(
+      (panX / Math.max(1, window.innerWidth)) * 8,
+      -4,
+      4
+    );
+
+    // Use ONE smoothed phone sample for both the Atlanta stage and the
+    // replay coin so the two preserve-3D motions stay perfectly coherent.
+    const phoneTilt = updatePhoneTilt();
+
     if (overlayStage) {
-      const gestureRX = clamp(
-        -(panY / Math.max(1, window.innerHeight)) * 7,
-        -3.5,
-        3.5
-      );
-
-      const gestureRY = clamp(
-        (panX / Math.max(1, window.innerWidth)) * 8,
-        -4,
-        4
-      );
-
-      // Full phone orientation enhancement:
-      // phoneTilt.x = up/down pitch
-      // phoneTilt.y = left/right yaw
-      const phoneTilt = updatePhoneTilt();
-
       const rx = clamp(
         gestureRX + phoneTilt.x,
         -9.0,
@@ -3324,6 +3480,12 @@ document.addEventListener('DOMContentLoaded', () => {
       overlayStage.style.transform = stageTransform;
       overlayStage.style.webkitTransform = stageTransform;
     }
+
+    renderCollectionReplayCoinIntro(
+      phoneTilt,
+      gestureRX,
+      gestureRY
+    );
   }
 
   function renderIDISAbstractBackground(phoneTilt) {
@@ -3592,6 +3754,7 @@ document.addEventListener('DOMContentLoaded', () => {
     cancelAnimationFrame(presentationRAF);
     presentationRAF = 0;
 
+    hideCollectionReplayCoinIntro();
     resetAtlantaThankYouFinale();
     hideAtlantaPresentation();
 
@@ -3675,6 +3838,10 @@ document.addEventListener('DOMContentLoaded', () => {
     if (side === 'atlanta') {
       // Atlanta duration is now driven entirely by state-voiceover.mp3.
       showAtlantaPresentation();
+
+      if (source === 'collection') {
+        showCollectionReplayCoinIntro();
+      }
     } else {
       // IDIS duration is driven by its cinematic media sequence.
       clearPresentationTimer();
@@ -3767,12 +3934,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
       intro.classList.add('hidden');
       setARUI(true);
-      showScanUI('LOADING AR ENGINE');
-
-      await ensureARLibraries();
-
-      if (myToken !== sessionToken) return;
-
+      // A-Frame and MindAR were loaded synchronously in index.html.
+      // This restores the proven camera initialization path from the stable build.
       showScanUI('STARTING CAMERA');
       watchForCameraVideo();
       arSystem = await waitForSceneSystem(12000);
