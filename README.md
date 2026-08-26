@@ -1,3 +1,15 @@
+# Build 40.1 Auth Hotfix
+
+This hotfix corrects the Supabase collector sign-in redirect and keeps both Magic Link and 6-digit OTP verification supported.
+
+Key fixes:
+- collector `signInWithOtp()` now passes the production `emailRedirectTo`
+- production redirect: `https://idisamericas.github.io/collection/`
+- returned Supabase auth tokens are cleaned from the browser address bar after session recovery
+- clearer hybrid Link / 6-digit Code UI messaging
+- Studio redirect remains `/collection/studio.html`
+- exact Supabase Dashboard steps for switching the email template to `{{ .Token }}` are in `docs/SETUP-SUPABASE.md`
+
 # IDIS Collectible Experience Platform — Build 40
 
 This build turns the GSX prototype into a local-first, cloud-ready, white-label platform baseline.

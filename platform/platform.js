@@ -164,12 +164,36 @@
       const {data, error} = await client.auth.getSession();
       if (error) throw error;
       session = data.session || null;
+
+      if (session) {
+        cleanSupabaseAuthUrl();
+      }
+
       renderAuth();
-      if (session) await syncCollections();
-      client.auth.onAuthStateChange((_event, next) => {
+
+      if (session) {
+        await syncCollections();
+      }
+      client.auth.onAuthStateChange((event, next) => {
         session = next || null;
+
+        if (session) {
+          cleanSupabaseAuthUrl();
+        }
+
         renderAuth();
-        if (session) setTimeout(syncCollections,0);
+
+        if (session) {
+          setTimeout(syncCollections, 0);
+
+          if (
+            event === 'SIGNED_IN'
+          ) {
+            toast(
+              'Signed in. Your collection is syncing.'
+            );
+          }
+        }
       });
     } catch (error) {
       console.warn('[Platform] Auth init:', error);
@@ -177,13 +201,75 @@
     }
   }
 
+  function collectorRedirectUrl() {
+    const configured =
+      cfg.auth?.redirectUrl;
+
+    if (configured) {
+      return configured;
+    }
+
+    return (
+      window.location.origin +
+      window.location.pathname
+    );
+  }
+
+  function cleanSupabaseAuthUrl() {
+    /*
+      Supabase implicit-flow Magic Links can return access tokens in the hash.
+      Once the JS client has restored the session, remove those values from the
+      address bar so they are not left visible or accidentally copied.
+    */
+    try {
+      const hash =
+        window.location.hash || '';
+
+      const search =
+        window.location.search || '';
+
+      const hasAuthHash =
+        /access_token=|refresh_token=|error_description=/.test(
+          hash
+        );
+
+      const hasAuthQuery =
+        /code=|token_hash=/.test(
+          search
+        );
+
+      if (
+        hasAuthHash ||
+        hasAuthQuery
+      ) {
+        window.history.replaceState(
+          {},
+          document.title,
+          window.location.pathname
+        );
+      }
+    } catch (_) {}
+  }
+
   async function sendOtp(email) {
     const client = await loadSupabase();
-    const {error} = await client.auth.signInWithOtp({
-      email,
-      options: { shouldCreateUser: cfg.auth?.allowSignup !== false }
-    });
+
+    const {error} =
+      await client.auth.signInWithOtp({
+        email,
+        options: {
+          shouldCreateUser:
+            cfg.auth?.allowSignup !== false,
+
+          // Critical:
+          // prevents Supabase from falling back to a localhost Site URL.
+          emailRedirectTo:
+            collectorRedirectUrl()
+        }
+      });
+
     if (error) throw error;
+
     authEmail = email;
   }
 
@@ -275,7 +361,7 @@
       if(!email)return;
       if(!configReady){ if(note){note.className='platform-note';note.textContent='Cloud accounts are ready in the code, but this deployment still needs a Supabase URL and publishable key in platform/platform-config.js.';} return; }
       const submit=emailForm.querySelector('button[type=submit]');
-      try{submit.disabled=true;submit.textContent='SENDING…';await sendOtp(email);emailForm.hidden=true;otpForm.hidden=false;$('#platform-otp')?.focus();if(note){note.className='platform-note';note.textContent=`Check ${email}. Use the secure sign-in link, or enter the 6-digit code if your email template includes one.`;}}catch(error){if(note){note.className='platform-note error';note.textContent=error.message || 'Could not send the code.';}}finally{submit.disabled=false;submit.textContent='SEND SIGN-IN EMAIL';}
+      try{submit.disabled=true;submit.textContent='SENDING…';await sendOtp(email);emailForm.hidden=true;otpForm.hidden=false;$('#platform-otp')?.focus();if(note){note.className='platform-note';note.textContent=`Check ${email}. If the email contains a 6-digit code, enter it below. If it contains a secure sign-in link, tap the link and it will return you to this collection.`;}}catch(error){if(note){note.className='platform-note error';note.textContent=error.message || 'Could not send the code.';}}finally{submit.disabled=false;submit.textContent='SEND SIGN-IN EMAIL';}
     });
 
     otpForm?.addEventListener('submit',async e=>{

@@ -20,7 +20,15 @@ window.IDIS_PLATFORM_CONFIG = Object.freeze({
     enabled: true,
     allowSignup: true,
     otpLength: 6,
-    redirectUrl: 'https://idisamericas.github.io/collection/'
+
+    // Supabase must also allow this URL in:
+    // Authentication > URL Configuration.
+    redirectUrl: 'https://idisamericas.github.io/collection/',
+
+    // Current client accepts BOTH:
+    // - 6-digit email OTP
+    // - standard Supabase Magic Link
+    emailMode: 'hybrid'
   },
 
   branding: {

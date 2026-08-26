@@ -11,9 +11,9 @@
   <meta name="description" content="Scan the limited IDIS Americas GSX 2026 coin, save it to your digital collection, and replay the experience anytime." />
   <!-- AR libraries are lazy-loaded only after START THE EXPERIENCE. -->
 <link rel="stylesheet" href="./styles.css?v=20260825-platform40" />
-  <link rel="stylesheet" href="./platform/platform.css?v=20260825-platform40" />
-  <script src="./platform/platform-config.js?v=20260825-platform40"></script>
-  <script defer src="./platform/platform.js?v=20260825-platform40"></script>
+  <link rel="stylesheet" href="./platform/platform.css?v=20260825-authfix401" />
+  <script src="./platform/platform-config.js?v=20260825-authfix401"></script>
+  <script defer src="./platform/platform.js?v=20260825-authfix401"></script>
   <script defer src="./ar.js?v=20260825-platform40"></script>
 </head>
 <body>
@@ -421,13 +421,13 @@
         <p>Save collected experiences to your email so they can follow you to another phone or computer.</p>
         <form id="platform-email-form" class="platform-form">
           <div class="platform-field"><label for="platform-email">EMAIL ADDRESS</label><input id="platform-email" class="platform-input" type="email" autocomplete="email" inputmode="email" required placeholder="you@example.com"></div>
-          <button class="platform-button" type="submit">SEND SIGN-IN EMAIL</button>
+          <button class="platform-button" type="submit">EMAIL MY SIGN-IN</button>
         </form>
         <form id="platform-otp-form" class="platform-form" hidden>
           <div class="platform-field"><label for="platform-otp">6-DIGIT CODE</label><input id="platform-otp" class="platform-input" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" pattern="[0-9]*" required placeholder="000000"></div>
           <button class="platform-button" type="submit">VERIFY &amp; SAVE</button>
         </form>
-        <div id="platform-auth-note" class="platform-note">No password required. Use the secure email link, or a 6-digit code when enabled. Your device collection remains available even if you do not sign in.</div>
+        <div id="platform-auth-note" class="platform-note">No password required. Your email may contain a secure sign-in link or a 6-digit code, depending on the Supabase email template. Your device collection remains available even if you do not sign in.</div>
         <button id="platform-signout" class="platform-button secondary" type="button" hidden style="width:100%;margin-top:12px">SIGN OUT</button>
       </div>
     </section>
