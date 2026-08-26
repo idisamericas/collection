@@ -1,0 +1,146 @@
+{
+  "build": 40,
+  "cloud": "connected",
+  "files": [
+    {
+      "path": "assets/reference/GSX2026-Coin-Back.png",
+      "bytes": 5301550
+    },
+    {
+      "path": "assets/reference/coin-front.png",
+      "bytes": 2607233
+    },
+    {
+      "path": "ar.js",
+      "bytes": 101288
+    },
+    {
+      "path": "assets/thumbs/gsx2026-atlanta.webp",
+      "bytes": 86118
+    },
+    {
+      "path": "assets/ui/idis-logo.png",
+      "bytes": 65698
+    },
+    {
+      "path": "styles.css",
+      "bytes": 58622
+    },
+    {
+      "path": "index.html",
+      "bytes": 21266
+    },
+    {
+      "path": "platform/platform.js",
+      "bytes": 13468
+    },
+    {
+      "path": "supabase/schema.sql",
+      "bytes": 9168
+    },
+    {
+      "path": "platform/platform.css",
+      "bytes": 6366
+    },
+    {
+      "path": "abstract-background-preview.html",
+      "bytes": 5380
+    },
+    {
+      "path": "platform/studio.js",
+      "bytes": 4765
+    },
+    {
+      "path": "camera-test.html",
+      "bytes": 4103
+    },
+    {
+      "path": "collection-preview.html",
+      "bytes": 3283
+    },
+    {
+      "path": "studio.html",
+      "bytes": 2841
+    },
+    {
+      "path": "docs/asset-report.json",
+      "bytes": 2591
+    },
+    {
+      "path": "tools/validate-build.py",
+      "bytes": 2376
+    },
+    {
+      "path": "platform/studio.css",
+      "bytes": 2346
+    },
+    {
+      "path": "idis-media-test.html",
+      "bytes": 2270
+    },
+    {
+      "path": "docs/BANDWIDTH-AUDIT.md",
+      "bytes": 2010
+    },
+    {
+      "path": "diagnostics.html",
+      "bytes": 1940
+    },
+    {
+      "path": "README.md",
+      "bytes": 1926
+    },
+    {
+      "path": "supabase/seed.sql",
+      "bytes": 1750
+    },
+    {
+      "path": "docs/TEST-PLAN.md",
+      "bytes": 1307
+    },
+    {
+      "path": "platform/platform-config.js",
+      "bytes": 1139
+    },
+    {
+      "path": "FOLDER-STRUCTURE.txt",
+      "bytes": 1102
+    },
+    {
+      "path": "DEPLOYMENT-CHECKLIST.txt",
+      "bytes": 1064
+    },
+    {
+      "path": "docs/SETUP-SUPABASE.md",
+      "bytes": 937
+    },
+    {
+      "path": "assets/audio/README-STATE-VOICEOVER.txt",
+      "bytes": 757
+    },
+    {
+      "path": "docs/runtime-manifest.json",
+      "bytes": 706
+    },
+    {
+      "path": "assets/video/README-MEDIA.txt",
+      "bytes": 322
+    },
+    {
+      "path": "assets/targets/README-TARGET.txt",
+      "bytes": 204
+    },
+    {
+      "path": "assets/parallax/atlanta/README-ATLANTA.txt",
+      "bytes": 155
+    },
+    {
+      "path": "assets/ui/README-UI.txt",
+      "bytes": 145
+    },
+    {
+      "path": ".nojekyll",
+      "bytes": 0
+    }
+  ]
+}

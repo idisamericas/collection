@@ -7,7 +7,7 @@
   target recognition; both presentations render as detached HTML/video.
 */
 
-console.info('[IDIS WebAR] Build 39 Collection Carousel: 20260825-collection39');
+console.info('[IDIS WebAR] Build 40 Platform: 20260825-platform40');
 
 document.addEventListener('DOMContentLoaded', () => {
   const scene = document.querySelector('#ar-scene');
@@ -351,16 +351,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Roll around the screen's vertical axis, useful as LR fallback.
     const leftRight =
-      THREE.MathUtils.radToDeg(
-        Math.atan2(sx, horizontalDenominator)
-      );
+      Math.atan2(sx, horizontalDenominator) * (180 / Math.PI);
 
     // Screen-normal pitch. At an upright neutral phone z is near zero.
     // Tipping the top of the phone toward/away changes z strongly.
     const upDown =
-      THREE.MathUtils.radToDeg(
-        Math.atan2(z, normalDenominator)
-      );
+      Math.atan2(z, normalDenominator) * (180 / Math.PI);
 
     return {
       leftRight,
@@ -996,6 +992,15 @@ document.addEventListener('DOMContentLoaded', () => {
     saveCoinCollection();
     renderCoinCollection();
 
+    window.dispatchEvent(
+      new CustomEvent('idis:collection-changed', {
+        detail: {
+          coinId: GSX_2026_COIN_ID,
+          source: 'scan'
+        }
+      })
+    );
+
     return true;
   }
 
@@ -1057,6 +1062,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Re-zero from the sensor sample taken during this explicit user tap.
     resetPhoneTiltNeutral();
+
+    window.dispatchEvent(
+      new CustomEvent('idis:experience-replay', {
+        detail: {
+          coinId: GSX_2026_COIN_ID,
+          experience: 'atlanta'
+        }
+      })
+    );
 
     beginPresentation(
       'atlanta',
@@ -1402,6 +1416,43 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     throw new Error('CAMERA_FRAME_TIMEOUT');
+  }
+
+  const AFRAME_URL = 'https://aframe.io/releases/1.5.0/aframe.min.js';
+  const MINDAR_URL = 'https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js';
+  let arLibrariesPromise = null;
+
+  function loadExternalScriptOnce(src, readyCheck) {
+    if (readyCheck()) return Promise.resolve();
+    const existing = document.querySelector(`script[data-runtime-src="${src}"]`);
+    if (existing) {
+      return new Promise((resolve,reject) => {
+        if (readyCheck()) return resolve();
+        existing.addEventListener('load', resolve, {once:true});
+        existing.addEventListener('error', () => reject(new Error(`Could not load ${src}`)), {once:true});
+      });
+    }
+    return new Promise((resolve,reject) => {
+      const script=document.createElement('script');
+      script.src=src;
+      script.async=false;
+      script.dataset.runtimeSrc=src;
+      script.onload=()=>{script.dataset.loaded='1';resolve();};
+      script.onerror=()=>reject(new Error(`Could not load ${src}`));
+      document.head.appendChild(script);
+    });
+  }
+
+  function ensureARLibraries() {
+    if (arLibrariesPromise) return arLibrariesPromise;
+    arLibrariesPromise = (async () => {
+      showScanUI('LOADING AR ENGINE');
+      await loadExternalScriptOnce(AFRAME_URL, () => Boolean(window.AFRAME));
+      await loadExternalScriptOnce(MINDAR_URL, () => document.querySelector(`script[data-runtime-src="${MINDAR_URL}"]`)?.dataset.loaded === '1');
+      // MindAR registers synchronously when its script evaluates. Give custom elements one frame to upgrade.
+      await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+    })().catch(error => { arLibrariesPromise=null; throw error; });
+    return arLibrariesPromise;
   }
 
   async function waitForSceneSystem(maxMs = 8000) {
@@ -3716,10 +3767,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
       intro.classList.add('hidden');
       setARUI(true);
+      showScanUI('LOADING AR ENGINE');
+
+      await ensureARLibraries();
+
+      if (myToken !== sessionToken) return;
+
       showScanUI('STARTING CAMERA');
       watchForCameraVideo();
-
-      arSystem = await waitForSceneSystem();
+      arSystem = await waitForSceneSystem(12000);
 
       if (myToken !== sessionToken) return;
 
@@ -4051,6 +4107,14 @@ document.addEventListener('DOMContentLoaded', () => {
       launchCollectedAtlantaExperience
     );
   }
+
+  window.addEventListener(
+    'idis:cloud-collection-merged',
+    () => {
+      collectedCoinIds = readCoinCollection();
+      renderCoinCollection();
+    }
+  );
 
   startButton.addEventListener('click', startAR);
   retryButton.addEventListener('click', startAR);

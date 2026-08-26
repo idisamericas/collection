@@ -1,81 +1,45 @@
-# IDIS Americas GSX 2026 WebAR Coin
-## Build 39 — Persistent Digital Collection
+# IDIS Collectible Experience Platform — Build 40
 
-Production repo: `idisamericas/collection`
+This build turns the GSX prototype into a local-first, cloud-ready, white-label platform baseline.
 
-## New homepage collection
+## What works without a database
+- GSX AR experience
+- Atlanta audio-driven finale
+- IDIS abstract parallax experience
+- persistent local collection
+- saved coin replay without camera
+- mobile My Collection showcase
+- graceful Device Only account state
 
-A horizontal coin carousel now sits directly below the IDIS logo and above
-the main `We See More Than Security.` copy.
+## What activates when Supabase is configured
+- passwordless email OTP account
+- persisted Supabase session
+- local collection -> cloud merge
+- cloud collection -> new-device restore
+- activity events
+- Studio authorization and collectible metadata management
 
-The carousel always contains five positions.
+## Setup
+1. Deploy this folder to `idisamericas/collection`.
+2. Preserve/copy your production runtime media and `.mind` target into the existing paths.
+3. Follow `docs/SETUP-SUPABASE.md`.
+4. Test `diagnostics.html`.
+5. Test the homepage before testing AR.
 
-Before the physical GSX 2026 coin is scanned, the first position is a teal
-outlined placeholder. Four additional teal outlined positions represent future
-collectibles.
+## Performance changes
+The homepage no longer downloads A-Frame or MindAR before the visitor chooses AR. The carousel uses `assets/thumbs/gsx2026-atlanta.webp` instead of the multi-megabyte reference PNG. The Supabase SDK is also lazy-loaded.
 
-After either side of the physical GSX 2026 coin is successfully recognized,
-the browser stores this coin ID in `localStorage`:
+## Production URLs
+- Main: `https://idisamericas.github.io/collection/?v=40`
+- Studio: `https://idisamericas.github.io/collection/studio.html?v=40`
+- Diagnostics: `https://idisamericas.github.io/collection/diagnostics.html?v=40`
 
-`idis-digital-coin-collection-v1`
+Build marker: `20260825-platform40`
 
-The first collection position changes to:
+## Live cloud status
 
-- actual `assets/reference/GSX2026-Coin-Back.png`
-- GSX 2026
-- Year: 2026
-- Date: Sep 14–16
-- Location: Atlanta, GA
-- Tap to Replay Experience
+The connected Supabase project is provisioned and seeded for Build 40. The browser-safe publishable key and project URL are already in `platform/platform-config.js`.
 
-This persists on the same browser/device.
+Before production email sign-in, set Supabase Auth Site URL / redirect allow-list to the GitHub Pages collection URL as described in `docs/SETUP-SUPABASE.md`.
 
-## Replay without the physical coin
-
-After the GSX coin is collected, tapping it from the homepage launches the
-Atlanta/state layered experience directly.
-
-Collection replay:
-- does NOT start MindAR
-- does NOT request the camera
-- does NOT require the physical coin
-- still requests motion permission where required
-- still plays `state-voiceover.mp3`
-- still uses the final-five-second Thank You sequence
-- returns to the homepage when complete
-
-The normal `START THE EXPERIENCE` button still launches the live camera scanner.
-
-## Important behavior
-
-Only a real MindAR target recognition unlocks the collectible. Replaying the
-saved item does not create an unlock.
-
-Both sides of the GSX coin unlock the same collectible because they are two
-faces of the same physical coin.
-
-## Required runtime files
-
-Keep:
-- `assets/targets/gsx2026-two-sided.mind`
-- `assets/audio/state-voiceover.mp3`
-- `assets/video/idis-showcase-alpha.webm`
-- `assets/parallax/atlanta/layer-1-back.mp4`
-- `assets/parallax/atlanta/layer-2-middle.png`
-- `assets/parallax/atlanta/layer-3-front.png`
-
-Included:
-- `assets/reference/GSX2026-Coin-Back.png`
-- `assets/reference/coin-front.png`
-- `assets/ui/idis-logo.png`
-
-## Test
-
-Main:
-`https://idisamericas.github.io/collection/?v=39`
-
-Collection-only visual preview:
-`https://idisamericas.github.io/collection/collection-preview.html?v=39`
-
-Console:
-`[IDIS WebAR] Build 39 Collection Carousel: 20260825-collection39`
+The Studio remains intentionally role-protected. After the first admin account signs in, add that user to `organization_members` as `owner`.
