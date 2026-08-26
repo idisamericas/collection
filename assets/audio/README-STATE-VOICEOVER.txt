@@ -25,3 +25,11 @@ IMPORTANT
 - The voiceover keeps playing underneath the Thank You card.
 - When the MP3 ends, the card fades out over the existing ~0.9 sec fade.
 - Flipping to the IDIS side before the finale stops and resets the MP3.
+
+
+IDIS SIDE AUDIO
+---------------
+Add your IDIS-side narration MP3 here:
+assets/audio/idis-voiceover.mp3
+
+The IDIS side now uses this MP3 as the master duration. The closing thank-you card begins during the final five seconds.

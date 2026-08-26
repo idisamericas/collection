@@ -14,3 +14,10 @@ NO SPHERE VIDEO IS USED OR REFERENCED.
 
 YOUTUBE:
 https://youtu.be/G7vGMc4Z2os
+
+
+BUILD 44 NOTES
+--------------
+- idis-showcase-alpha.webm now serves as the top coin-sized transparent motion layer on the IDIS side.
+- The same file is also used as the default bottom motion layer until you replace it with a dedicated asset.
+- If you want a separate lower motion layer, change the source on #idis-feature-bottom-video in index.html.

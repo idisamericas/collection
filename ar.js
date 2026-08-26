@@ -7,7 +7,7 @@
   target recognition; both presentations render as detached HTML/video.
 */
 
-console.info('[IDIS WebAR] Build 42.1 3D Collection Coin Tuned: 20260826-collectionshine43');
+console.info('[IDIS WebAR] Build 42.1 3D Collection Coin Tuned: 20260826-idisaudiolayers44');
 
 document.addEventListener('DOMContentLoaded', () => {
   const scene = document.querySelector('#ar-scene');
@@ -57,8 +57,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const idisShowcaseCanvas = document.querySelector('#idis-showcase-canvas');
   const idisFeatureOverlay = document.querySelector('#idis-feature-overlay');
   const idisFeatureStage = document.querySelector('#idis-feature-stage');
-  const idisFeatureVideoLayer = document.querySelector('#idis-feature-video-layer');
-  const idisFeatureLogoLayer = document.querySelector('#idis-feature-logo-layer');
+  const idisFeatureBottomLayer = document.querySelector('#idis-feature-bottom-layer');
+  const idisFeatureMiddleLayer = document.querySelector('#idis-feature-middle-layer');
   const idisFeatureLogo = document.querySelector('#idis-feature-logo');
   const idisFeatureVideoWrap = document.querySelector('#idis-feature-video-wrap');
   const idisFeatureYouTubeHost = document.querySelector('#idis-youtube-player');
@@ -99,15 +99,11 @@ document.addEventListener('DOMContentLoaded', () => {
   const HOME_DELAY_MS = 3000;
 
   // IDIS is now media-driven.
-  const IDIS_LOGO_TO_FEATURE_DELAY_MS = 850;
+  const IDIS_LAYER_REVEAL_DELAY_MS = 850;
+  const IDIS_COIN_LAYER_HOLD_MS = 4000;
+  const IDIS_BACKGROUND_REVEAL_DELAY_MS = 360;
+  const IDIS_ENDCARD_LEAD_SECONDS = 5;
   const IDIS_CINEMATIC_EXIT_MS = 620;
-
-  // IDIS coin-to-abstract transition.
-  const IDIS_FINAL_FRAME_HOLD_MS = 1200;
-  const IDIS_ABSTRACT_FADE_MS = 1600;
-
-  const IDIS_YOUTUBE_VIDEO_ID = 'G7vGMc4Z2os';
-  const IDIS_YOUTUBE_START_TIMEOUT_MS = 12000;
 
   const END_CARD_MS = 6000;
   const END_CARD_FADE_OUT_MS = 900;
@@ -181,15 +177,13 @@ document.addEventListener('DOMContentLoaded', () => {
   // IDIS cinematic sequence.
   let idisFeatureStartTimer = null;
   let idisCinematicExitTimer = null;
-  let idisYouTubeStartTimeout = null;
-  let idisFinalFrameHoldTimer = null;
-  let idisAbstractFadeTimer = null;
+  let idisBackgroundRevealTimer = null;
+  let idisTopLayerFadeTimer = null;
+  let idisVoiceoverLeadTimer = null;
   let idisSequenceActive = false;
   let idisSequencePhase = 'idle';
-
-  let idisYouTubePlayer = null;
-  let idisYouTubeReady = false;
-  let idisYouTubePendingPlay = false;
+  let idisVoiceoverPrimed = false;
+  let idisVoiceoverPlaying = false;
 
   // GPU compositor for the transparent/black-key showcase.
   let idisAlphaGL = null;
@@ -1048,6 +1042,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // This click is itself a valid user gesture for motion + audio permission.
     primeAtlantaVoiceover();
+    primeIDISVoiceover();
 
     if (!motionTiltEnabled) {
       try {
@@ -1702,9 +1697,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const warm = () => {
       warmVideo(layerBack);
       warmAudio(atlantaVoiceover);
+      warmAudio(idisVoiceover);
 
       setTimeout(
-        () => warmVideo(idisShowcaseVideo),
+        () => {
+          warmVideo(idisShowcaseVideo);
+          warmVideo(idisFeatureBottomVideo);
+        },
         500
       );
     };
@@ -1796,6 +1795,144 @@ document.addEventListener('DOMContentLoaded', () => {
         'Atlanta voiceover prime warning:',
         error
       );
+    }
+  }
+
+  function prepareIDISVoiceover() {
+    if (!idisVoiceover) return;
+
+    try {
+      idisVoiceover.preload = 'auto';
+      idisVoiceover.loop = false;
+      idisVoiceover.volume = 1;
+      idisVoiceover.playsInline = true;
+      idisVoiceover.setAttribute('playsinline', '');
+    } catch (_) {}
+  }
+
+  function primeIDISVoiceover() {
+    if (!idisVoiceover || idisVoiceoverPrimed) return;
+
+    prepareIDISVoiceover();
+
+    try {
+      idisVoiceover.muted = true;
+      idisVoiceover.currentTime = 0;
+
+      const playPromise = idisVoiceover.play();
+
+      if (playPromise && typeof playPromise.then === 'function') {
+        playPromise
+          .then(() => {
+            try {
+              idisVoiceover.pause();
+              idisVoiceover.currentTime = 0;
+              idisVoiceover.muted = false;
+              idisVoiceoverPrimed = true;
+            } catch (_) {}
+          })
+          .catch(() => {
+            try {
+              idisVoiceover.muted = false;
+            } catch (_) {}
+          });
+      } else {
+        try {
+          idisVoiceover.pause();
+          idisVoiceover.currentTime = 0;
+          idisVoiceover.muted = false;
+          idisVoiceoverPrimed = true;
+        } catch (_) {}
+      }
+    } catch (_) {}
+  }
+
+  function clearIDISVoiceoverLeadTimer() {
+    if (idisVoiceoverLeadTimer) {
+      clearTimeout(idisVoiceoverLeadTimer);
+      idisVoiceoverLeadTimer = null;
+    }
+  }
+
+  function stopIDISVoiceover() {
+    clearIDISVoiceoverLeadTimer();
+    idisVoiceoverPlaying = false;
+
+    if (!idisVoiceover) return;
+
+    try {
+      idisVoiceover.pause();
+      idisVoiceover.currentTime = 0;
+    } catch (_) {}
+  }
+
+  function beginIDISThankYouFinale() {
+    if (!active || currentSide !== 'idis' || !idisSequenceActive || idisSequencePhase === 'exiting') {
+      return;
+    }
+
+    clearIDISVoiceoverLeadTimer();
+    finishIDISCinematicSequence();
+  }
+
+  function scheduleIDISVoiceoverLead() {
+    clearIDISVoiceoverLeadTimer();
+
+    if (!idisVoiceover || !Number.isFinite(idisVoiceover.duration) || idisVoiceover.duration <= 0) {
+      return;
+    }
+
+    const remainingStartMs = Math.max(400, (idisVoiceover.duration - IDIS_ENDCARD_LEAD_SECONDS) * 1000);
+
+    idisVoiceoverLeadTimer = setTimeout(() => {
+      idisVoiceoverLeadTimer = null;
+      beginIDISThankYouFinale();
+    }, remainingStartMs);
+  }
+
+  function playIDISVoiceover() {
+    if (!idisVoiceover) return;
+
+    stopIDISVoiceover();
+    prepareIDISVoiceover();
+
+    try {
+      idisVoiceover.currentTime = 0;
+      idisVoiceover.muted = false;
+    } catch (_) {}
+
+    const start = () => {
+      const playPromise = idisVoiceover.play();
+      if (playPromise && typeof playPromise.then === 'function') {
+        playPromise
+          .then(() => {
+            idisVoiceoverPlaying = true;
+            scheduleIDISVoiceoverLead();
+          })
+          .catch(error => {
+            console.warn('IDIS voiceover could not start:', error);
+            idisVoiceoverPlaying = false;
+            clearIDISVoiceoverLeadTimer();
+            idisVoiceoverLeadTimer = setTimeout(() => {
+              idisVoiceoverLeadTimer = null;
+              beginIDISThankYouFinale();
+            }, 16000);
+          });
+      } else {
+        idisVoiceoverPlaying = true;
+        scheduleIDISVoiceoverLead();
+      }
+    };
+
+    if (Number.isFinite(idisVoiceover.duration) && idisVoiceover.duration > 0) {
+      start();
+    } else {
+      const onMeta = () => {
+        idisVoiceover.removeEventListener('loadedmetadata', onMeta);
+        scheduleIDISVoiceoverLead();
+      };
+      idisVoiceover.addEventListener('loadedmetadata', onMeta, { once: true });
+      start();
     }
   }
 
@@ -2600,20 +2737,17 @@ document.addEventListener('DOMContentLoaded', () => {
       idisCinematicExitTimer = null;
     }
 
-    if (idisYouTubeStartTimeout) {
-      clearTimeout(idisYouTubeStartTimeout);
-      idisYouTubeStartTimeout = null;
+    if (idisBackgroundRevealTimer) {
+      clearTimeout(idisBackgroundRevealTimer);
+      idisBackgroundRevealTimer = null;
     }
 
-    if (idisFinalFrameHoldTimer) {
-      clearTimeout(idisFinalFrameHoldTimer);
-      idisFinalFrameHoldTimer = null;
+    if (idisTopLayerFadeTimer) {
+      clearTimeout(idisTopLayerFadeTimer);
+      idisTopLayerFadeTimer = null;
     }
 
-    if (idisAbstractFadeTimer) {
-      clearTimeout(idisAbstractFadeTimer);
-      idisAbstractFadeTimer = null;
-    }
+    clearIDISVoiceoverLeadTimer();
   }
 
   function resetIDISCinematicSequence() {
@@ -2644,8 +2778,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (idisShowcaseVideo) {
       idisShowcaseVideo.classList.remove(
-        'abstract-transition-out'
+        'abstract-transition-out',
+        'coin-layer-fade'
       );
+    }
+
+    if (idisShowcaseCanvas) {
+      idisShowcaseCanvas.classList.remove('coin-layer-fade');
     }
 
     if (idisFeatureStage) {
@@ -2653,14 +2792,14 @@ document.addEventListener('DOMContentLoaded', () => {
       idisFeatureStage.style.webkitTransform = '';
     }
 
-    if (idisFeatureVideoLayer) {
-      idisFeatureVideoLayer.style.transform = '';
-      idisFeatureVideoLayer.style.webkitTransform = '';
+    if (idisFeatureBottomLayer) {
+      idisFeatureBottomLayer.style.transform = '';
+      idisFeatureBottomLayer.style.webkitTransform = '';
     }
 
-    if (idisFeatureLogoLayer) {
-      idisFeatureLogoLayer.style.transform = '';
-      idisFeatureLogoLayer.style.webkitTransform = '';
+    if (idisFeatureMiddleLayer) {
+      idisFeatureMiddleLayer.style.transform = '';
+      idisFeatureMiddleLayer.style.webkitTransform = '';
     }
 
     hideIDISAlphaSurface();
@@ -2670,15 +2809,16 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     if (idisFeatureOverlay) {
-      idisFeatureOverlay.classList.remove(
-        'logo-in',
-        'video-in'
-      );
+      idisFeatureOverlay.classList.remove('layers-in');
       idisFeatureOverlay.classList.add('cinematic-hidden');
       idisFeatureOverlay.setAttribute('aria-hidden', 'true');
     }
 
-    stopIDISYouTubeFeature();
+    stopIDISVoiceover();
+
+    if (idisFeatureBottomVideo) {
+      safeResetIDISVideo(idisFeatureBottomVideo);
+    }
 
     if (idisCinematic) {
       idisCinematic.classList.remove('cinematic-exit');
@@ -2724,71 +2864,15 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function transitionIDISFromCoinToAbstract() {
-    if (
-      !active ||
-      currentSide !== 'idis' ||
-      !idisSequenceActive
-    ) {
+    if (!active || currentSide !== 'idis' || !idisSequenceActive) {
       return;
     }
 
-    idisSequencePhase = 'final-frame-hold';
-
-    if (idisFinalFrameHoldTimer) {
-      clearTimeout(idisFinalFrameHoldTimer);
-    }
-
-    idisFinalFrameHoldTimer = setTimeout(() => {
-      idisFinalFrameHoldTimer = null;
-
-      if (
-        !active ||
-        currentSide !== 'idis' ||
-        !idisSequenceActive
-      ) {
-        return;
-      }
-
-      idisSequencePhase = 'abstract-transition';
-
-      showIDISAbstractBackground();
-
-      if (idisShowcaseCanvas) {
-        idisShowcaseCanvas.classList.add(
-          'abstract-transition-out'
-        );
-      }
-
-      if (idisShowcaseVideo) {
-        idisShowcaseVideo.classList.add(
-          'abstract-transition-out'
-        );
-      }
-
-      idisAbstractFadeTimer = setTimeout(() => {
-        idisAbstractFadeTimer = null;
-
-        if (
-          !active ||
-          currentSide !== 'idis' ||
-          !idisSequenceActive
-        ) {
-          return;
-        }
-
-        hideIDISAlphaSurface();
-        idisSequencePhase = 'abstract';
-        launchIDISFeatureSegment();
-      }, IDIS_ABSTRACT_FADE_MS);
-    }, IDIS_FINAL_FRAME_HOLD_MS);
+    showIDISAbstractBackground();
   }
 
   function startIDISShowcaseVideo() {
-    if (
-      !active ||
-      currentSide !== 'idis' ||
-      !idisSequenceActive
-    ) {
+    if (!active || currentSide !== 'idis' || !idisSequenceActive) {
       return;
     }
 
@@ -2796,6 +2880,7 @@ document.addEventListener('DOMContentLoaded', () => {
     showIDISCinematicShell();
 
     if (!idisShowcaseVideo) {
+      showIDISAbstractBackground();
       launchIDISFeatureSegment();
       return;
     }
@@ -2805,16 +2890,32 @@ document.addEventListener('DOMContentLoaded', () => {
     initIDISAlphaRenderer();
     showIDISAlphaSurface();
 
+    if (idisBackgroundRevealTimer) {
+      clearTimeout(idisBackgroundRevealTimer);
+    }
+
+    idisBackgroundRevealTimer = setTimeout(() => {
+      idisBackgroundRevealTimer = null;
+      if (!active || currentSide !== 'idis' || !idisSequenceActive) return;
+      showIDISAbstractBackground();
+    }, IDIS_BACKGROUND_REVEAL_DELAY_MS);
+
+    if (idisFeatureStartTimer) {
+      clearTimeout(idisFeatureStartTimer);
+    }
+
+    idisFeatureStartTimer = setTimeout(() => {
+      idisFeatureStartTimer = null;
+      if (!active || currentSide !== 'idis' || !idisSequenceActive) return;
+      launchIDISFeatureSegment();
+    }, IDIS_LAYER_REVEAL_DELAY_MS);
+
     playIDISVideo(idisShowcaseVideo)
       .then(() => {
         startIDISAlphaRenderLoop();
       })
       .catch(error => {
-      console.warn(
-        'IDIS transparent showcase could not play:',
-        error
-      );
-
+        console.warn('IDIS transparent showcase could not play:', error);
         showIDISAbstractBackground();
         launchIDISFeatureSegment();
       });
@@ -2845,320 +2946,88 @@ document.addEventListener('DOMContentLoaded', () => {
     freezeIDISAlphaSurface();
   }
 
-  function initializeIDISYouTubePlayer() {
-    if (
-      idisYouTubePlayer ||
-      !idisFeatureYouTubeHost ||
-      !window.YT ||
-      typeof window.YT.Player !== 'function'
-    ) {
-      return;
-    }
-
-    idisYouTubePlayer = new YT.Player(
-      idisFeatureYouTubeHost,
-      {
-        width: '100%',
-        height: '100%',
-        videoId: IDIS_YOUTUBE_VIDEO_ID,
-
-        playerVars: {
-          autoplay: 0,
-          controls: 0,
-          disablekb: 1,
-          fs: 0,
-          playsinline: 1,
-          rel: 0,
-          iv_load_policy: 3,
-          modestbranding: 1,
-          origin: window.location.origin,
-          widget_referrer: window.location.href
-        },
-
-        events: {
-          onReady: event => {
-            idisYouTubeReady = true;
-
-            try {
-              const iframe =
-                event.target.getIframe();
-
-              iframe.setAttribute(
-                'allow',
-                'autoplay; encrypted-media; picture-in-picture'
-              );
-
-              iframe.setAttribute(
-                'referrerpolicy',
-                'strict-origin-when-cross-origin'
-              );
-
-              iframe.setAttribute(
-                'playsinline',
-                ''
-              );
-
-              event.target.mute();
-              event.target.cueVideoById(
-                IDIS_YOUTUBE_VIDEO_ID
-              );
-            } catch (_) {}
-
-            if (idisYouTubePendingPlay) {
-              playIDISYouTubeFeature();
-            }
-          },
-
-          onStateChange: event => {
-            if (!window.YT) return;
-
-            if (
-              event.data === YT.PlayerState.PLAYING
-            ) {
-              if (idisYouTubeStartTimeout) {
-                clearTimeout(
-                  idisYouTubeStartTimeout
-                );
-                idisYouTubeStartTimeout = null;
-              }
-            }
-
-            if (
-              event.data === YT.PlayerState.ENDED
-            ) {
-              handleIDISFeatureEnded();
-            }
-          },
-
-          onError: event => {
-            console.warn(
-              'IDIS YouTube player error:',
-              event.data
-            );
-
-            if (
-              idisSequenceActive &&
-              (
-                idisSequencePhase === 'logo' ||
-                idisSequencePhase === 'feature'
-              )
-            ) {
-              finishIDISCinematicSequence();
-            }
-          }
-        }
-      }
-    );
-  }
+  function initializeIDISYouTubePlayer() {}
 
   let idisYouTubeAPILoading = false;
 
   function ensureIDISYouTubeAPI() {
-    if (window.YT && typeof window.YT.Player === 'function') {
-      initializeIDISYouTubePlayer();
-      return;
-    }
-
-    const previous = window.onYouTubeIframeAPIReady;
-    window.onYouTubeIframeAPIReady = () => {
-      if (typeof previous === 'function') {
-        try { previous(); } catch (_) {}
-      }
-      idisYouTubeAPILoading = false;
-      initializeIDISYouTubePlayer();
-    };
-
-    if (idisYouTubeAPILoading) return;
-    idisYouTubeAPILoading = true;
-
-    const script = document.createElement('script');
-    script.src = 'https://www.youtube.com/iframe_api';
-    script.async = true;
-    script.onerror = () => {
-      idisYouTubeAPILoading = false;
-      console.warn('YouTube API could not load.');
-    };
-    document.head.appendChild(script);
+    primeIDISVoiceover();
   }
 
-  function stopIDISYouTubeFeature() {
-    idisYouTubePendingPlay = false;
+  function stopIDISYouTubeFeature() {}
 
-    if (idisYouTubeStartTimeout) {
-      clearTimeout(idisYouTubeStartTimeout);
-      idisYouTubeStartTimeout = null;
-    }
-
-    if (
-      idisYouTubePlayer &&
-      typeof idisYouTubePlayer.stopVideo ===
-        'function'
-    ) {
-      try {
-        idisYouTubePlayer.stopVideo();
-      } catch (_) {}
-    }
-  }
-
-  function playIDISYouTubeFeature() {
-    if (
-      !active ||
-      currentSide !== 'idis' ||
-      !idisSequenceActive
-    ) {
-      return;
-    }
-
-    ensureIDISYouTubeAPI();
-
-    if (
-      !idisYouTubeReady ||
-      !idisYouTubePlayer
-    ) {
-      idisYouTubePendingPlay = true;
-
-      if (!idisYouTubeStartTimeout) {
-        idisYouTubeStartTimeout =
-          setTimeout(() => {
-            idisYouTubeStartTimeout = null;
-
-            if (
-              idisSequenceActive &&
-              idisSequencePhase === 'feature'
-            ) {
-              console.warn(
-                'YouTube feature did not start in time.'
-              );
-
-              finishIDISCinematicSequence();
-            }
-          }, IDIS_YOUTUBE_START_TIMEOUT_MS);
-      }
-
-      return;
-    }
-
-    idisYouTubePendingPlay = false;
-
-    try {
-      idisYouTubePlayer.mute();
-
-      // loadVideoById is more reliable here than seeking a previously-cued
-      // iframe and then issuing a separate play command.
-      idisYouTubePlayer.loadVideoById({
-        videoId: IDIS_YOUTUBE_VIDEO_ID,
-        startSeconds: 0
-      });
-
-      if (idisYouTubeStartTimeout) {
-        clearTimeout(idisYouTubeStartTimeout);
-      }
-
-      idisYouTubeStartTimeout =
-        setTimeout(() => {
-          idisYouTubeStartTimeout = null;
-
-          if (
-            idisSequenceActive &&
-            idisSequencePhase === 'feature'
-          ) {
-            let state = null;
-
-            try {
-              state =
-                idisYouTubePlayer.getPlayerState();
-            } catch (_) {}
-
-            if (
-              !window.YT ||
-              state !== YT.PlayerState.PLAYING
-            ) {
-              console.warn(
-                'YouTube autoplay was blocked.'
-              );
-
-              finishIDISCinematicSequence();
-            }
-          }
-        }, IDIS_YOUTUBE_START_TIMEOUT_MS);
-    } catch (error) {
-      console.warn(
-        'Could not start IDIS YouTube feature:',
-        error
-      );
-
-      finishIDISCinematicSequence();
-    }
-  }
+  function playIDISYouTubeFeature() {}
 
   function launchIDISFeatureSegment() {
-    if (
-      !active ||
-      currentSide !== 'idis' ||
-      !idisSequenceActive
-    ) {
+    if (!active || currentSide !== 'idis' || !idisSequenceActive) {
       return;
     }
 
-    idisSequencePhase = 'logo';
+    idisSequencePhase = 'layers';
     showIDISCinematicShell();
 
     if (idisFeatureOverlay) {
-      idisFeatureOverlay.classList.remove(
-        'cinematic-hidden',
-        'logo-in',
-        'video-in'
-      );
-
+      idisFeatureOverlay.classList.remove('cinematic-hidden', 'layers-in');
       idisFeatureOverlay.setAttribute('aria-hidden', 'false');
-
       void idisFeatureOverlay.offsetWidth;
-      idisFeatureOverlay.classList.add('logo-in');
+      idisFeatureOverlay.classList.add('layers-in');
     }
 
-    idisFeatureStartTimer = setTimeout(() => {
-      idisFeatureStartTimer = null;
+    if (idisFeatureBottomVideo) {
+      safeResetIDISVideo(idisFeatureBottomVideo);
+      playIDISVideo(idisFeatureBottomVideo)
+        .catch(() => {
+          /* bottom layer can fail silently and keep the UI alive */
+        });
+    }
 
-      if (
-        !active ||
-        currentSide !== 'idis' ||
-        !idisSequenceActive
-      ) {
+    if (idisTopLayerFadeTimer) {
+      clearTimeout(idisTopLayerFadeTimer);
+    }
+
+    idisTopLayerFadeTimer = setTimeout(() => {
+      idisTopLayerFadeTimer = null;
+
+      if (!active || currentSide !== 'idis' || !idisSequenceActive) {
         return;
       }
 
-      idisSequencePhase = 'feature';
-
-      if (idisFeatureOverlay) {
-        idisFeatureOverlay.classList.add('video-in');
+      if (idisShowcaseCanvas) {
+        idisShowcaseCanvas.classList.add('coin-layer-fade');
       }
 
-      playIDISYouTubeFeature();
-    }, IDIS_LOGO_TO_FEATURE_DELAY_MS);
+      if (idisShowcaseVideo) {
+        idisShowcaseVideo.classList.add('coin-layer-fade');
+      }
+
+      setTimeout(() => {
+        if (!active || currentSide !== 'idis' || !idisSequenceActive) {
+          return;
+        }
+        hideIDISAlphaSurface();
+      }, 760);
+    }, IDIS_COIN_LAYER_HOLD_MS);
   }
 
   function handleIDISShowcaseEnded() {
-    if (
-      !idisSequenceActive ||
-      currentSide !== 'idis'
-    ) {
+    if (!idisSequenceActive || currentSide !== 'idis') {
       return;
     }
 
     freezeIDISShowcaseFinalFrame();
-    transitionIDISFromCoinToAbstract();
   }
 
   function handleIDISFeatureEnded() {
-    if (
-      !idisSequenceActive ||
-      currentSide !== 'idis'
-    ) {
+    if (!idisSequenceActive || currentSide !== 'idis' || !idisFeatureBottomVideo) {
       return;
     }
 
-    stopIDISYouTubeFeature();
-    finishIDISCinematicSequence();
+    try {
+      if (Number.isFinite(idisFeatureBottomVideo.duration) && idisFeatureBottomVideo.duration > 0.08) {
+        idisFeatureBottomVideo.currentTime = Math.max(0, idisFeatureBottomVideo.duration - 0.04);
+      }
+      idisFeatureBottomVideo.pause();
+    } catch (_) {}
   }
 
   function finishIDISCinematicSequence() {
@@ -3183,7 +3052,6 @@ document.addEventListener('DOMContentLoaded', () => {
       oppositeVisibleSince = 0;
       resetGestureState();
 
-      // Now that the cinematic fade has completed, remove all IDIS media.
       resetIDISCinematicSequence();
 
       hideScanUI();
@@ -3200,7 +3068,7 @@ document.addEventListener('DOMContentLoaded', () => {
         webmReady:
           !!idisShowcaseVideo &&
           idisShowcaseVideo.readyState,
-        youtubeReady: idisYouTubeReady
+        youtubeReady: false
       }
     );
 
@@ -3208,7 +3076,8 @@ document.addEventListener('DOMContentLoaded', () => {
     idisSequencePhase = 'showcase';
 
     prepareIDISCinematicVideo(idisShowcaseVideo);
-    ensureIDISYouTubeAPI();
+    prepareIDISCinematicVideo(idisFeatureBottomVideo);
+    playIDISVoiceover();
 
     startIDISShowcaseVideo();
   }
@@ -3649,42 +3518,47 @@ document.addEventListener('DOMContentLoaded', () => {
     idisFeatureStage.style.webkitTransform =
       stageTransform;
 
-    /*
-      The logo is the foreground-most layer and therefore gets:
-      - the largest lateral parallax
-      - the largest vertical parallax
-      - the greatest translateZ depth
-
-      YouTube stays deeper and moves less.
-    */
-    if (idisFeatureVideoLayer) {
-      const videoX = panX * 0.16;
-      const videoY = panY * 0.16;
-
+    if (idisFeatureBottomLayer) {
+      const videoX = panX * 0.14;
+      const videoY = panY * 0.14;
       const videoTransform =
         `translate3d(${videoX.toFixed(2)}px, ` +
-        `${videoY.toFixed(2)}px, 70px)`;
+        `${videoY.toFixed(2)}px, 55px)`;
 
-      idisFeatureVideoLayer.style.transform =
-        videoTransform;
-
-      idisFeatureVideoLayer.style.webkitTransform =
-        videoTransform;
+      idisFeatureBottomLayer.style.transform = videoTransform;
+      idisFeatureBottomLayer.style.webkitTransform = videoTransform;
     }
 
-    if (idisFeatureLogoLayer) {
-      const logoX = panX * 0.48;
-      const logoY = panY * 0.48;
+    if (idisFeatureMiddleLayer) {
+      const middleX = panX * 0.30;
+      const middleY = panY * 0.30;
+      const middleTransform =
+        `translate3d(${middleX.toFixed(2)}px, ` +
+        `${middleY.toFixed(2)}px, 185px)`;
 
-      const logoTransform =
-        `translate3d(${logoX.toFixed(2)}px, ` +
-        `${logoY.toFixed(2)}px, 320px)`;
+      idisFeatureMiddleLayer.style.transform = middleTransform;
+      idisFeatureMiddleLayer.style.webkitTransform = middleTransform;
+    }
 
-      idisFeatureLogoLayer.style.transform =
-        logoTransform;
+    if (idisShowcaseCanvas && !idisShowcaseCanvas.classList.contains('cinematic-hidden')) {
+      const coinTransform =
+        `translate(-50%, -50%) ` +
+        `rotateX(${(rx * 1.95).toFixed(3)}deg) ` +
+        `rotateY(${(ry * 2.1).toFixed(3)}deg) ` +
+        `scale(${clamp(1 + (zoom - 1) * 0.12, 0.94, 1.1).toFixed(4)})`;
 
-      idisFeatureLogoLayer.style.webkitTransform =
-        logoTransform;
+      idisShowcaseCanvas.style.transform = coinTransform;
+      idisShowcaseCanvas.style.webkitTransform = coinTransform;
+    }
+
+    if (idisShowcaseVideo && idisAlphaUseVideoFallback) {
+      const fallbackTransform =
+        `translate(-50%, -50%) ` +
+        `rotateX(${(rx * 1.95).toFixed(3)}deg) ` +
+        `rotateY(${(ry * 2.1).toFixed(3)}deg) ` +
+        `scale(${clamp(1 + (zoom - 1) * 0.12, 0.94, 1.1).toFixed(4)})`;
+      idisShowcaseVideo.style.transform = fallbackTransform;
+      idisShowcaseVideo.style.webkitTransform = fallbackTransform;
     }
   }
 
@@ -3924,9 +3798,10 @@ document.addEventListener('DOMContentLoaded', () => {
       'collection-replay-mode'
     );
 
-    // Prime the state-side MP3 while this function still has the original
+    // Prime the scene audio while this function still has the original
     // START THE EXPERIENCE user gesture. Do this before any await.
     primeAtlantaVoiceover();
+    primeIDISVoiceover();
 
     // Request motion access while we are still inside the user's Start AR tap.
     // On Android this usually resolves without a prompt; on iPhone Safari
@@ -4082,6 +3957,19 @@ document.addEventListener('DOMContentLoaded', () => {
   ------------------------------------------------------------------------ */
 
   // Atlanta / State voiceover media events.
+  if (idisVoiceover) {
+    idisVoiceover.addEventListener('loadedmetadata', () => {
+      if (idisVoiceoverPlaying) {
+        scheduleIDISVoiceoverLead();
+      }
+    });
+
+    idisVoiceover.addEventListener('ended', () => {
+      if (!idisSequenceActive || currentSide !== 'idis') return;
+      beginIDISThankYouFinale();
+    });
+  }
+
   if (atlantaVoiceover) {
     prepareAtlantaVoiceover();
 

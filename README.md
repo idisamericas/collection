@@ -1,10 +1,23 @@
-# IDIS Collectible Experience — Build 43 Collection Coin Shine
+# IDIS Collectible Experience — Build 44 IDIS Audio Layers
 
-Updated collection replay with the new premium centered coin reveal.
+This build updates the IDIS side to remove the YouTube dependency and use an audio-driven layered scene.
 
-- New metallic underlay coin effect
-- Stronger 3D tilt tuned toward 30°
-- More shine elements and reflections
-- Max replay coin size capped at 350px
-- Intro, hold, and fade all remain centered
-- Local-only collection behavior preserved
+## IDIS side changes
+- Removed the YouTube feature segment.
+- Added `assets/audio/idis-voiceover.mp3` support.
+- The top transparent WebM now appears coin-sized and tilts with stronger perspective.
+- The teal / blue abstract background fills in sooner behind the coin.
+- Added a layered scene similar to the State side:
+  - top = coin-sized transparent WebM
+  - middle = parallax tagline layer
+  - bottom = persistent motion video layer
+- The top coin layer holds for 4 seconds, then fades away.
+- The middle and bottom layers remain active until the MP3 reaches its final five seconds.
+- The IDIS thank-you screen begins during the last five seconds of the MP3.
+
+## Required media
+- `assets/audio/idis-voiceover.mp3`
+- `assets/video/idis-showcase-alpha.webm`
+
+## Optional
+- Replace the source of `#idis-feature-bottom-video` if you want a different lower motion layer asset.
