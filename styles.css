@@ -2720,3 +2720,99 @@ body.collection-replay-mode #ar-footer {
   transform-style: preserve-3d;
   -webkit-transform-style: preserve-3d;
 }
+
+
+/* ==========================================================================\n   BUILD 48: LIGHTWEIGHT IDIS APPLICATION IMAGE BURST\n   Static WebP cards are much lighter than decoding a second concurrent video.\n============================================================================ */
+.idis-burst-field {
+  position: absolute;
+  inset: 0;
+  z-index: 72;
+  overflow: hidden;
+  pointer-events: none;
+  perspective: 1250px;
+  -webkit-perspective: 1250px;
+  transform-style: preserve-3d;
+  -webkit-transform-style: preserve-3d;
+  opacity: 0;
+  transition: opacity 700ms ease;
+  will-change: transform, opacity;
+}
+.idis-burst-field.is-visible { opacity: 1; }
+.idis-burst-card {
+  --start-x: 0px;
+  --start-y: 0px;
+  --end-x: 0px;
+  --end-y: 0px;
+  --z: 120px;
+  --rot-x: 0deg;
+  --rot-y: 0deg;
+  --rot-z: 0deg;
+  --scale: 1;
+  --duration: 5200ms;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: clamp(88px, 25vw, 210px);
+  aspect-ratio: 16/10;
+  padding: 3px;
+  border: 1px solid rgba(238,252,252,.78);
+  background: rgba(5,16,21,.45);
+  box-shadow:
+    0 18px 40px rgba(0,0,0,.42),
+    0 0 17px rgba(105,235,241,.14),
+    inset 0 0 0 1px rgba(255,255,255,.12);
+  opacity: 0;
+  overflow: hidden;
+  transform-style: preserve-3d;
+  -webkit-transform-style: preserve-3d;
+  will-change: transform, opacity, filter;
+  animation: idisBurstFly var(--duration) cubic-bezier(.16,.68,.21,1) forwards;
+}
+.idis-burst-card img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  background: rgba(4,14,18,.82);
+}
+.idis-burst-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(118deg, transparent 34%, rgba(255,255,255,.18) 48%, transparent 61%);
+  transform: translateX(-130%);
+  animation: idisBurstSheen var(--duration) ease-in-out forwards;
+  pointer-events: none;
+}
+@keyframes idisBurstFly {
+  0% {
+    opacity: 0;
+    filter: blur(8px) brightness(.7);
+    transform: translate3d(-50%,-50%,-850px) scale(.10) rotateX(0deg) rotateY(0deg) rotateZ(0deg);
+  }
+  16% { opacity: .96; filter: blur(0) brightness(1); }
+  58% {
+    opacity: .94;
+    transform:
+      translate3d(calc(-50% + var(--start-x)), calc(-50% + var(--start-y)), var(--z))
+      scale(var(--scale)) rotateX(var(--rot-x)) rotateY(var(--rot-y)) rotateZ(var(--rot-z));
+  }
+  100% {
+    opacity: 0;
+    filter: blur(2.4px) brightness(1.12);
+    transform:
+      translate3d(calc(-50% + var(--end-x)), calc(-50% + var(--end-y)), 520px)
+      scale(calc(var(--scale) * 1.18)) rotateX(var(--rot-x)) rotateY(var(--rot-y)) rotateZ(var(--rot-z));
+  }
+}
+@keyframes idisBurstSheen {
+  0%,22% { transform: translateX(-135%); opacity: 0; }
+  48% { opacity: .75; }
+  72%,100% { transform: translateX(145%); opacity: 0; }
+}
+@media (max-width: 420px) {
+  .idis-burst-card { width: clamp(86px, 30vw, 150px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .idis-burst-card { animation-duration: 2400ms; }
+}

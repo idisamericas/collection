@@ -1,0 +1,28 @@
+IDIS COIN EXPERIENCE - BUILD 48
+================================
+
+LANDING
+- Removed supporting line under We See More Than Security.
+- Enlarged Your Collection / count button.
+- Chicago CTA now says FIND YOUR SALES REP.
+
+COLLECTION PAGE
+- Improved selected coin centering.
+- Removed embedded experience video.
+- Added PLAY INTERACTIVE EXPERIENCE button for collected state coins.
+- Atlanta button routes back to the existing state-side replay.
+
+IDIS INTERACTIVE SIDE
+- Kept the single transparent WebM and 10-second clean-camera period.
+- Added a lightweight preserve-3D image-burst system beginning after the abstract background appears.
+- Add up to 8 WebP shots under assets/idis-burst/.
+- Burst images fade/fly outward from the center at randomized x/y/z depth.
+- Burst field also responds to the existing phone/drag parallax.
+
+SALES CONTACT LOOKUP
+- coin-request.html is now a sales-contact finder, not an email form.
+- Location and business-focus dropdowns route to current published IDIS Americas contacts.
+- Includes a direct button to the official live Contact Us directory.
+- Current contacts checked against https://idisamericas.com/en/contact on 2026-09-07.
+
+NO TARGET FILES OR MEDIA ASSETS ARE REPLACED BY THIS PATCH.

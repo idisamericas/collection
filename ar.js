@@ -7,7 +7,7 @@
   target recognition; both presentations render as detached HTML/video.
 */
 
-console.info('[IDIS WebAR] Build 47 Collection UX + Single IDIS Video: 20260907-collectionux47');
+console.info('[IDIS WebAR] Build 47 Collection UX + Single IDIS Video: 20260907-collectionux48');
 
 document.addEventListener('DOMContentLoaded', () => {
   const scene = document.querySelector('#ar-scene');
@@ -60,6 +60,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const idisShowcaseCanvas = document.querySelector('#idis-showcase-canvas');
   const idisFeatureOverlay = document.querySelector('#idis-feature-overlay');
   const idisFeatureStage = document.querySelector('#idis-feature-stage');
+  const idisBurstField = document.querySelector('#idis-burst-field');
 
   const guestNameInput = document.querySelector('#guest-name');
   const guestNameField = document.querySelector('.guest-name-field');
@@ -100,6 +101,18 @@ document.addEventListener('DOMContentLoaded', () => {
   // IDIS uses one transparent WebM only. The camera stays clean behind it
   // until the abstract blur/plus environment fades in at ten seconds.
   const IDIS_BACKGROUND_REVEAL_DELAY_MS = 10000;
+  const IDIS_BURST_REVEAL_DELAY_MS = 10350;
+  const IDIS_BURST_INTERVAL_MS = 720;
+  const IDIS_BURST_ASSETS = [
+    './assets/idis-burst/shot-01.webp',
+    './assets/idis-burst/shot-02.webp',
+    './assets/idis-burst/shot-03.webp',
+    './assets/idis-burst/shot-04.webp',
+    './assets/idis-burst/shot-05.webp',
+    './assets/idis-burst/shot-06.webp',
+    './assets/idis-burst/shot-07.webp',
+    './assets/idis-burst/shot-08.webp'
+  ];
   const IDIS_ENDCARD_LEAD_SECONDS = 0;
   const IDIS_CINEMATIC_EXIT_MS = 620;
 
@@ -180,6 +193,11 @@ document.addEventListener('DOMContentLoaded', () => {
   let idisSequencePhase = 'idle';
   let idisVoiceoverPrimed = false;
   let idisVoiceoverPlaying = false;
+  let idisBurstRevealTimer = null;
+  let idisBurstInterval = null;
+  let idisBurstCursor = 0;
+  let idisBurstLoadedAssets = [];
+  let idisBurstPreloadStarted = false;
 
   // GPU compositor for the transparent/black-key showcase.
   let idisAlphaGL = null;
@@ -2720,6 +2738,92 @@ document.addEventListener('DOMContentLoaded', () => {
     } catch (_) {}
   }
 
+  function preloadIDISBurstAssets() {
+    if (idisBurstPreloadStarted) return;
+    idisBurstPreloadStarted = true;
+
+    IDIS_BURST_ASSETS.forEach(src => {
+      const img = new Image();
+      img.decoding = 'async';
+      img.onload = () => {
+        if (!idisBurstLoadedAssets.includes(src)) {
+          idisBurstLoadedAssets.push(src);
+        }
+      };
+      img.onerror = () => {};
+      img.src = src;
+    });
+  }
+
+  function spawnIDISBurstCard() {
+    if (!idisBurstField || !idisBurstLoadedAssets.length || !idisSequenceActive || currentSide !== 'idis') return;
+
+    const src = idisBurstLoadedAssets[idisBurstCursor % idisBurstLoadedAssets.length];
+    idisBurstCursor += 1;
+
+    const card = document.createElement('div');
+    card.className = 'idis-burst-card';
+    const img = document.createElement('img');
+    img.src = src;
+    img.alt = '';
+    img.draggable = false;
+    card.appendChild(img);
+
+    const angle = Math.random() * Math.PI * 2;
+    const radius = 90 + Math.random() * Math.min(window.innerWidth, window.innerHeight) * .30;
+    const x1 = Math.cos(angle) * radius;
+    const y1 = Math.sin(angle) * radius * .78;
+    const x2 = x1 * (1.30 + Math.random() * .45);
+    const y2 = y1 * (1.18 + Math.random() * .36);
+    const z = 35 + Math.random() * 300;
+    const rx = -13 + Math.random() * 26;
+    const ry = -22 + Math.random() * 44;
+    const rz = -8 + Math.random() * 16;
+    const scale = .72 + Math.random() * .46;
+    const duration = 4400 + Math.random() * 2100;
+
+    card.style.setProperty('--start-x', `${x1.toFixed(1)}px`);
+    card.style.setProperty('--start-y', `${y1.toFixed(1)}px`);
+    card.style.setProperty('--end-x', `${x2.toFixed(1)}px`);
+    card.style.setProperty('--end-y', `${y2.toFixed(1)}px`);
+    card.style.setProperty('--z', `${z.toFixed(1)}px`);
+    card.style.setProperty('--rot-x', `${rx.toFixed(1)}deg`);
+    card.style.setProperty('--rot-y', `${ry.toFixed(1)}deg`);
+    card.style.setProperty('--rot-z', `${rz.toFixed(1)}deg`);
+    card.style.setProperty('--scale', scale.toFixed(3));
+    card.style.setProperty('--duration', `${Math.round(duration)}ms`);
+
+    idisBurstField.appendChild(card);
+    card.addEventListener('animationend', () => card.remove(), { once: true });
+  }
+
+  function startIDISBurstField() {
+    if (!idisBurstField || !idisSequenceActive || currentSide !== 'idis') return;
+    preloadIDISBurstAssets();
+    idisBurstField.classList.add('is-visible');
+
+    if (idisBurstInterval) clearInterval(idisBurstInterval);
+    spawnIDISBurstCard();
+    idisBurstInterval = setInterval(spawnIDISBurstCard, IDIS_BURST_INTERVAL_MS);
+  }
+
+  function stopIDISBurstField() {
+    if (idisBurstRevealTimer) {
+      clearTimeout(idisBurstRevealTimer);
+      idisBurstRevealTimer = null;
+    }
+    if (idisBurstInterval) {
+      clearInterval(idisBurstInterval);
+      idisBurstInterval = null;
+    }
+    if (idisBurstField) {
+      idisBurstField.classList.remove('is-visible');
+      idisBurstField.style.transform = '';
+      idisBurstField.style.webkitTransform = '';
+      idisBurstField.replaceChildren();
+    }
+  }
+
   function clearIDISCinematicTimers() {
     if (idisCinematicExitTimer) {
       clearTimeout(idisCinematicExitTimer);
@@ -2736,6 +2840,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function resetIDISCinematicSequence() {
     clearIDISCinematicTimers();
+    stopIDISBurstField();
 
     idisSequenceActive = false;
     idisSequencePhase = 'idle';
@@ -2868,6 +2973,12 @@ document.addEventListener('DOMContentLoaded', () => {
       idisBackgroundRevealTimer = null;
       if (!active || currentSide !== 'idis' || !idisSequenceActive) return;
       showIDISAbstractBackground();
+
+      if (idisBurstRevealTimer) clearTimeout(idisBurstRevealTimer);
+      idisBurstRevealTimer = setTimeout(() => {
+        idisBurstRevealTimer = null;
+        startIDISBurstField();
+      }, Math.max(0, IDIS_BURST_REVEAL_DELAY_MS - IDIS_BACKGROUND_REVEAL_DELAY_MS));
     }, IDIS_BACKGROUND_REVEAL_DELAY_MS);
 
     playIDISVideo(idisShowcaseVideo)
@@ -2967,6 +3078,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     prepareIDISCinematicVideo(idisShowcaseVideo);
     playIDISVoiceover();
+    preloadIDISBurstAssets();
 
     startIDISShowcaseVideo();
   }
@@ -3403,6 +3515,16 @@ document.addEventListener('DOMContentLoaded', () => {
     if (idisFeatureStage) {
       idisFeatureStage.style.transform = stageTransform;
       idisFeatureStage.style.webkitTransform = stageTransform;
+    }
+
+    if (idisBurstField && idisBurstField.classList.contains('is-visible')) {
+      const burstX = panX * 0.08;
+      const burstY = panY * 0.08;
+      const burstTransform =
+        `translate3d(${burstX.toFixed(2)}px, ${burstY.toFixed(2)}px, 0) ` +
+        `rotateX(${(rx * .34).toFixed(3)}deg) rotateY(${(ry * .38).toFixed(3)}deg)`;
+      idisBurstField.style.transform = burstTransform;
+      idisBurstField.style.webkitTransform = burstTransform;
     }
 
     if (idisShowcaseCanvas && !idisShowcaseCanvas.classList.contains('cinematic-hidden')) {
@@ -4063,6 +4185,17 @@ document.addEventListener('DOMContentLoaded', () => {
       launchCollectedAtlantaExperience
     );
   }
+
+  // Collection detail pages can return here with ?replay=gsx2026-atlanta.
+  // Attempt immediate replay. If the browser blocks audio, the normal
+  // collected coin remains available for a direct user tap.
+  try {
+    const replayCoin = new URLSearchParams(window.location.search).get('replay');
+    if (replayCoin === GSX_2026_COIN_ID && collectedCoinIds.has(GSX_2026_COIN_ID)) {
+      history.replaceState({}, '', window.location.pathname + window.location.hash);
+      setTimeout(() => launchCollectedAtlantaExperience(), 180);
+    }
+  } catch (_) {}
 
   window.addEventListener(
     'idis:cloud-collection-merged',
