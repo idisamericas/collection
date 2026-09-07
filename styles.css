@@ -2726,7 +2726,7 @@ body.collection-replay-mode #ar-footer {
 .idis-burst-field {
   position: absolute;
   inset: 0;
-  z-index: 72;
+  z-index: 118;
   overflow: hidden;
   pointer-events: none;
   perspective: 1250px;
@@ -2752,14 +2752,14 @@ body.collection-replay-mode #ar-footer {
   position: absolute;
   left: 50%;
   top: 50%;
-  width: clamp(88px, 25vw, 210px);
+  width: clamp(96px, 28vw, 230px);
   aspect-ratio: 16/10;
   padding: 3px;
   border: 1px solid rgba(238,252,252,.78);
   background: rgba(5,16,21,.45);
   box-shadow:
-    0 18px 40px rgba(0,0,0,.42),
-    0 0 17px rgba(105,235,241,.14),
+    0 24px 54px rgba(0,0,0,.58),
+    0 0 25px rgba(105,235,241,.24),
     inset 0 0 0 1px rgba(255,255,255,.12);
   opacity: 0;
   overflow: hidden;

@@ -91,7 +91,7 @@
         <div class="secondary-links"><a id="secondary-email" href="#"></a><a id="secondary-phone" href="#"></a></div>
       </div>
       <a class="live-link" href="https://idisamericas.com/en/contact" target="_blank" rel="noopener">VIEW LIVE IDIS CONTACT DIRECTORY →</a>
-      <p class="source-note">Current published contacts in this lookup were checked against the official <a href="https://idisamericas.com/en/contact" target="_blank" rel="noopener">IDIS Americas Contact Us page</a> on September 7, 2026. The live directory remains the source of truth if territories change.</p>
+      <p class="source-note">Transit/Mobile contacts in this lookup follow the current IDIS Americas Transit team published in the official IDIS contact directory. Territory routing uses the published West, Central, South and East Transit regions. The live directory remains the source of truth if territories change.</p>
     </div>
   </main>
 <script>
@@ -100,12 +100,29 @@
   const focus=document.getElementById('rep-focus');
   const result=document.getElementById('rep-result');
   const secondary=document.getElementById('secondary-result');
+  // Security geography used by the non-Transit lookup.
   const west=new Set(['AK','AZ','CA','CO','HI','ID','MT','NV','NM','OR','UT','WA','WY']);
+
+  // Current IDIS Transit/Mobile territory groups. The public IDIS directory
+  // identifies four Transit RSM regions: West, Central, South and East.
+  // Keep these groups isolated from the Security sales territories above.
+  const transitWest=new Set(['AK','AZ','CA','CO','HI','ID','MT','NV','NM','OR','UT','WA','WY']);
+  const transitCentral=new Set(['IA','IL','IN','KS','MI','MN','MO','ND','NE','OH','SD','WI']);
+  const transitSouth=new Set(['AL','AR','FL','GA','KY','LA','MS','NC','OK','SC','TN','TX']);
+  const transitEast=new Set(['CT','DC','DE','MA','MD','ME','NH','NJ','NY','PA','RI','VT','VA','WV']);
+
   const contacts={
     west:{name:'Joel Murawski',role:'Regional Sales Director, West',email:'jmurawski@idisamericas.com',phone:'(559) 367-6925'},
     east:{name:'IDIS Americas Sales',role:'Regional Sales Director, East',email:'sales@idisamericas.com',phone:'(469) 635-6800'},
     latam:{name:'Victor Merino',role:'Regional Sales Director - LATAM',email:'vdmerino@idisamericas.com',phone:'+52 (1) 203 694 4569'},
-    transit:{name:'Brendan Boyle',role:'Director Sales Transit/Mobile',email:'bboyle@idisamericas.com',phone:'(425) 445-3097'},
+
+    transitDirector:{name:'Brendan Boyle',role:'Director Sales Transit/Mobile',email:'bboyle@idisamericas.com',phone:'(425) 445-3097'},
+    transitWest:{name:'Brian Koske',role:'Regional Sales Manager - Transit West',email:'bkoske@idisamericas.com',phone:'(425) 445-3097'},
+    transitCentral:{name:'Cristina Fanjul',role:'Regional Sales Manager - Transit Central',email:'cfanjul@idisamericas.com',phone:'(281) 382-6347'},
+    transitSouth:{name:'Alex Fata',role:'Regional Sales Manager - Transit South',email:'afata@idisamericas.com',phone:'(469) 240-2654'},
+    transitEast:{name:'Gary Shull',role:'Regional Sales Manager - Transit East',email:'gshull@idisamericas.com',phone:'(469) 480-2351'},
+    transitAccount:{name:'DJ Currie',role:'Transit Account Manager',email:'dcurrie@idisamericas.com',phone:'(469) 391-0727'},
+
     strategic:{name:'Mike Rose',role:'EVP - Strategic/National Accounts',email:'mrose@idisamericas.com',phone:'(940) 391-5866'},
     retailWest:{name:'Jason Burrows',role:'Retail West, Hospitality & Utilities',email:'jburrows@idisamericas.com',phone:'(818) 395-9699'},
     retailEast:{name:'David Bachand',role:'Retail East',email:'dbachand@idisamericas.com',phone:'(262) 867-9021'},
@@ -113,17 +130,28 @@
     bankingEast:{name:'Rick Roman',role:'Banking East & Data Centers',email:'rroman@idisamericas.com',phone:'(941) 526-6989'},
     educationTX:{name:'IDIS Americas Sales',role:'Education / Texas',email:'sales@idisamericas.com',phone:'(469) 635-6800'}
   };
+
   const regionalFor=loc=>{
     if(loc==='MEX')return contacts.latam;
     if(loc==='CAN')return contacts.east;
     return west.has(loc)?contacts.west:contacts.east;
   };
+
+  const transitFor=loc=>{
+    if(transitWest.has(loc)) return contacts.transitWest;
+    if(transitCentral.has(loc)) return contacts.transitCentral;
+    if(transitSouth.has(loc)) return contacts.transitSouth;
+    if(transitEast.has(loc)) return contacts.transitEast;
+    return contacts.transitDirector;
+  };
+
   const fill=(prefix,c)=>{
     document.getElementById(prefix+'name').textContent=c.name;
     document.getElementById(prefix+'role').textContent=c.role;
     const em=document.getElementById(prefix+'email');em.textContent=c.email;em.href='mailto:'+c.email;
     const ph=document.getElementById(prefix+'phone');ph.textContent=c.phone;ph.href='tel:'+c.phone.replace(/[^+\d]/g,'');
   };
+
   const choose=()=>{
     const loc=location.value;
     if(!loc){result.classList.remove('show');secondary.classList.remove('show');return;}
@@ -131,14 +159,20 @@
     const selected=focus.value;
     let c;
 
-    // Transit/Mobile intentionally takes priority over geography. The current
-    // IDIS Americas directory publishes Brendan Boyle as Director Sales Transit/Mobile.
-    // A regional sales-support contact is also shown for the selected location.
+    // Transit uses the dedicated Transit/Mobile team, not the Security map.
     if(selected==='transit'){
-      c=contacts.transit;
-      fill('rep-',c);
+      if(loc==='CAN'){
+        // Current IDIS directory lists both Cristina Fanjul and Alex Fata for Canada.
+        fill('rep-',contacts.transitCentral);
+        fill('secondary-',contacts.transitSouth);
+      } else if(loc==='MEX'){
+        fill('rep-',contacts.transitDirector);
+        fill('secondary-',contacts.latam);
+      } else {
+        fill('rep-',transitFor(loc));
+        fill('secondary-',contacts.transitDirector);
+      }
       result.classList.add('show');
-      fill('secondary-',regionalFor(loc));
       secondary.classList.add('show');
       return;
     }

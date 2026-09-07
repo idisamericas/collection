@@ -104,7 +104,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // IDIS uses one transparent WebM only. The camera stays clean behind it
   // until the abstract blur/plus environment fades in at ten seconds.
   const IDIS_BACKGROUND_REVEAL_DELAY_MS = 10000;
-  const IDIS_BURST_REVEAL_DELAY_MS = 10350;
+  const IDIS_BURST_REVEAL_DELAY_MS = 10000;
   const IDIS_BURST_INTERVAL_MS = 720;
   const IDIS_BURST_ASSETS = [
     './assets/idis-burst/shot-01.webp',
@@ -2930,7 +2930,12 @@ document.addEventListener('DOMContentLoaded', () => {
     // through shot-01 ... shot-08 until the IDIS sequence itself ends.
     idisBurstCursor = 0;
     if (idisBurstInterval) clearInterval(idisBurstInterval);
+
+    // Seed three depths immediately so the effect reads as a 3D field instead
+    // of waiting for the first few interval ticks.
     spawnIDISBurstCard();
+    setTimeout(spawnIDISBurstCard, 160);
+    setTimeout(spawnIDISBurstCard, 340);
     idisBurstInterval = setInterval(spawnIDISBurstCard, IDIS_BURST_INTERVAL_MS);
   }
 
@@ -3101,11 +3106,13 @@ document.addEventListener('DOMContentLoaded', () => {
       if (!active || currentSide !== 'idis' || !idisSequenceActive) return;
       showIDISAbstractBackground();
 
-      if (idisBurstRevealTimer) clearTimeout(idisBurstRevealTimer);
-      idisBurstRevealTimer = setTimeout(() => {
+      // Reveal the application/product cards at the exact same moment as the
+      // 10-second blue/teal environment so the burst is immediately visible.
+      if (idisBurstRevealTimer) {
+        clearTimeout(idisBurstRevealTimer);
         idisBurstRevealTimer = null;
-        startIDISBurstField();
-      }, Math.max(0, IDIS_BURST_REVEAL_DELAY_MS - IDIS_BACKGROUND_REVEAL_DELAY_MS));
+      }
+      startIDISBurstField();
     }, IDIS_BACKGROUND_REVEAL_DELAY_MS);
 
     playIDISVideo(idisShowcaseVideo)

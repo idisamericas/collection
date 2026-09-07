@@ -1,0 +1,15 @@
+BUILD 49.2 — QR SHARE BUTTON FIX
+
+This is a combined patch that includes the current 49.1 Transit/Burst fixes plus the missing Share UI files.
+
+Changes:
+- index.html now includes a fixed, always-visible QR/share button in the top-right.
+- share button has a stronger teal/silver border and a small SHARE label.
+- share.html included.
+- supplied QR code included at assets/ui/share-qr.png.
+- share page points to https://idisamericas.github.io/collection/index.html
+- current 49.1 ar.js/styles.css retained.
+- current Transit rep lookup retained.
+- current IDIS burst fix retained.
+
+Upload the contents of this patch over the existing site. Do not delete your targets, audio, video, reference, thumbs, or parallax folders.

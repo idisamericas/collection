@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <meta name="idis-build" content="20260907-mobilecamera481" />
+  <meta name="idis-build" content="20260907-share492" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" />
   <meta name="theme-color" content="#02070a" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -11,14 +11,14 @@
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
   <title>IDIS Americas | Limited Coin Collection</title>
   <meta name="description" content="Discover, scan, and collect limited IDIS Americas event coins through an interactive AR experience." />
-  <link rel="icon" type="image/png" sizes="512x512" href="./assets/ui/favicon-coin.png?v=20260907-mobilecamera481" />
-  <link rel="apple-touch-icon" href="./assets/ui/favicon-coin.png?v=20260907-mobilecamera481" />
+  <link rel="icon" type="image/png" sizes="512x512" href="./assets/ui/favicon-coin.png?v=20260907-share492" />
+  <link rel="apple-touch-icon" href="./assets/ui/favicon-coin.png?v=20260907-share492" />
 
   <!-- Proven working A-Frame + MindAR load order restored for camera stability. -->
   <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
-  <link rel="stylesheet" href="./styles.css?v=20260907-mobilecamera481" />
-  <script defer src="./ar.js?v=20260907-mobilecamera481"></script>
+  <link rel="stylesheet" href="./styles.css?v=20260907-share492" />
+  <script defer src="./ar.js?v=20260907-share492"></script>
 
   <style id="idis-luxury-landing-v45">
     /* LANDING V45 ONLY. AR presentation styles remain in styles.css. */
@@ -823,6 +823,60 @@
       transform: translateY(-1px);
     }
 
+
+
+    /* BUILD 49.2: always-visible top-right QR/share shortcut */
+    .landing-share-button {
+      position: fixed !important;
+      z-index: 100500 !important;
+      top: max(14px, calc(env(safe-area-inset-top) + 10px)) !important;
+      right: max(14px, calc(env(safe-area-inset-right) + 10px)) !important;
+      width: 52px;
+      height: 52px;
+      display: grid !important;
+      place-items: center;
+      border: 1px solid rgba(138,255,248,.52);
+      border-radius: 15px;
+      background:
+        linear-gradient(145deg, rgba(255,255,255,.15), rgba(255,255,255,.035)),
+        rgba(2,14,19,.94);
+      box-shadow:
+        inset 0 1px rgba(255,255,255,.18),
+        0 10px 28px rgba(0,0,0,.48),
+        0 0 18px rgba(62,236,229,.20);
+      color: #f8ffff;
+      text-decoration: none;
+      -webkit-backdrop-filter: blur(18px);
+      backdrop-filter: blur(18px);
+      transform: translateZ(0);
+      opacity: 1 !important;
+      visibility: visible !important;
+      pointer-events: auto !important;
+      transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease;
+    }
+    .landing-share-button::after {
+      content: "SHARE";
+      position: absolute;
+      right: 0;
+      top: calc(100% + 5px);
+      color: rgba(182,255,249,.70);
+      font-size: 6px;
+      line-height: 1;
+      font-weight: 900;
+      letter-spacing: .16em;
+      pointer-events: none;
+    }
+    .landing-share-button:active { transform: scale(.94); }
+    @media (hover:hover) and (pointer:fine) {
+      .landing-share-button:hover {
+        transform: translateY(-1px);
+        border-color: rgba(158,255,249,.78);
+        box-shadow: inset 0 1px rgba(255,255,255,.20), 0 12px 34px rgba(0,0,0,.42), 0 0 26px rgba(64,234,227,.28);
+      }
+    }
+    .landing-share-button svg { width: 28px; height: 28px; display: block; }
+    .landing-share-button .share-qr-fill { fill: currentColor; }
+    .landing-share-button .share-qr-accent { fill: #62f2ea; }
 </style>
 
 </head>
@@ -843,10 +897,25 @@
       <div class="intro-glow glow-one" aria-hidden="true"></div>
       <div class="intro-glow glow-two" aria-hidden="true"></div>
 
+      <a class="landing-share-button" href="./share.html" aria-label="Share the IDIS limited coin collection">
+        <svg viewBox="0 0 32 32" aria-hidden="true">
+          <rect class="share-qr-fill" x="3" y="3" width="10" height="10" rx="2"/>
+          <rect fill="#061014" x="6" y="6" width="4" height="4" rx="1"/>
+          <rect class="share-qr-fill" x="19" y="3" width="10" height="10" rx="2"/>
+          <rect fill="#061014" x="22" y="6" width="4" height="4" rx="1"/>
+          <rect class="share-qr-fill" x="3" y="19" width="10" height="10" rx="2"/>
+          <rect fill="#061014" x="6" y="22" width="4" height="4" rx="1"/>
+          <rect class="share-qr-accent" x="18" y="18" width="4" height="4" rx="1"/>
+          <rect class="share-qr-fill" x="24" y="18" width="5" height="4" rx="1"/>
+          <rect class="share-qr-fill" x="18" y="24" width="4" height="5" rx="1"/>
+          <rect class="share-qr-accent" x="24" y="24" width="5" height="5" rx="1"/>
+        </svg>
+      </a>
+
       <div class="luxury-landing-inner">
         <div class="brand-lockup" aria-label="IDIS Americas">
           <img class="idis-ui-logo intro-idis-logo"
-               src="./assets/ui/idis-logo.png?v=20260907-mobilecamera481"
+               src="./assets/ui/idis-logo.png?v=20260907-share492"
                alt="IDIS Americas" />
         </div>
 
@@ -879,7 +948,7 @@
                    role="button"
                    tabindex="0"
                    aria-label="Learn about the IDIS limited coin series">
-                <img src="./assets/thumbs/idis-series.webp?v=20260907-mobilecamera481"
+                <img src="./assets/thumbs/idis-series.webp?v=20260907-share492"
                      alt="IDIS Americas collectible coin side" />
                 <span class="landing-coin-status">COLLECTION SERIES</span>
               </div>
@@ -892,7 +961,7 @@
                       data-title="GSX 2026"
                       data-subtitle="Atlanta, Georgia"
                       aria-disabled="true">
-                <img src="./assets/thumbs/gsx2026-atlanta.webp?v=20260907-mobilecamera481"
+                <img src="./assets/thumbs/gsx2026-atlanta.webp?v=20260907-share492"
                      alt="GSX 2026 Atlanta collectible coin" />
                 <span class="landing-coin-status">
                   <span class="status-locked">SCAN TO COLLECT</span>
@@ -911,7 +980,7 @@
                       aria-disabled="true"
                       aria-label="APTA TRANSform 2026 Chicago coin, coming soon">
                 <span class="coming-soon-ribbon" aria-hidden="true">COMING SOON</span>
-                <img src="./assets/thumbs/apta-transform-2026-chicago.webp?v=20260907-mobilecamera481"
+                <img src="./assets/thumbs/apta-transform-2026-chicago.webp?v=20260907-share492"
                      alt="APTA TRANSform 2026 Chicago collectible coin" />
                 <span class="landing-coin-status">COMING SOON</span>
               </button>
@@ -979,7 +1048,7 @@
     <header id="ar-header" class="ar-ui hidden">
       <div class="mini-brand" aria-label="IDIS Americas">
         <img class="idis-ui-logo header-idis-logo"
-             src="./assets/ui/idis-logo.png?v=20260907-mobilecamera481"
+             src="./assets/ui/idis-logo.png?v=20260907-share492"
              alt="IDIS Americas" />
       </div>
       <button id="close-ar" class="icon-button" type="button" aria-label="Close augmented reality">×</button>
@@ -1024,12 +1093,12 @@
         <video id="atlanta-layer-back" class="atlanta-layer layer-back"
                muted playsinline webkit-playsinline loop preload="metadata"
                aria-hidden="true">
-          <source src="./assets/parallax/atlanta/layer-1-back.mp4?v=20260907-mobilecamera481" type="video/mp4" />
+          <source src="./assets/parallax/atlanta/layer-1-back.mp4?v=20260907-share492" type="video/mp4" />
         </video>
         <img id="atlanta-layer-middle" class="atlanta-layer layer-middle"
-             src="./assets/parallax/atlanta/layer-2-middle.png?v=20260907-mobilecamera481" alt="" />
+             src="./assets/parallax/atlanta/layer-2-middle.png?v=20260907-share492" alt="" />
         <img id="atlanta-layer-front" class="atlanta-layer layer-front"
-             src="./assets/parallax/atlanta/layer-3-front.png?v=20260907-mobilecamera481" alt="" />
+             src="./assets/parallax/atlanta/layer-3-front.png?v=20260907-share492" alt="" />
       </div>
     </div>
 
@@ -1051,7 +1120,7 @@
             <span class="collection-coin-rim-highlight" aria-hidden="true"></span>
             <img id="collection-replay-coin-face"
                  class="collection-replay-coin-face"
-                 data-src="./assets/reference/GSX2026-Coin-Back.png?v=20260907-mobilecamera481"
+                 data-src="./assets/reference/GSX2026-Coin-Back.png?v=20260907-share492"
                  alt="GSX 2026 Atlanta collectible coin" />
             <span class="collection-replay-coin-shine shine-a" aria-hidden="true"></span>
             <span class="collection-replay-coin-shine shine-b" aria-hidden="true"></span>
@@ -1070,7 +1139,7 @@
            preload="metadata"
            playsinline
            aria-hidden="true">
-      <source src="./assets/audio/state-voiceover.mp3?v=20260907-mobilecamera481"
+      <source src="./assets/audio/state-voiceover.mp3?v=20260907-share492"
               type="audio/mpeg" />
     </audio>
 
@@ -1080,7 +1149,7 @@
            preload="metadata"
            playsinline
            aria-hidden="true">
-      <source src="./assets/audio/idis-voiceover.mp3?v=20260907-mobilecamera481"
+      <source src="./assets/audio/idis-voiceover.mp3?v=20260907-share492"
               type="audio/mpeg" />
     </audio>
 
@@ -1170,7 +1239,7 @@
              class="idis-showcase-video-source"
              muted playsinline webkit-playsinline preload="metadata"
              aria-hidden="true">
-        <source src="./assets/video/idis-showcase-alpha.webm?v=20260907-mobilecamera481"
+        <source src="./assets/video/idis-showcase-alpha.webm?v=20260907-share492"
                 type="video/webm" />
       </video>
 
@@ -1190,7 +1259,7 @@
       <div class="end-card-bg"></div>
       <div class="end-card-content">
         <img class="end-card-logo"
-             src="./assets/ui/idis-logo.png?v=20260907-mobilecamera481"
+             src="./assets/ui/idis-logo.png?v=20260907-share492"
              alt="IDIS Americas" />
         <div id="personalized-thanks-line1" class="end-card-line1">Thank you,</div>
         <div id="personalized-thanks-line2" class="end-card-line2">Guest</div>
