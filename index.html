@@ -2,23 +2,665 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <meta name="idis-build" content="20260826-chicagofolders442" />
+  <meta name="idis-build" content="20260907-luxurylanding45" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" />
   <meta name="theme-color" content="#02070a" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <link rel="preconnect" href="https://aframe.io" crossorigin />
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
-  <title>IDIS Americas | GSX 2026 AR Coin</title>
-  <meta name="description" content="Scan the limited IDIS Americas GSX 2026 coin, add it to your on-device collection, and replay the experience anytime." />
-  <link rel="icon" type="image/png" sizes="512x512" href="./assets/ui/favicon-coin.png?v=20260826-chicagofolders442" />
-  <link rel="apple-touch-icon" href="./assets/ui/favicon-coin.png?v=20260826-chicagofolders442" />
+  <title>IDIS Americas | Limited Coin Collection</title>
+  <meta name="description" content="Discover, scan, and collect limited IDIS Americas event coins through an interactive AR experience." />
+  <link rel="icon" type="image/png" sizes="512x512" href="./assets/ui/favicon-coin.png?v=20260907-luxurylanding45" />
+  <link rel="apple-touch-icon" href="./assets/ui/favicon-coin.png?v=20260907-luxurylanding45" />
 
   <!-- Proven working A-Frame + MindAR load order restored for camera stability. -->
   <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
-  <link rel="stylesheet" href="./styles.css?v=20260826-chicagofolders442" />
-  <script defer src="./ar.js?v=20260826-chicagofolders442"></script>
+  <link rel="stylesheet" href="./styles.css?v=20260907-luxurylanding45" />
+  <script defer src="./ar.js?v=20260907-luxurylanding45"></script>
+
+  <style id="idis-luxury-landing-v45">
+    /* LANDING V45 ONLY. AR presentation styles remain in styles.css. */
+    #intro {
+      display: block;
+      padding: max(18px, env(safe-area-inset-top)) 16px 246px;
+      overflow-x: hidden;
+      overflow-y: auto;
+      overscroll-behavior: none;
+      background:
+        radial-gradient(circle at 6% 18%, rgba(0, 210, 217, .20), transparent 30%),
+        radial-gradient(circle at 91% 22%, rgba(64, 108, 255, .20), transparent 32%),
+        radial-gradient(circle at 79% 60%, rgba(139, 92, 255, .18), transparent 35%),
+        radial-gradient(circle at 33% 78%, rgba(0, 157, 172, .12), transparent 34%),
+        linear-gradient(162deg, #020609 0%, #06131a 42%, #02070c 71%, #030509 100%);
+      scrollbar-width: none;
+      isolation: isolate;
+    }
+
+    #intro::-webkit-scrollbar { display: none; }
+
+    #intro::before,
+    #intro::after {
+      content: "";
+      position: absolute;
+      width: 270px;
+      height: 270px;
+      border-radius: 50%;
+      filter: blur(72px);
+      opacity: .45;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    #intro::before {
+      left: -150px;
+      top: 25%;
+      background: rgba(15, 207, 218, .26);
+    }
+
+    #intro::after {
+      right: -160px;
+      top: 44%;
+      background: rgba(112, 74, 255, .27);
+    }
+
+    #intro .intro-grid {
+      opacity: .045;
+      background-size: 54px 54px;
+      -webkit-mask-image: radial-gradient(circle at 50% 44%, black, transparent 70%);
+      mask-image: radial-gradient(circle at 50% 44%, black, transparent 70%);
+    }
+
+    #intro .intro-glow { display: none; }
+
+    .luxury-landing-inner {
+      position: relative;
+      z-index: 3;
+      width: min(100%, 760px);
+      margin: 0 auto;
+    }
+
+    #intro .brand-lockup {
+      justify-content: center;
+      margin-top: 2px;
+    }
+
+    #intro .intro-idis-logo {
+      width: 116px;
+      max-width: 32vw;
+      filter:
+        drop-shadow(0 7px 20px rgba(0,0,0,.48))
+        drop-shadow(0 0 20px rgba(24,201,195,.10));
+    }
+
+    .luxury-hero-copy {
+      position: relative;
+      z-index: 3;
+      margin: 22px auto 0;
+      text-align: center;
+      max-width: 590px;
+    }
+
+    .luxury-hero-kicker {
+      color: rgba(121, 255, 245, .72);
+      font-size: 8px;
+      font-weight: 850;
+      letter-spacing: .26em;
+      text-transform: uppercase;
+    }
+
+    .luxury-hero-copy h1 {
+      margin: 9px 0 0;
+      color: #f7fbfc;
+      font-size: clamp(38px, 10.7vw, 68px);
+      line-height: .95;
+      font-weight: 720;
+      letter-spacing: -.052em;
+      text-wrap: balance;
+      text-shadow: 0 12px 30px rgba(0,0,0,.35);
+    }
+
+    .luxury-hero-copy h1 span {
+      display: block;
+      margin-top: 3px;
+      background: linear-gradient(95deg, #21c9ca 0%, #79fff2 46%, #64bcff 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      filter: drop-shadow(0 0 18px rgba(36,211,216,.12));
+    }
+
+    .luxury-hero-copy p {
+      max-width: 430px;
+      margin: 13px auto 0;
+      color: rgba(242,249,250,.67);
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    /* ------------------------------------------------------------------
+       COLLECTION SHOWCASE
+    ------------------------------------------------------------------ */
+    #coin-collection.coin-collection {
+      position: relative;
+      z-index: 4;
+      width: 100%;
+      margin: 20px auto 0;
+    }
+
+    .luxury-collection-topline {
+      position: relative;
+      z-index: 7;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 9px;
+      margin-bottom: 5px;
+      color: rgba(255,255,255,.43);
+      font-size: 7px;
+      font-weight: 850;
+      letter-spacing: .20em;
+    }
+
+    #collection-count.collection-count {
+      color: rgba(118,255,245,.88);
+      font-size: 7px;
+      letter-spacing: .14em;
+    }
+
+    #collection-carousel.luxury-coin-carousel {
+      position: relative;
+      display: block;
+      width: 100%;
+      height: 318px;
+      margin: 0;
+      padding: 0;
+      overflow: visible;
+      perspective: 1100px;
+      -webkit-perspective: 1100px;
+      touch-action: pan-y;
+    }
+
+    .luxury-carousel-stage {
+      position: absolute;
+      inset: 0;
+      transform-style: preserve-3d;
+      -webkit-transform-style: preserve-3d;
+    }
+
+    .luxury-carousel-stage::before {
+      content: "";
+      position: absolute;
+      left: 50%;
+      bottom: 35px;
+      width: min(92vw, 520px);
+      height: 96px;
+      transform: translateX(-50%) perspective(400px) rotateX(66deg);
+      border-radius: 50%;
+      border: 1px solid rgba(47,237,233,.28);
+      background:
+        radial-gradient(ellipse at center, rgba(24,201,195,.18) 0%, rgba(7,25,30,.84) 48%, rgba(2,7,10,.94) 75%);
+      box-shadow:
+        inset 0 0 0 1px rgba(255,255,255,.025),
+        0 0 34px rgba(24,201,195,.10),
+        0 26px 45px rgba(0,0,0,.44);
+      pointer-events: none;
+    }
+
+    .luxury-carousel-stage::after {
+      content: "";
+      position: absolute;
+      left: 50%;
+      bottom: 49px;
+      width: min(80vw, 430px);
+      height: 8px;
+      transform: translateX(-50%);
+      border-radius: 999px;
+      background: linear-gradient(90deg, transparent, rgba(60,242,236,.7), #b9fffb, rgba(79,155,255,.58), transparent);
+      filter: blur(7px);
+      opacity: .42;
+      pointer-events: none;
+    }
+
+    .landing-coin {
+      appearance: none;
+      -webkit-appearance: none;
+      position: absolute;
+      left: 50%;
+      top: 47%;
+      width: 214px;
+      aspect-ratio: 1;
+      padding: 0;
+      border: 0;
+      border-radius: 50%;
+      background: transparent;
+      transform-style: preserve-3d;
+      -webkit-transform-style: preserve-3d;
+      transform-origin: 50% 50%;
+      transition:
+        transform 950ms cubic-bezier(.16,.84,.20,1),
+        opacity 750ms ease,
+        filter 850ms ease;
+      will-change: transform, opacity, filter;
+      cursor: pointer;
+      outline: none;
+    }
+
+    .landing-coin::before {
+      content: "";
+      position: absolute;
+      inset: 5%;
+      border-radius: 50%;
+      opacity: 0;
+      border: 1px solid rgba(104,255,245,.55);
+      box-shadow:
+        0 0 0 5px rgba(24,201,195,.035),
+        0 0 34px rgba(24,201,195,.22),
+        0 0 70px rgba(61,124,255,.08);
+      transition: opacity .55s ease;
+      pointer-events: none;
+    }
+
+    .landing-coin img {
+      position: relative;
+      z-index: 2;
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      filter:
+        drop-shadow(0 20px 19px rgba(0,0,0,.58))
+        drop-shadow(0 2px 3px rgba(255,255,255,.12));
+      user-select: none;
+      -webkit-user-drag: none;
+      pointer-events: none;
+    }
+
+    .landing-coin.pos-center {
+      z-index: 6;
+      opacity: 1;
+      transform: translate3d(-50%, -50%, 125px) scale(1) rotateY(0deg) rotateZ(0deg);
+      filter: saturate(1.04) brightness(1.04);
+    }
+
+    .landing-coin.pos-center::before { opacity: 1; }
+
+    .landing-coin.pos-left {
+      z-index: 4;
+      opacity: .76;
+      transform: translate3d(calc(-50% - 116px), -47%, 4px) scale(.69) rotateY(23deg) rotateZ(-2deg);
+      filter: saturate(.78) brightness(.72);
+    }
+
+    .landing-coin.pos-right {
+      z-index: 4;
+      opacity: .76;
+      transform: translate3d(calc(-50% + 116px), -47%, 4px) scale(.69) rotateY(-23deg) rotateZ(2deg);
+      filter: saturate(.78) brightness(.72);
+    }
+
+    .landing-coin.pos-hidden {
+      z-index: 1;
+      opacity: 0;
+      transform: translate3d(-50%, -50%, -140px) scale(.45);
+      pointer-events: none;
+    }
+
+    .landing-coin-status {
+      position: absolute;
+      z-index: 8;
+      left: 50%;
+      bottom: 1px;
+      transform: translateX(-50%);
+      padding: 5px 8px 4px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.17);
+      background: rgba(3,12,16,.78);
+      color: rgba(255,255,255,.65);
+      font-size: 5px;
+      font-weight: 900;
+      letter-spacing: .15em;
+      white-space: nowrap;
+      backdrop-filter: blur(10px);
+      opacity: 0;
+      transition: opacity .4s ease;
+    }
+
+    .landing-coin.pos-center .landing-coin-status { opacity: 1; }
+    #collection-gsx2026 .status-unlocked { display: none; }
+    #collection-gsx2026.is-unlocked .status-locked { display: none; }
+    #collection-gsx2026.is-unlocked .status-unlocked { display: inline; color: #78fff3; }
+
+    .luxury-carousel-arrow {
+      position: absolute;
+      z-index: 20;
+      top: 47%;
+      width: 38px;
+      height: 38px;
+      display: grid;
+      place-items: center;
+      transform: translateY(-50%);
+      border-radius: 50%;
+      border: 1px solid rgba(92,245,239,.30);
+      background: rgba(5,17,23,.64);
+      color: rgba(235,255,255,.88);
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,.08),
+        0 0 20px rgba(20,202,202,.08);
+      backdrop-filter: blur(12px);
+      font-size: 22px;
+      font-weight: 300;
+      line-height: 1;
+    }
+
+    .luxury-carousel-arrow:active { transform: translateY(-50%) scale(.94); }
+    .luxury-carousel-arrow.prev { left: 0; }
+    .luxury-carousel-arrow.next { right: 0; }
+
+    .luxury-coin-caption {
+      position: absolute;
+      z-index: 12;
+      left: 50%;
+      bottom: 2px;
+      width: min(84vw, 430px);
+      transform: translateX(-50%);
+      text-align: center;
+      pointer-events: none;
+    }
+
+    .luxury-coin-caption strong {
+      display: block;
+      color: rgba(255,255,255,.92);
+      font-size: 11px;
+      font-weight: 800;
+      line-height: 1.2;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+    }
+
+    .luxury-coin-caption span {
+      display: block;
+      margin-top: 4px;
+      color: rgba(126,255,245,.65);
+      font-size: 7px;
+      font-weight: 750;
+      letter-spacing: .17em;
+      text-transform: uppercase;
+    }
+
+    .luxury-carousel-dots {
+      position: absolute;
+      z-index: 15;
+      left: 50%;
+      bottom: -17px;
+      display: flex;
+      gap: 7px;
+      transform: translateX(-50%);
+    }
+
+    .luxury-carousel-dot {
+      width: 5px;
+      height: 5px;
+      padding: 0;
+      border: 0;
+      border-radius: 50%;
+      background: rgba(255,255,255,.20);
+      box-shadow: none;
+    }
+
+    .luxury-carousel-dot.is-active {
+      background: #73fff4;
+      box-shadow: 0 0 12px rgba(66,240,234,.85);
+      transform: scale(1.25);
+    }
+
+    /* ------------------------------------------------------------------
+       FLOATING NAME + AR DOCK
+    ------------------------------------------------------------------ */
+    .landing-action-dock {
+      position: fixed;
+      z-index: 100050;
+      left: 12px;
+      right: 12px;
+      bottom: max(10px, env(safe-area-inset-bottom));
+      width: auto;
+      max-width: 590px;
+      margin: 0 auto;
+      padding: 12px;
+      border: 1px solid transparent;
+      border-radius: 24px;
+      background:
+        linear-gradient(155deg, rgba(4,13,18,.93), rgba(7,23,29,.92)) padding-box,
+        linear-gradient(128deg, rgba(255,255,255,.60), rgba(101,115,121,.36) 31%, rgba(103,255,245,.47) 60%, rgba(255,255,255,.25)) border-box;
+      box-shadow:
+        0 28px 70px rgba(0,0,0,.60),
+        0 0 0 1px rgba(24,201,195,.055),
+        0 0 38px rgba(24,201,195,.07),
+        inset 0 1px 0 rgba(255,255,255,.055);
+      backdrop-filter: blur(24px) saturate(1.08);
+      -webkit-backdrop-filter: blur(24px) saturate(1.08);
+    }
+
+    #intro .guest-name-field {
+      margin: 0;
+      width: 100%;
+      max-width: none;
+      padding: 0;
+    }
+
+    #intro .guest-name-field > label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin: 0 0 8px 4px;
+      color: rgba(245,249,250,.83);
+      font-size: 9px;
+      font-weight: 780;
+      letter-spacing: .055em;
+    }
+
+    #intro .guest-name-field > label::before {
+      content: "";
+      width: 26px;
+      height: 2px;
+      border-radius: 999px;
+      background: linear-gradient(90deg, #eaf3f4, #86fff5);
+      box-shadow: 0 0 12px rgba(71,240,232,.35);
+    }
+
+    #intro .guest-name-input-wrap {
+      position: relative;
+      min-height: 48px;
+      border: 1px solid transparent;
+      border-radius: 15px;
+      background:
+        linear-gradient(145deg, rgba(6,18,24,.93), rgba(11,28,35,.89)) padding-box,
+        linear-gradient(115deg, #f6fbfc 0%, #7e898e 27%, #dfe6e8 50%, #6d787c 68%, rgba(106,255,245,.74) 100%) border-box;
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,.08),
+        inset 0 -10px 22px rgba(0,0,0,.12);
+    }
+
+    #intro #guest-name {
+      width: 100%;
+      min-height: 48px;
+      padding: 0 15px;
+      border: 0;
+      outline: 0;
+      border-radius: 15px;
+      background: transparent;
+      color: #fff;
+      font-size: 14px;
+      font-weight: 560;
+    }
+
+    #intro #guest-name::placeholder { color: rgba(235,244,246,.38); }
+
+    #intro .guest-name-memory {
+      right: 12px;
+      bottom: 5px;
+      color: rgba(123,255,244,.50);
+      font-size: 5px;
+      letter-spacing: .08em;
+    }
+
+    #intro .intro-actions {
+      margin-top: 9px;
+      display: block;
+    }
+
+    #intro #start-ar.primary-button {
+      position: relative;
+      width: 100%;
+      min-height: 58px;
+      padding: 0 17px;
+      border: 1px solid rgba(238,252,252,.88);
+      border-radius: 17px;
+      overflow: hidden;
+      background:
+        linear-gradient(108deg,
+          #737d82 0%,
+          #dfe5e6 13%,
+          #fdfefe 24%,
+          #a6afb3 38%,
+          #f7fafa 56%,
+          #c3cacc 70%,
+          #f9fbfb 83%,
+          #8b9599 100%);
+      color: #071115;
+      box-shadow:
+        inset 0 2px 1px rgba(255,255,255,.92),
+        inset 0 -3px 7px rgba(30,45,50,.28),
+        0 0 0 2px rgba(31,221,215,.19),
+        0 8px 24px rgba(0,0,0,.38),
+        0 0 25px rgba(30,217,211,.14);
+      font-size: 10px;
+      font-weight: 900;
+      letter-spacing: .10em;
+      text-shadow: 0 1px rgba(255,255,255,.44);
+      backdrop-filter: none;
+    }
+
+    #intro #start-ar.primary-button::before {
+      content: "";
+      position: absolute;
+      top: -70%;
+      left: -36%;
+      width: 45%;
+      height: 240%;
+      transform: rotate(18deg);
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,.68), transparent);
+      opacity: .48;
+      animation: nickelShine 4.8s ease-in-out infinite;
+      pointer-events: none;
+    }
+
+    @keyframes nickelShine {
+      0%, 58% { left: -45%; opacity: 0; }
+      66% { opacity: .58; }
+      82% { left: 115%; opacity: .18; }
+      100% { left: 115%; opacity: 0; }
+    }
+
+    .scan-cta-left {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .scan-camera-icon {
+      width: 25px;
+      height: 25px;
+      color: #061216;
+      filter: drop-shadow(0 1px 0 rgba(255,255,255,.45));
+    }
+
+    #intro #start-ar.primary-button b {
+      position: relative;
+      z-index: 2;
+      color: #071115;
+      font-size: 24px;
+      font-weight: 450;
+    }
+
+    .landing-simple-mantra {
+      margin-top: 10px;
+      color: rgba(226,235,237,.48);
+      text-align: center;
+      font-size: 7px;
+      font-weight: 850;
+      letter-spacing: .30em;
+      text-transform: uppercase;
+    }
+
+    .landing-simple-mantra i {
+      display: inline-block;
+      margin: 0 7px;
+      color: rgba(102,255,244,.55);
+      font-style: normal;
+    }
+
+    #intro .privacy-note {
+      margin: 6px 0 0;
+      color: rgba(255,255,255,.27);
+      font-size: 6px;
+      letter-spacing: .045em;
+    }
+
+    @media (max-width: 370px) {
+      #intro { padding-left: 12px; padding-right: 12px; padding-bottom: 238px; }
+      .luxury-hero-copy { margin-top: 17px; }
+      .luxury-hero-copy h1 { font-size: 36px; }
+      .luxury-hero-copy p { font-size: 11px; }
+      #collection-carousel.luxury-coin-carousel { height: 286px; }
+      .landing-coin { width: 190px; }
+      .landing-coin.pos-left { transform: translate3d(calc(-50% - 99px), -47%, 0) scale(.66) rotateY(23deg) rotateZ(-2deg); }
+      .landing-coin.pos-right { transform: translate3d(calc(-50% + 99px), -47%, 0) scale(.66) rotateY(-23deg) rotateZ(2deg); }
+      .luxury-carousel-arrow { width: 34px; height: 34px; }
+      .landing-action-dock { left: 8px; right: 8px; padding: 10px; }
+    }
+
+    @media (min-width: 700px) {
+      #intro { padding-top: max(28px, env(safe-area-inset-top)); padding-bottom: 270px; }
+      #intro .intro-idis-logo { width: 142px; }
+      .luxury-hero-copy { margin-top: 30px; }
+      #collection-carousel.luxury-coin-carousel { height: 390px; }
+      .landing-coin { width: 280px; }
+      .landing-coin.pos-left { transform: translate3d(calc(-50% - 175px), -47%, 10px) scale(.70) rotateY(22deg) rotateZ(-2deg); }
+      .landing-coin.pos-right { transform: translate3d(calc(-50% + 175px), -47%, 10px) scale(.70) rotateY(-22deg) rotateZ(2deg); }
+      .luxury-carousel-arrow.prev { left: 7%; }
+      .luxury-carousel-arrow.next { right: 7%; }
+      .luxury-coin-caption { bottom: 12px; }
+    }
+
+    @media (max-height: 690px) and (max-width: 540px) {
+      #intro { padding-top: max(10px, env(safe-area-inset-top)); padding-bottom: 228px; }
+      #intro .intro-idis-logo { width: 92px; }
+      .luxury-hero-copy { margin-top: 10px; }
+      .luxury-hero-copy h1 { font-size: 32px; }
+      .luxury-hero-copy p { margin-top: 8px; font-size: 10px; }
+      #coin-collection.coin-collection { margin-top: 8px; }
+      #collection-carousel.luxury-coin-carousel { height: 245px; }
+      .landing-coin { width: 170px; }
+      .landing-coin.pos-left { transform: translate3d(calc(-50% - 88px), -47%, 0) scale(.65) rotateY(23deg) rotateZ(-2deg); }
+      .landing-coin.pos-right { transform: translate3d(calc(-50% + 88px), -47%, 0) scale(.65) rotateY(-23deg) rotateZ(2deg); }
+      .luxury-collection-topline { margin-bottom: 0; }
+      .landing-action-dock { padding: 9px; border-radius: 20px; }
+      #intro #guest-name { min-height: 43px; }
+      #intro .guest-name-input-wrap { min-height: 43px; }
+      #intro #start-ar.primary-button { min-height: 51px; }
+      .landing-simple-mantra { margin-top: 7px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .landing-coin { transition-duration: 120ms; }
+      #intro #start-ar.primary-button::before { animation: none; }
+    }
+  </style>
+
 </head>
 <body>
   <!--
@@ -35,153 +677,139 @@
       <div class="intro-glow glow-one" aria-hidden="true"></div>
       <div class="intro-glow glow-two" aria-hidden="true"></div>
 
-      <div class="brand-lockup" aria-label="IDIS Americas">
-        <img class="idis-ui-logo intro-idis-logo"
-             src="./assets/ui/idis-logo.png?v=20260826-chicagofolders442"
-             alt="IDIS Americas" />
-      </div>
-
-      <!--
-        PERSISTENT DIGITAL COIN COLLECTION
-        A real coin appears here only after a successful physical scan.
-        Unlock state is remembered on this browser/device with localStorage.
-      -->
-      <section id="coin-collection"
-               class="coin-collection"
-               aria-label="Your IDIS collectible coin collection">
-        <div class="collection-heading">
-          <div>
-            <span class="collection-kicker">YOUR COLLECTION</span>
-            <span class="collection-subtitle">Collect. Keep. Replay.</span>
-          </div>
-          <span id="collection-count" class="collection-count" aria-live="polite">0 / 5</span>
+      <div class="luxury-landing-inner">
+        <div class="brand-lockup" aria-label="IDIS Americas">
+          <img class="idis-ui-logo intro-idis-logo"
+               src="./assets/ui/idis-logo.png?v=20260907-luxurylanding45"
+               alt="IDIS Americas" />
         </div>
 
-        <div id="collection-carousel"
-             class="collection-carousel"
-             role="list"
-             aria-label="Collected and future IDIS coins">
+        <div class="luxury-hero-copy">
+          <div class="luxury-hero-kicker">LIMITED DIGITAL COIN COLLECTION</div>
+          <h1>We See More <span>Than Security.</span></h1>
+          <p>
+            We see what matters. What connects us. What deserves to be protected.
+          </p>
+        </div>
 
-          <button id="collection-gsx2026"
-                  class="collection-card collection-card-featured is-locked"
-                  type="button"
-                  data-coin-id="gsx2026-atlanta"
-                  aria-disabled="true"
-                  role="listitem">
-            <div class="collection-coin-shell">
-              <div class="collection-coin-placeholder" aria-hidden="true">
-                <span>+</span>
+        <section id="coin-collection"
+                 class="coin-collection"
+                 aria-label="Your IDIS collectible coin collection">
+
+          <div class="luxury-collection-topline">
+            <span>YOUR COLLECTION</span>
+            <span aria-hidden="true">•</span>
+            <span id="collection-count" class="collection-count" aria-live="polite">0 / 5</span>
+          </div>
+
+          <div id="collection-carousel"
+               class="luxury-coin-carousel"
+               aria-label="IDIS collectible coin carousel">
+
+            <div class="luxury-carousel-stage">
+              <div class="landing-coin pos-center"
+                   data-coin-index="0"
+                   data-title="IDIS Americas"
+                   data-subtitle="Limited Collection Series"
+                   role="button"
+                   tabindex="0"
+                   aria-label="IDIS Americas coin side">
+                <img src="./assets/reference/coin-front.png?v=20260907-luxurylanding45"
+                     alt="IDIS Americas collectible coin side" />
+                <span class="landing-coin-status">COLLECTION SERIES</span>
               </div>
 
-              <img class="collection-coin-image"
-                   loading="lazy" decoding="async"
-                   src="./assets/thumbs/gsx2026-atlanta.webp?v=20260826-chicagofolders442"
-                   alt="GSX 2026 Atlanta collectible coin" />
-
-              <span class="collection-collected-badge">COLLECTED</span>
-            </div>
-
-            <div class="collection-card-copy">
-              <strong>GSX 2026</strong>
-
-              <div class="collection-locked-copy">
-                SCAN THE COIN TO UNLOCK
-              </div>
-
-              <div class="collection-unlocked-copy">
-                <dl class="collection-meta">
-                  <div>
-                    <dt>YEAR</dt>
-                    <dd>2026</dd>
-                  </div>
-                  <div>
-                    <dt>DATE</dt>
-                    <dd>SEP 14–16</dd>
-                  </div>
-                  <div>
-                    <dt>LOCATION</dt>
-                    <dd>ATLANTA, GA</dd>
-                  </div>
-                </dl>
-                <span class="collection-replay-label">
-                  TAP TO REPLAY EXPERIENCE
+              <button id="collection-gsx2026"
+                      class="landing-coin pos-left is-locked"
+                      type="button"
+                      data-coin-id="gsx2026-atlanta"
+                      data-coin-index="1"
+                      data-title="GSX 2026"
+                      data-subtitle="Atlanta, Georgia"
+                      aria-disabled="true">
+                <img src="./assets/thumbs/gsx2026-atlanta.webp?v=20260907-luxurylanding45"
+                     alt="GSX 2026 Atlanta collectible coin" />
+                <span class="landing-coin-status">
+                  <span class="status-locked">SCAN TO COLLECT</span>
+                  <span class="status-unlocked">COLLECTED • TAP TO REPLAY</span>
                 </span>
+              </button>
+
+              <div class="landing-coin pos-right"
+                   data-coin-index="2"
+                   data-title="APTA TRANSform 2026"
+                   data-subtitle="Chicago, Illinois"
+                   role="button"
+                   tabindex="0"
+                   aria-label="APTA TRANSform 2026 Chicago collectible coin">
+                <img src="./assets/thumbs/apta-transform-2026-chicago.webp?v=20260907-luxurylanding45"
+                     alt="APTA TRANSform 2026 Chicago collectible coin" />
+                <span class="landing-coin-status">2026 DROP</span>
               </div>
             </div>
+
+            <button class="luxury-carousel-arrow prev"
+                    type="button"
+                    data-carousel-dir="-1"
+                    aria-label="Previous coin">‹</button>
+            <button class="luxury-carousel-arrow next"
+                    type="button"
+                    data-carousel-dir="1"
+                    aria-label="Next coin">›</button>
+
+            <div class="luxury-coin-caption" aria-live="polite">
+              <strong id="landing-coin-title">IDIS Americas</strong>
+              <span id="landing-coin-subtitle">Limited Collection Series</span>
+            </div>
+
+            <div class="luxury-carousel-dots" aria-label="Choose collectible coin">
+              <button class="luxury-carousel-dot is-active" type="button" data-carousel-index="0" aria-label="IDIS Americas"></button>
+              <button class="luxury-carousel-dot" type="button" data-carousel-index="1" aria-label="GSX 2026 Atlanta"></button>
+              <button class="luxury-carousel-dot" type="button" data-carousel-index="2" aria-label="APTA TRANSform 2026 Chicago"></button>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <div class="landing-action-dock">
+        <div class="guest-name-field">
+          <label for="guest-name">LET'S START WITH YOUR NAME</label>
+          <div class="guest-name-input-wrap">
+            <input id="guest-name"
+                   type="text"
+                   inputmode="text"
+                   autocomplete="name"
+                   maxlength="40"
+                   placeholder="Your name" />
+            <span id="guest-name-memory" class="guest-name-memory">REMEMBERED ON THIS DEVICE</span>
+          </div>
+        </div>
+
+        <div class="intro-actions">
+          <button id="start-ar" class="primary-button" type="button">
+            <span class="scan-cta-left">
+              <svg class="scan-camera-icon" viewBox="0 0 32 32" aria-hidden="true">
+                <path fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"
+                      d="M4 10V6a2 2 0 0 1 2-2h4M22 4h4a2 2 0 0 1 2 2v4M28 22v4a2 2 0 0 1-2 2h-4M10 28H6a2 2 0 0 1-2-2v-4M10 12h3l1.6-2h3L19 12h3a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H10a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2Z"/>
+                <circle cx="16" cy="17" r="3.7" fill="none" stroke="currentColor" stroke-width="2.1"/>
+              </svg>
+              <span>START THE EXPERIENCE</span>
+            </span>
+            <b aria-hidden="true">→</b>
           </button>
-
-          <div class="collection-card collection-card-future"
-               role="listitem"
-               aria-label="Future collectible coin slot">
-            <div class="collection-future-ring"><span>+</span></div>
-            <strong>FUTURE DROP</strong>
-            <small>COMING SOON</small>
-          </div>
-
-          <div class="collection-card collection-card-future"
-               role="listitem"
-               aria-label="Future collectible coin slot">
-            <div class="collection-future-ring future-ring-small"><span>+</span></div>
-            <strong>FUTURE DROP</strong>
-            <small>COMING SOON</small>
-          </div>
-
-          <div class="collection-card collection-card-future"
-               role="listitem"
-               aria-label="Future collectible coin slot">
-            <div class="collection-future-ring"><span>+</span></div>
-            <strong>FUTURE DROP</strong>
-            <small>COMING SOON</small>
-          </div>
-
-          <div class="collection-card collection-card-future"
-               role="listitem"
-               aria-label="Future collectible coin slot">
-            <div class="collection-future-ring future-ring-small"><span>+</span></div>
-            <strong>FUTURE DROP</strong>
-            <small>COMING SOON</small>
-          </div>
-
         </div>
-      </section>
 
-
-      <div class="intro-copy">
-        <div class="eyebrow">GSX 2026 • LIMITED COLLECTIBLE</div>
-        <h1>We See More<br />Than Security.</h1>
-        <p>
-          We see what matters. What connects us. What deserves to be protected.
-          Discover more with IDIS and take home something worth remembering.
-        </p>
-      </div>
-
-
-      <div class="guest-name-field">
-        <label for="guest-name">LET'S START WITH YOUR NAME</label>
-        <div class="guest-name-input-wrap">
-          <input id="guest-name"
-                 type="text"
-                 inputmode="text"
-                 autocomplete="name"
-                 maxlength="40"
-                 placeholder="Your name" />
-          <span id="guest-name-memory" class="guest-name-memory">REMEMBERED ON THIS DEVICE</span>
+        <div class="landing-simple-mantra">
+          COLLECT <i>•</i> SCAN <i>•</i> DISCOVER
         </div>
+        <div class="privacy-note">Camera access is used only for the live AR experience.</div>
       </div>
-
-      <div class="intro-actions">
-        <button id="start-ar" class="primary-button" type="button">
-          <span>START THE EXPERIENCE</span><b aria-hidden="true">↗</b>
-        </button>
-        <a class="secondary-link" href="./camera-test.html">CAMERA TEST</a>
-      </div>
-      <div class="privacy-note">Camera access is used only for the live AR experience.</div>
     </section>
 
     <header id="ar-header" class="ar-ui hidden">
       <div class="mini-brand" aria-label="IDIS Americas">
         <img class="idis-ui-logo header-idis-logo"
-             src="./assets/ui/idis-logo.png?v=20260826-chicagofolders442"
+             src="./assets/ui/idis-logo.png?v=20260907-luxurylanding45"
              alt="IDIS Americas" />
       </div>
       <button id="close-ar" class="icon-button" type="button" aria-label="Close augmented reality">×</button>
@@ -226,12 +854,12 @@
         <video id="atlanta-layer-back" class="atlanta-layer layer-back"
                muted playsinline webkit-playsinline loop preload="metadata"
                aria-hidden="true">
-          <source src="./assets/parallax/atlanta/layer-1-back.mp4?v=20260826-chicagofolders442" type="video/mp4" />
+          <source src="./assets/parallax/atlanta/layer-1-back.mp4?v=20260907-luxurylanding45" type="video/mp4" />
         </video>
         <img id="atlanta-layer-middle" class="atlanta-layer layer-middle"
-             src="./assets/parallax/atlanta/layer-2-middle.png?v=20260826-chicagofolders442" alt="" />
+             src="./assets/parallax/atlanta/layer-2-middle.png?v=20260907-luxurylanding45" alt="" />
         <img id="atlanta-layer-front" class="atlanta-layer layer-front"
-             src="./assets/parallax/atlanta/layer-3-front.png?v=20260826-chicagofolders442" alt="" />
+             src="./assets/parallax/atlanta/layer-3-front.png?v=20260907-luxurylanding45" alt="" />
       </div>
     </div>
 
@@ -253,7 +881,7 @@
             <span class="collection-coin-rim-highlight" aria-hidden="true"></span>
             <img id="collection-replay-coin-face"
                  class="collection-replay-coin-face"
-                 data-src="./assets/reference/GSX2026-Coin-Back.png?v=20260826-chicagofolders442"
+                 data-src="./assets/reference/GSX2026-Coin-Back.png?v=20260907-luxurylanding45"
                  alt="GSX 2026 Atlanta collectible coin" />
             <span class="collection-replay-coin-shine shine-a" aria-hidden="true"></span>
             <span class="collection-replay-coin-shine shine-b" aria-hidden="true"></span>
@@ -272,7 +900,7 @@
            preload="metadata"
            playsinline
            aria-hidden="true">
-      <source src="./assets/audio/state-voiceover.mp3?v=20260826-chicagofolders442"
+      <source src="./assets/audio/state-voiceover.mp3?v=20260907-luxurylanding45"
               type="audio/mpeg" />
     </audio>
 
@@ -282,7 +910,7 @@
            preload="metadata"
            playsinline
            aria-hidden="true">
-      <source src="./assets/audio/idis-voiceover.mp3?v=20260826-chicagofolders442"
+      <source src="./assets/audio/idis-voiceover.mp3?v=20260907-luxurylanding45"
               type="audio/mpeg" />
     </audio>
 
@@ -366,7 +994,7 @@
              class="idis-showcase-video-source"
              muted playsinline webkit-playsinline preload="metadata"
              aria-hidden="true">
-        <source src="./assets/video/idis-showcase-alpha.webm?v=20260826-chicagofolders442"
+        <source src="./assets/video/idis-showcase-alpha.webm?v=20260907-luxurylanding45"
                 type="video/webm" />
       </video>
 
@@ -385,7 +1013,7 @@
                      class="idis-feature-bottom-video"
                      muted playsinline webkit-playsinline preload="metadata"
                      aria-label="IDIS background motion layer">
-                <source src="./assets/video/idis-showcase-alpha.webm?v=20260826-chicagofolders442"
+                <source src="./assets/video/idis-showcase-alpha.webm?v=20260907-luxurylanding45"
                         type="video/webm" />
               </video>
             </div>
@@ -413,7 +1041,7 @@
       <div class="end-card-bg"></div>
       <div class="end-card-content">
         <img class="end-card-logo"
-             src="./assets/ui/idis-logo.png?v=20260826-chicagofolders442"
+             src="./assets/ui/idis-logo.png?v=20260907-luxurylanding45"
              alt="IDIS Americas" />
         <div id="personalized-thanks-line1" class="end-card-line1">Thank you,</div>
         <div id="personalized-thanks-line2" class="end-card-line2">Guest</div>
@@ -471,5 +1099,135 @@
     <a-entity id="idis-target" mindar-image-target="targetIndex: 1"></a-entity>
   </a-scene>
   </div>
+
+  <script id="idis-luxury-carousel-v45">
+    (() => {
+      const carousel = document.getElementById('collection-carousel');
+      if (!carousel) return;
+
+      const coins = Array.from(carousel.querySelectorAll('.landing-coin'));
+      const dots = Array.from(carousel.querySelectorAll('.luxury-carousel-dot'));
+      const title = document.getElementById('landing-coin-title');
+      const subtitle = document.getElementById('landing-coin-subtitle');
+      const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      if (coins.length < 2) return;
+
+      let activeIndex = 0;
+      let autoTimer = 0;
+      let touchStartX = null;
+      let resumeTimer = 0;
+
+      const modulo = (n, m) => ((n % m) + m) % m;
+
+      function renderCarousel(nextIndex) {
+        activeIndex = modulo(nextIndex, coins.length);
+
+        coins.forEach((coin, index) => {
+          coin.classList.remove('pos-center', 'pos-left', 'pos-right', 'pos-hidden');
+
+          const forward = modulo(index - activeIndex, coins.length);
+          const backward = modulo(activeIndex - index, coins.length);
+
+          if (index === activeIndex) {
+            coin.classList.add('pos-center');
+            coin.setAttribute('aria-current', 'true');
+          } else if (forward === 1) {
+            coin.classList.add('pos-left');
+            coin.removeAttribute('aria-current');
+          } else if (backward === 1) {
+            coin.classList.add('pos-right');
+            coin.removeAttribute('aria-current');
+          } else {
+            coin.classList.add('pos-hidden');
+            coin.removeAttribute('aria-current');
+          }
+        });
+
+        dots.forEach((dot, index) => {
+          dot.classList.toggle('is-active', index === activeIndex);
+        });
+
+        const activeCoin = coins[activeIndex];
+        if (title) title.textContent = activeCoin.dataset.title || '';
+        if (subtitle) subtitle.textContent = activeCoin.dataset.subtitle || '';
+      }
+
+      function startAuto() {
+        if (reducedMotion) return;
+        window.clearInterval(autoTimer);
+        autoTimer = window.setInterval(() => {
+          renderCarousel(activeIndex + 1);
+        }, 3600);
+      }
+
+      function temporarilyPause() {
+        window.clearInterval(autoTimer);
+        window.clearTimeout(resumeTimer);
+        resumeTimer = window.setTimeout(startAuto, 6500);
+      }
+
+      carousel.querySelectorAll('[data-carousel-dir]').forEach(button => {
+        button.addEventListener('click', event => {
+          const direction = Number(event.currentTarget.dataset.carouselDir || 1);
+          renderCarousel(activeIndex + direction);
+          temporarilyPause();
+        });
+      });
+
+      dots.forEach(dot => {
+        dot.addEventListener('click', () => {
+          renderCarousel(Number(dot.dataset.carouselIndex || 0));
+          temporarilyPause();
+        });
+      });
+
+      coins.forEach((coin, index) => {
+        const focusCoin = event => {
+          if (index === activeIndex) return;
+          event.preventDefault();
+          event.stopPropagation();
+          renderCarousel(index);
+          temporarilyPause();
+        };
+
+        coin.addEventListener('pointerdown', () => {
+          if (index !== activeIndex) temporarilyPause();
+        });
+
+        if (coin.tagName !== 'BUTTON') {
+          coin.addEventListener('click', focusCoin);
+          coin.addEventListener('keydown', event => {
+            if (event.key === 'Enter' || event.key === ' ') focusCoin(event);
+          });
+        }
+      });
+
+      carousel.addEventListener('touchstart', event => {
+        touchStartX = event.touches && event.touches[0] ? event.touches[0].clientX : null;
+        temporarilyPause();
+      }, { passive: true });
+
+      carousel.addEventListener('touchend', event => {
+        if (touchStartX == null || !event.changedTouches || !event.changedTouches[0]) return;
+        const delta = event.changedTouches[0].clientX - touchStartX;
+        touchStartX = null;
+        if (Math.abs(delta) < 34) return;
+        renderCarousel(activeIndex + (delta < 0 ? 1 : -1));
+      }, { passive: true });
+
+      document.addEventListener('visibilitychange', () => {
+        if (document.hidden) {
+          window.clearInterval(autoTimer);
+        } else {
+          startAuto();
+        }
+      });
+
+      renderCarousel(0);
+      startAuto();
+    })();
+  </script>
+
 </body>
 </html>
