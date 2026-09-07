@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <meta name="theme-color" content="#02070a" />
+  <title>IDIS Americas | Coin Request</title>
+  <link rel="icon" type="image/png" href="./assets/ui/favicon-coin.png" />
+  <style>
+    *{box-sizing:border-box} html,body{margin:0;min-height:100%;background:#02070a;color:#fff;font-family:Arial,Helvetica,sans-serif} body{min-height:100svh;background:radial-gradient(circle at 14% 20%,rgba(0,210,217,.18),transparent 30%),radial-gradient(circle at 88% 35%,rgba(96,68,255,.22),transparent 36%),linear-gradient(160deg,#02070a,#07151b 50%,#030609)}
+    .close{position:fixed;z-index:10;right:max(14px,env(safe-area-inset-right));top:max(14px,env(safe-area-inset-top));width:42px;height:42px;border-radius:50%;border:1px solid rgba(255,255,255,.18);background:rgba(3,12,16,.72);color:#fff;font-size:28px;line-height:38px;text-align:center;text-decoration:none;backdrop-filter:blur(14px)}
+    main{width:min(100%,620px);margin:auto;padding:max(58px,calc(env(safe-area-inset-top) + 42px)) 16px max(30px,env(safe-area-inset-bottom))}
+    .logo{display:block;width:108px;margin:0 auto 18px}.kicker{text-align:center;color:#f1d26c;font-size:8px;font-weight:900;letter-spacing:.24em}.title{text-align:center;margin:8px 0 6px;font-size:clamp(34px,10vw,58px);line-height:.98;letter-spacing:-.045em}.sub{text-align:center;margin:0 auto 22px;max-width:450px;color:rgba(239,248,249,.62);font-size:12px;line-height:1.55}
+    .card{padding:18px;border:1px solid rgba(117,255,246,.14);border-radius:24px;background:rgba(4,15,20,.58);backdrop-filter:blur(18px);box-shadow:inset 0 1px rgba(255,255,255,.035),0 24px 70px rgba(0,0,0,.34)}
+    label{display:block;margin:0 0 6px;color:rgba(255,255,255,.58);font-size:7px;font-weight:900;letter-spacing:.17em} .field{margin-bottom:12px}
+    input,textarea,select{width:100%;border:1px solid rgba(255,255,255,.15);border-radius:14px;background:rgba(1,8,12,.55);color:#fff;padding:13px 14px;outline:none;font:inherit;font-size:13px;box-shadow:inset 0 1px 8px rgba(0,0,0,.24)} textarea{min-height:110px;resize:vertical} input:focus,textarea:focus,select:focus{border-color:rgba(73,238,230,.55);box-shadow:0 0 0 3px rgba(39,222,216,.08)}
+    button{width:100%;min-height:54px;border:1px solid rgba(255,247,205,.72);border-radius:16px;background:linear-gradient(105deg,#76500b,#f4d977 25%,#fff0a7 44%,#b98318 62%,#ffe998 80%,#71500e);color:#181003;font-size:10px;font-weight:950;letter-spacing:.12em;box-shadow:inset 0 1px rgba(255,255,255,.7),0 12px 28px rgba(0,0,0,.38)}
+    .note{margin-top:9px;text-align:center;color:rgba(255,255,255,.34);font-size:8px;line-height:1.45}.thanks{display:none;text-align:center;padding:28px 16px}.thanks.is-visible{display:block}.thanks h2{margin:0 0 8px;font-size:30px}.thanks p{margin:0;color:rgba(255,255,255,.65);line-height:1.55;font-size:12px}.thanks a{display:inline-block;margin-top:18px;color:#79fff4;text-decoration:none;font-size:9px;font-weight:900;letter-spacing:.13em}
+  </style>
+</head>
+<body>
+  <a class="close" href="./index.html" aria-label="Close and return to collection">×</a>
+  <main>
+    <img class="logo" src="./assets/ui/idis-logo.png" alt="IDIS Americas" />
+    <div class="kicker">LIMITED COIN REQUEST</div>
+    <h1 class="title">Interested in Chicago?</h1>
+    <p class="sub">APTA TRANSform 2026 is coming soon. Send the IDIS Americas marketing team your information and we can follow up with details about the limited coin.</p>
+    <div class="card">
+      <form id="coin-request-form">
+        <div class="field"><label for="request-name">NAME</label><input id="request-name" name="name" autocomplete="name" required /></div>
+        <div class="field"><label for="request-email">EMAIL</label><input id="request-email" name="email" type="email" autocomplete="email" required /></div>
+        <div class="field"><label for="request-company">COMPANY</label><input id="request-company" name="company" autocomplete="organization" /></div>
+        <div class="field"><label for="request-event">COIN / EVENT</label><select id="request-event" name="event"><option>APTA TRANSform 2026 - Chicago, Illinois</option><option>GSX 2026 - Atlanta, Georgia</option><option>General Limited Coin Information</option></select></div>
+        <div class="field"><label for="request-message">MESSAGE</label><textarea id="request-message" name="message" placeholder="Tell us what you would like to know."></textarea></div>
+        <button type="submit">SEND COIN REQUEST</button>
+        <div class="note">This static site opens your email app with the request addressed to marketing@idisamericas.com and subject “Coin Request.”</div>
+      </form>
+      <div id="request-thanks" class="thanks" aria-live="polite"><h2 id="thanks-name">Thank you.</h2><p>Your coin request has been prepared for IDIS Americas Marketing. Send the message from your email app and we’ll have your information.</p><a href="./index.html">RETURN TO COLLECTION</a></div>
+    </div>
+  </main>
+<script>
+(()=>{
+  const key='idis-gsx2026-guest-name'; const form=document.getElementById('coin-request-form'); const name=document.getElementById('request-name'); const thanks=document.getElementById('request-thanks');
+  try{const saved=localStorage.getItem(key);if(saved&&!name.value)name.value=saved}catch(_){ }
+  form.addEventListener('submit',e=>{
+    e.preventDefault();
+    const data=new FormData(form); const person=String(data.get('name')||'').trim()||'Guest';
+    const body=[`Name: ${person}`,`Email: ${data.get('email')||''}`,`Company: ${data.get('company')||''}`,`Coin / Event: ${data.get('event')||''}`,'',String(data.get('message')||'')].join('\n');
+    const mailto=`mailto:marketing@idisamericas.com?subject=${encodeURIComponent('Coin Request')}&body=${encodeURIComponent(body)}`;
+    document.getElementById('thanks-name').textContent=`Thank you, ${person}.`;
+    form.style.display='none'; thanks.classList.add('is-visible');
+    window.location.href=mailto;
+  });
+})();
+</script>
+</body>
+</html>

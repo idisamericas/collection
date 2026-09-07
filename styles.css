@@ -2691,3 +2691,32 @@ body.collection-replay-mode #ar-footer {
     max-width: 92vw;
   }
 }
+
+
+/* ==========================================================================
+   BUILD 46: six-second Atlanta activation + single IDIS foreground video
+============================================================================ */
+.collection-replay-coin-flight.is-entering {
+  transition:
+    transform 1100ms cubic-bezier(.16,.82,.18,1),
+    opacity 420ms ease-out,
+    filter 900ms ease-out !important;
+}
+.collection-replay-coin-flight.is-fading {
+  transition:
+    opacity 800ms cubic-bezier(.4,0,.2,1),
+    transform 800ms ease,
+    filter 800ms ease !important;
+}
+.idis-cinematic {
+  perspective: 1500px;
+  -webkit-perspective: 1500px;
+  transform-style: preserve-3d;
+  -webkit-transform-style: preserve-3d;
+}
+.idis-showcase-canvas,
+.idis-showcase-video-source.webgl-fallback-visible {
+  z-index: 90 !important;
+  transform-style: preserve-3d;
+  -webkit-transform-style: preserve-3d;
+}

@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <meta name="idis-build" content="20260907-luxurylanding45" />
+  <meta name="idis-build" content="20260907-collectionux46" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" />
   <meta name="theme-color" content="#02070a" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -11,14 +11,14 @@
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
   <title>IDIS Americas | Limited Coin Collection</title>
   <meta name="description" content="Discover, scan, and collect limited IDIS Americas event coins through an interactive AR experience." />
-  <link rel="icon" type="image/png" sizes="512x512" href="./assets/ui/favicon-coin.png?v=20260907-luxurylanding45" />
-  <link rel="apple-touch-icon" href="./assets/ui/favicon-coin.png?v=20260907-luxurylanding45" />
+  <link rel="icon" type="image/png" sizes="512x512" href="./assets/ui/favicon-coin.png?v=20260907-collectionux46" />
+  <link rel="apple-touch-icon" href="./assets/ui/favicon-coin.png?v=20260907-collectionux46" />
 
   <!-- Proven working A-Frame + MindAR load order restored for camera stability. -->
   <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
-  <link rel="stylesheet" href="./styles.css?v=20260907-luxurylanding45" />
-  <script defer src="./ar.js?v=20260907-luxurylanding45"></script>
+  <link rel="stylesheet" href="./styles.css?v=20260907-collectionux46" />
+  <script defer src="./ar.js?v=20260907-collectionux46"></script>
 
   <style id="idis-luxury-landing-v45">
     /* LANDING V45 ONLY. AR presentation styles remain in styles.css. */
@@ -659,15 +659,94 @@
       .landing-coin { transition-duration: 120ms; }
       #intro #start-ar.primary-button::before { animation: none; }
     }
+
+
+    /* V46 interaction rules */
+    .collection-page-link {
+      width: fit-content;
+      margin-left: auto;
+      margin-right: auto;
+      padding: 7px 11px;
+      border: 1px solid rgba(112,255,246,.16);
+      border-radius: 999px;
+      background: rgba(3,13,18,.42);
+      text-decoration: none;
+      backdrop-filter: blur(12px);
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.025);
+      transition: border-color .25s ease, background .25s ease, transform .25s ease;
+    }
+    .collection-page-link:active { transform: scale(.98); }
+    .collection-page-link .collection-link-arrow { color: #8efff7; font-size: 14px; line-height: .5; }
+
+    .landing-coin.is-locked { cursor: default; }
+    .landing-coin.is-locked.pos-center::before { border-color: rgba(255,255,255,.16); box-shadow: 0 0 22px rgba(0,0,0,.26); }
+    .landing-coin-info.pos-center { cursor: pointer; }
+
+    .coming-soon-ribbon {
+      position: absolute;
+      z-index: 14;
+      left: 50%;
+      top: 19%;
+      min-width: 118%;
+      padding: 7px 12px 6px;
+      transform: translateX(-50%) rotate(-12deg) translateZ(24px);
+      color: #1b1202;
+      background:
+        linear-gradient(100deg,#7d5710 0%,#f8dc7b 20%,#fff2ac 40%,#c68f22 60%,#ffeb93 79%,#78510b 100%);
+      border: 1px solid rgba(255,244,183,.75);
+      box-shadow: 0 7px 18px rgba(0,0,0,.38), inset 0 1px rgba(255,255,255,.7);
+      font-size: 7px;
+      font-weight: 950;
+      letter-spacing: .17em;
+      text-align: center;
+      white-space: nowrap;
+      pointer-events: none;
+    }
+
+    .landing-coin-coming-soon.is-unlocked .coming-soon-ribbon { display: none; }
+
+    .landing-coin-contact {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin-top: 7px;
+      padding: 6px 10px;
+      border: 1px solid rgba(238,204,102,.38);
+      border-radius: 999px;
+      background: rgba(116,79,14,.17);
+      color: #f5d978;
+      font-size: 6px;
+      font-weight: 900;
+      letter-spacing: .12em;
+      text-decoration: none;
+    }
+    .landing-coin-contact.hidden { display: none !important; }
+
+    /* Keep the single transparent IDIS video forward in 3D space. */
+    .idis-cinematic {
+      perspective: 1500px;
+      -webkit-perspective: 1500px;
+      transform-style: preserve-3d;
+      -webkit-transform-style: preserve-3d;
+    }
+    .idis-showcase-canvas,
+    .idis-showcase-video-source.webgl-fallback-visible {
+      z-index: 60 !important;
+      transform-style: preserve-3d;
+      -webkit-transform-style: preserve-3d;
+    }
+
   </style>
 
 </head>
 <body>
   <!--
     IMPORTANT:
-    assets/targets/gsx2026-two-sided.mind must contain TWO targets in this exact order:
-      targetIndex 0 = Atlanta / Georgia side
-      targetIndex 1 = IDIS Americas side
+    Current fallback target file is the proven Atlanta/IDIS two-target database.
+    When the grouped collection target is deployed, use this target order:
+      targetIndex 0 = IDIS Americas side
+      targetIndex 1 = Atlanta / Georgia side
+      targetIndex 2 = Chicago / Illinois side
     See SETUP-TARGETS.html and README.md.
   -->
 
@@ -680,7 +759,7 @@
       <div class="luxury-landing-inner">
         <div class="brand-lockup" aria-label="IDIS Americas">
           <img class="idis-ui-logo intro-idis-logo"
-               src="./assets/ui/idis-logo.png?v=20260907-luxurylanding45"
+               src="./assets/ui/idis-logo.png?v=20260907-collectionux46"
                alt="IDIS Americas" />
         </div>
 
@@ -696,25 +775,27 @@
                  class="coin-collection"
                  aria-label="Your IDIS collectible coin collection">
 
-          <div class="luxury-collection-topline">
+          <a class="luxury-collection-topline collection-page-link" href="./collection.html" aria-label="Open your coin collection">
             <span>YOUR COLLECTION</span>
             <span aria-hidden="true">•</span>
             <span id="collection-count" class="collection-count" aria-live="polite">0 / 5</span>
-          </div>
+            <span class="collection-link-arrow" aria-hidden="true">›</span>
+          </a>
 
           <div id="collection-carousel"
                class="luxury-coin-carousel"
                aria-label="IDIS collectible coin carousel">
 
             <div class="luxury-carousel-stage">
-              <div class="landing-coin pos-center"
+              <div class="landing-coin pos-center landing-coin-info"
                    data-coin-index="0"
                    data-title="IDIS Americas"
                    data-subtitle="Limited Collection Series"
+                   data-href="./limited-coins.html"
                    role="button"
                    tabindex="0"
-                   aria-label="IDIS Americas coin side">
-                <img src="./assets/reference/coin-front.png?v=20260907-luxurylanding45"
+                   aria-label="Learn about the IDIS limited coin series">
+                <img src="./assets/thumbs/idis-series.webp?v=20260907-collectionux46"
                      alt="IDIS Americas collectible coin side" />
                 <span class="landing-coin-status">COLLECTION SERIES</span>
               </div>
@@ -727,25 +808,29 @@
                       data-title="GSX 2026"
                       data-subtitle="Atlanta, Georgia"
                       aria-disabled="true">
-                <img src="./assets/thumbs/gsx2026-atlanta.webp?v=20260907-luxurylanding45"
+                <img src="./assets/thumbs/gsx2026-atlanta.webp?v=20260907-collectionux46"
                      alt="GSX 2026 Atlanta collectible coin" />
                 <span class="landing-coin-status">
                   <span class="status-locked">SCAN TO COLLECT</span>
-                  <span class="status-unlocked">COLLECTED • TAP TO REPLAY</span>
+                  <span class="status-unlocked">COLLECTED • TAP TO OPEN</span>
                 </span>
               </button>
 
-              <div class="landing-coin pos-right"
-                   data-coin-index="2"
-                   data-title="APTA TRANSform 2026"
-                   data-subtitle="Chicago, Illinois"
-                   role="button"
-                   tabindex="0"
-                   aria-label="APTA TRANSform 2026 Chicago collectible coin">
-                <img src="./assets/thumbs/apta-transform-2026-chicago.webp?v=20260907-luxurylanding45"
+              <button id="collection-chicago2026"
+                      class="landing-coin pos-right is-locked landing-coin-coming-soon"
+                      type="button"
+                      data-coin-id="apta-transform-2026-chicago"
+                      data-coin-index="2"
+                      data-title="APTA TRANSform 2026"
+                      data-subtitle="Chicago, Illinois"
+                      data-contact="./coin-request.html?coin=apta-transform-2026-chicago"
+                      aria-disabled="true"
+                      aria-label="APTA TRANSform 2026 Chicago coin, coming soon">
+                <span class="coming-soon-ribbon" aria-hidden="true">COMING SOON</span>
+                <img src="./assets/thumbs/apta-transform-2026-chicago.webp?v=20260907-collectionux46"
                      alt="APTA TRANSform 2026 Chicago collectible coin" />
-                <span class="landing-coin-status">2026 DROP</span>
-              </div>
+                <span class="landing-coin-status">COMING SOON</span>
+              </button>
             </div>
 
             <button class="luxury-carousel-arrow prev"
@@ -760,6 +845,7 @@
             <div class="luxury-coin-caption" aria-live="polite">
               <strong id="landing-coin-title">IDIS Americas</strong>
               <span id="landing-coin-subtitle">Limited Collection Series</span>
+              <a id="landing-coin-contact" class="landing-coin-contact hidden" href="./coin-request.html">EMAIL US FOR MORE INFORMATION</a>
             </div>
 
             <div class="luxury-carousel-dots" aria-label="Choose collectible coin">
@@ -809,7 +895,7 @@
     <header id="ar-header" class="ar-ui hidden">
       <div class="mini-brand" aria-label="IDIS Americas">
         <img class="idis-ui-logo header-idis-logo"
-             src="./assets/ui/idis-logo.png?v=20260907-luxurylanding45"
+             src="./assets/ui/idis-logo.png?v=20260907-collectionux46"
              alt="IDIS Americas" />
       </div>
       <button id="close-ar" class="icon-button" type="button" aria-label="Close augmented reality">×</button>
@@ -854,12 +940,12 @@
         <video id="atlanta-layer-back" class="atlanta-layer layer-back"
                muted playsinline webkit-playsinline loop preload="metadata"
                aria-hidden="true">
-          <source src="./assets/parallax/atlanta/layer-1-back.mp4?v=20260907-luxurylanding45" type="video/mp4" />
+          <source src="./assets/parallax/atlanta/layer-1-back.mp4?v=20260907-collectionux46" type="video/mp4" />
         </video>
         <img id="atlanta-layer-middle" class="atlanta-layer layer-middle"
-             src="./assets/parallax/atlanta/layer-2-middle.png?v=20260907-luxurylanding45" alt="" />
+             src="./assets/parallax/atlanta/layer-2-middle.png?v=20260907-collectionux46" alt="" />
         <img id="atlanta-layer-front" class="atlanta-layer layer-front"
-             src="./assets/parallax/atlanta/layer-3-front.png?v=20260907-luxurylanding45" alt="" />
+             src="./assets/parallax/atlanta/layer-3-front.png?v=20260907-collectionux46" alt="" />
       </div>
     </div>
 
@@ -881,7 +967,7 @@
             <span class="collection-coin-rim-highlight" aria-hidden="true"></span>
             <img id="collection-replay-coin-face"
                  class="collection-replay-coin-face"
-                 data-src="./assets/reference/GSX2026-Coin-Back.png?v=20260907-luxurylanding45"
+                 data-src="./assets/reference/GSX2026-Coin-Back.png?v=20260907-collectionux46"
                  alt="GSX 2026 Atlanta collectible coin" />
             <span class="collection-replay-coin-shine shine-a" aria-hidden="true"></span>
             <span class="collection-replay-coin-shine shine-b" aria-hidden="true"></span>
@@ -900,7 +986,7 @@
            preload="metadata"
            playsinline
            aria-hidden="true">
-      <source src="./assets/audio/state-voiceover.mp3?v=20260907-luxurylanding45"
+      <source src="./assets/audio/state-voiceover.mp3?v=20260907-collectionux46"
               type="audio/mpeg" />
     </audio>
 
@@ -910,7 +996,7 @@
            preload="metadata"
            playsinline
            aria-hidden="true">
-      <source src="./assets/audio/idis-voiceover.mp3?v=20260907-luxurylanding45"
+      <source src="./assets/audio/idis-voiceover.mp3?v=20260907-collectionux46"
               type="audio/mpeg" />
     </audio>
 
@@ -919,11 +1005,10 @@
       IDIS COIN FACE CINEMATIC SEQUENCE
 
       1. IDIS face is recognized.
-      2. Transparent showcase video plays.
-      3. Its final frame remains visible.
-      4. IDIS logo animates into the top center.
-      5. 15-second IDIS feature video plays.
-      6. Personalized six-second end card finishes the experience.
+      2. One transparent WebM plays in the foreground while the MP3 plays.
+      3. Camera remains visible behind the transparent video for the first 10 seconds.
+      4. The blue/teal blur field and plus symbols fade in after 10 seconds.
+      5. The IDIS thank-you finale begins near the end of the MP3.
     -->
     <div id="idis-cinematic"
          class="idis-cinematic cinematic-hidden"
@@ -994,41 +1079,14 @@
              class="idis-showcase-video-source"
              muted playsinline webkit-playsinline preload="metadata"
              aria-hidden="true">
-        <source src="./assets/video/idis-showcase-alpha.webm?v=20260907-luxurylanding45"
+        <source src="./assets/video/idis-showcase-alpha.webm?v=20260907-collectionux46"
                 type="video/webm" />
       </video>
 
       <div id="idis-feature-overlay"
            class="idis-feature-overlay cinematic-hidden"
            aria-hidden="true">
-
-        <div id="idis-feature-stage"
-             class="idis-feature-stage">
-
-          <div id="idis-feature-bottom-layer"
-               class="idis-feature-bottom-layer">
-            <div id="idis-feature-bottom-wrap"
-                 class="idis-feature-bottom-wrap">
-              <video id="idis-feature-bottom-video"
-                     class="idis-feature-bottom-video"
-                     muted playsinline webkit-playsinline preload="metadata"
-                     aria-label="IDIS background motion layer">
-                <source src="./assets/video/idis-showcase-alpha.webm?v=20260907-luxurylanding45"
-                        type="video/webm" />
-              </video>
-            </div>
-          </div>
-
-          <div id="idis-feature-middle-layer"
-               class="idis-feature-middle-layer">
-            <div id="idis-feature-middle-copy"
-                 class="idis-feature-middle-copy"
-                 aria-label="One Solution. One Company.">
-              One Solution. One Company.
-            </div>
-          </div>
-
-        </div>
+        <div id="idis-feature-stage" class="idis-feature-stage" aria-hidden="true"></div>
       </div>
     </div>
 
@@ -1041,7 +1099,7 @@
       <div class="end-card-bg"></div>
       <div class="end-card-content">
         <img class="end-card-logo"
-             src="./assets/ui/idis-logo.png?v=20260907-luxurylanding45"
+             src="./assets/ui/idis-logo.png?v=20260907-collectionux46"
              alt="IDIS Americas" />
         <div id="personalized-thanks-line1" class="end-card-line1">Thank you,</div>
         <div id="personalized-thanks-line2" class="end-card-line2">Guest</div>
@@ -1100,7 +1158,7 @@
   </a-scene>
   </div>
 
-  <script id="idis-luxury-carousel-v45">
+  <script id="idis-luxury-carousel-v46">
     (() => {
       const carousel = document.getElementById('collection-carousel');
       if (!carousel) return;
@@ -1109,7 +1167,9 @@
       const dots = Array.from(carousel.querySelectorAll('.luxury-carousel-dot'));
       const title = document.getElementById('landing-coin-title');
       const subtitle = document.getElementById('landing-coin-subtitle');
+      const contact = document.getElementById('landing-coin-contact');
       const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const collectionKey = 'idis-digital-coin-collection-v1';
 
       if (coins.length < 2) return;
 
@@ -1117,15 +1177,36 @@
       let autoTimer = 0;
       let touchStartX = null;
       let resumeTimer = 0;
-
       const modulo = (n, m) => ((n % m) + m) % m;
+
+      function isCollected(coin) {
+        if (!coin.dataset.coinId) return true;
+        try {
+          const raw = localStorage.getItem(collectionKey);
+          const parsed = raw ? JSON.parse(raw) : null;
+          const ids = Array.isArray(parsed) ? parsed : (parsed && Array.isArray(parsed.coins) ? parsed.coins : []);
+          return ids.includes(coin.dataset.coinId);
+        } catch (_) {
+          return coin.classList.contains('is-unlocked');
+        }
+      }
+
+      function syncLocks() {
+        coins.forEach(coin => {
+          if (!coin.dataset.coinId) return;
+          const collected = isCollected(coin);
+          coin.classList.toggle('is-unlocked', collected);
+          coin.classList.toggle('is-locked', !collected);
+          coin.setAttribute('aria-disabled', collected ? 'false' : 'true');
+        });
+      }
 
       function renderCarousel(nextIndex) {
         activeIndex = modulo(nextIndex, coins.length);
+        syncLocks();
 
         coins.forEach((coin, index) => {
           coin.classList.remove('pos-center', 'pos-left', 'pos-right', 'pos-hidden');
-
           const forward = modulo(index - activeIndex, coins.length);
           const backward = modulo(activeIndex - index, coins.length);
 
@@ -1144,63 +1225,76 @@
           }
         });
 
-        dots.forEach((dot, index) => {
-          dot.classList.toggle('is-active', index === activeIndex);
-        });
+        dots.forEach((dot, index) => dot.classList.toggle('is-active', index === activeIndex));
 
         const activeCoin = coins[activeIndex];
         if (title) title.textContent = activeCoin.dataset.title || '';
         if (subtitle) subtitle.textContent = activeCoin.dataset.subtitle || '';
+        if (contact) {
+          const href = activeCoin.dataset.contact || '';
+          const shouldShow = !!href && !isCollected(activeCoin);
+          contact.classList.toggle('hidden', !shouldShow);
+          if (href) contact.href = href;
+        }
       }
 
       function startAuto() {
         if (reducedMotion) return;
-        window.clearInterval(autoTimer);
-        autoTimer = window.setInterval(() => {
-          renderCarousel(activeIndex + 1);
-        }, 3600);
+        clearInterval(autoTimer);
+        autoTimer = setInterval(() => renderCarousel(activeIndex + 1), 3600);
       }
 
       function temporarilyPause() {
-        window.clearInterval(autoTimer);
-        window.clearTimeout(resumeTimer);
-        resumeTimer = window.setTimeout(startAuto, 6500);
+        clearInterval(autoTimer);
+        clearTimeout(resumeTimer);
+        resumeTimer = setTimeout(startAuto, 6500);
       }
 
-      carousel.querySelectorAll('[data-carousel-dir]').forEach(button => {
-        button.addEventListener('click', event => {
-          const direction = Number(event.currentTarget.dataset.carouselDir || 1);
-          renderCarousel(activeIndex + direction);
-          temporarilyPause();
-        });
-      });
-
-      dots.forEach(dot => {
-        dot.addEventListener('click', () => {
-          renderCarousel(Number(dot.dataset.carouselIndex || 0));
-          temporarilyPause();
-        });
-      });
-
-      coins.forEach((coin, index) => {
-        const focusCoin = event => {
-          if (index === activeIndex) return;
+      function activateCoin(coin, event) {
+        const index = coins.indexOf(coin);
+        if (index !== activeIndex) {
           event.preventDefault();
           event.stopPropagation();
           renderCarousel(index);
           temporarilyPause();
-        };
-
-        coin.addEventListener('pointerdown', () => {
-          if (index !== activeIndex) temporarilyPause();
-        });
-
-        if (coin.tagName !== 'BUTTON') {
-          coin.addEventListener('click', focusCoin);
-          coin.addEventListener('keydown', event => {
-            if (event.key === 'Enter' || event.key === ' ') focusCoin(event);
-          });
+          return false;
         }
+
+        const href = coin.dataset.href;
+        if (href) {
+          event.preventDefault();
+          event.stopPropagation();
+          window.location.href = href;
+          return false;
+        }
+
+        if (coin.dataset.coinId && !isCollected(coin)) {
+          event.preventDefault();
+          event.stopImmediatePropagation();
+          temporarilyPause();
+          return false;
+        }
+
+        return true;
+      }
+
+      carousel.querySelectorAll('[data-carousel-dir]').forEach(button => {
+        button.addEventListener('click', event => {
+          renderCarousel(activeIndex + Number(event.currentTarget.dataset.carouselDir || 1));
+          temporarilyPause();
+        });
+      });
+
+      dots.forEach(dot => dot.addEventListener('click', () => {
+        renderCarousel(Number(dot.dataset.carouselIndex || 0));
+        temporarilyPause();
+      }));
+
+      coins.forEach(coin => {
+        coin.addEventListener('click', event => activateCoin(coin, event), true);
+        coin.addEventListener('keydown', event => {
+          if (event.key === 'Enter' || event.key === ' ') activateCoin(coin, event);
+        });
       });
 
       carousel.addEventListener('touchstart', event => {
@@ -1216,13 +1310,9 @@
         renderCarousel(activeIndex + (delta < 0 ? 1 : -1));
       }, { passive: true });
 
-      document.addEventListener('visibilitychange', () => {
-        if (document.hidden) {
-          window.clearInterval(autoTimer);
-        } else {
-          startAuto();
-        }
-      });
+      window.addEventListener('idis:collection-changed', () => renderCarousel(activeIndex));
+      window.addEventListener('storage', () => renderCarousel(activeIndex));
+      document.addEventListener('visibilitychange', () => document.hidden ? clearInterval(autoTimer) : startAuto());
 
       renderCarousel(0);
       startAuto();

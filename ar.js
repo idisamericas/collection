@@ -7,7 +7,7 @@
   target recognition; both presentations render as detached HTML/video.
 */
 
-console.info('[IDIS WebAR] Build 44.2 Chicago Folders: 20260826-chicagofolders442');
+console.info('[IDIS WebAR] Build 46 Collection UX + Single IDIS Video: 20260907-collectionux46');
 
 document.addEventListener('DOMContentLoaded', () => {
   const scene = document.querySelector('#ar-scene');
@@ -57,12 +57,9 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('.idis-plus-layer')
   );
   const idisShowcaseVideo = document.querySelector('#idis-showcase-video');
-  const idisFeatureBottomVideo = document.querySelector('#idis-feature-bottom-video');
   const idisShowcaseCanvas = document.querySelector('#idis-showcase-canvas');
   const idisFeatureOverlay = document.querySelector('#idis-feature-overlay');
   const idisFeatureStage = document.querySelector('#idis-feature-stage');
-  const idisFeatureBottomLayer = document.querySelector('#idis-feature-bottom-layer');
-  const idisFeatureMiddleLayer = document.querySelector('#idis-feature-middle-layer');
 
   const guestNameInput = document.querySelector('#guest-name');
   const guestNameField = document.querySelector('.guest-name-field');
@@ -100,10 +97,10 @@ document.addEventListener('DOMContentLoaded', () => {
   const HOME_DELAY_MS = 3000;
 
   // IDIS is now media-driven.
-  const IDIS_LAYER_REVEAL_DELAY_MS = 850;
-  const IDIS_COIN_LAYER_HOLD_MS = 4000;
-  const IDIS_BACKGROUND_REVEAL_DELAY_MS = 360;
-  const IDIS_ENDCARD_LEAD_SECONDS = 5;
+  // IDIS uses one transparent WebM only. The camera stays clean behind it
+  // until the abstract blur/plus environment fades in at ten seconds.
+  const IDIS_BACKGROUND_REVEAL_DELAY_MS = 10000;
+  const IDIS_ENDCARD_LEAD_SECONDS = 0;
   const IDIS_CINEMATIC_EXIT_MS = 620;
 
   const END_CARD_MS = 6000;
@@ -122,11 +119,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const COLLECTION_TOTAL_SLOTS = 5;
 
-  // Collection replay coin intro timing:
-  // 3 seconds easing into center, 6 seconds holding, then a 1.2 second fade.
-  const COLLECTION_COIN_ENTER_MS = 3000;
-  const COLLECTION_COIN_HOLD_MS = 6000;
-  const COLLECTION_COIN_FADE_MS = 1200;
+  // Atlanta activation coin is visible for six seconds TOTAL.
+  // 1.1s entrance + 4.1s hold + .8s fade = 6.0s.
+  const COLLECTION_COIN_ENTER_MS = 1100;
+  const COLLECTION_COIN_HOLD_MS = 4100;
+  const COLLECTION_COIN_FADE_MS = 800;
 
   let guestName = '';
   let collectedCoinIds = new Set();
@@ -176,10 +173,8 @@ document.addEventListener('DOMContentLoaded', () => {
   // Kept for cleanup compatibility, but the IDIS face now uses the
   // cinematic video sequence instead of the old 30-second hologram.
   // IDIS cinematic sequence.
-  let idisFeatureStartTimer = null;
   let idisCinematicExitTimer = null;
   let idisBackgroundRevealTimer = null;
-  let idisTopLayerFadeTimer = null;
   let idisVoiceoverLeadTimer = null;
   let idisSequenceActive = false;
   let idisSequencePhase = 'idle';
@@ -1171,7 +1166,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function showCollectionReplayCoinIntro() {
     if (
-      !collectionReplayMode ||
+      !active ||
+      currentSide !== 'atlanta' ||
       !collectionReplayCoin ||
       !collectionReplayCoinFlight
     ) {
@@ -1200,7 +1196,7 @@ document.addEventListener('DOMContentLoaded', () => {
       'false'
     );
 
-    // Force the start pose to paint before the three-second ease begins.
+    // Force the start pose to paint before the short activation entrance begins.
     void collectionReplayCoinFlight.offsetWidth;
 
     requestAnimationFrame(() => {
@@ -1217,7 +1213,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
       if (!collectionCoinIntroActive) return;
 
-      // Hold centered for a full six seconds after the entrance completes.
+      // Hold centered so the entire activation, including fade, lasts six seconds.
       collectionCoinHoldTimer = setTimeout(() => {
         collectionCoinHoldTimer = null;
 
@@ -1701,10 +1697,7 @@ document.addEventListener('DOMContentLoaded', () => {
       warmAudio(idisVoiceover);
 
       setTimeout(
-        () => {
-          warmVideo(idisShowcaseVideo);
-          warmVideo(idisFeatureBottomVideo);
-        },
+        () => warmVideo(idisShowcaseVideo),
         500
       );
     };
@@ -2728,11 +2721,6 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function clearIDISCinematicTimers() {
-    if (idisFeatureStartTimer) {
-      clearTimeout(idisFeatureStartTimer);
-      idisFeatureStartTimer = null;
-    }
-
     if (idisCinematicExitTimer) {
       clearTimeout(idisCinematicExitTimer);
       idisCinematicExitTimer = null;
@@ -2741,11 +2729,6 @@ document.addEventListener('DOMContentLoaded', () => {
     if (idisBackgroundRevealTimer) {
       clearTimeout(idisBackgroundRevealTimer);
       idisBackgroundRevealTimer = null;
-    }
-
-    if (idisTopLayerFadeTimer) {
-      clearTimeout(idisTopLayerFadeTimer);
-      idisTopLayerFadeTimer = null;
     }
 
     clearIDISVoiceoverLeadTimer();
@@ -2793,16 +2776,6 @@ document.addEventListener('DOMContentLoaded', () => {
       idisFeatureStage.style.webkitTransform = '';
     }
 
-    if (idisFeatureBottomLayer) {
-      idisFeatureBottomLayer.style.transform = '';
-      idisFeatureBottomLayer.style.webkitTransform = '';
-    }
-
-    if (idisFeatureMiddleLayer) {
-      idisFeatureMiddleLayer.style.transform = '';
-      idisFeatureMiddleLayer.style.webkitTransform = '';
-    }
-
     hideIDISAlphaSurface();
 
     if (idisShowcaseVideo) {
@@ -2817,9 +2790,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     stopIDISVoiceover();
 
-    if (idisFeatureBottomVideo) {
-      safeResetIDISVideo(idisFeatureBottomVideo);
-    }
 
     if (idisCinematic) {
       idisCinematic.classList.remove('cinematic-exit');
@@ -2882,7 +2852,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (!idisShowcaseVideo) {
       showIDISAbstractBackground();
-      launchIDISFeatureSegment();
       return;
     }
 
@@ -2901,24 +2870,15 @@ document.addEventListener('DOMContentLoaded', () => {
       showIDISAbstractBackground();
     }, IDIS_BACKGROUND_REVEAL_DELAY_MS);
 
-    if (idisFeatureStartTimer) {
-      clearTimeout(idisFeatureStartTimer);
-    }
-
-    idisFeatureStartTimer = setTimeout(() => {
-      idisFeatureStartTimer = null;
-      if (!active || currentSide !== 'idis' || !idisSequenceActive) return;
-      launchIDISFeatureSegment();
-    }, IDIS_LAYER_REVEAL_DELAY_MS);
-
     playIDISVideo(idisShowcaseVideo)
       .then(() => {
         startIDISAlphaRenderLoop();
       })
       .catch(error => {
         console.warn('IDIS transparent showcase could not play:', error);
+        // If the transparent video is missing, keep the MP3 alive and
+        // reveal the abstract background as a graceful visual fallback.
         showIDISAbstractBackground();
-        launchIDISFeatureSegment();
       });
   }
 
@@ -2943,72 +2903,10 @@ document.addEventListener('DOMContentLoaded', () => {
     } catch (_) {}
 
     // Render the final decoded frame into the transparent canvas and stop
-    // the render loop. The frozen canvas remains underneath the logo/YouTube.
+    // the render loop. The frozen transparent canvas remains in the foreground while the MP3 continues.
     freezeIDISAlphaSurface();
   }
 
-  function initializeIDISYouTubePlayer() {}
-
-  let idisYouTubeAPILoading = false;
-
-  function ensureIDISYouTubeAPI() {
-    primeIDISVoiceover();
-  }
-
-  function stopIDISYouTubeFeature() {}
-
-  function playIDISYouTubeFeature() {}
-
-  function launchIDISFeatureSegment() {
-    if (!active || currentSide !== 'idis' || !idisSequenceActive) {
-      return;
-    }
-
-    idisSequencePhase = 'layers';
-    showIDISCinematicShell();
-
-    if (idisFeatureOverlay) {
-      idisFeatureOverlay.classList.remove('cinematic-hidden', 'layers-in');
-      idisFeatureOverlay.setAttribute('aria-hidden', 'false');
-      void idisFeatureOverlay.offsetWidth;
-      idisFeatureOverlay.classList.add('layers-in');
-    }
-
-    if (idisFeatureBottomVideo) {
-      safeResetIDISVideo(idisFeatureBottomVideo);
-      playIDISVideo(idisFeatureBottomVideo)
-        .catch(() => {
-          /* bottom layer can fail silently and keep the UI alive */
-        });
-    }
-
-    if (idisTopLayerFadeTimer) {
-      clearTimeout(idisTopLayerFadeTimer);
-    }
-
-    idisTopLayerFadeTimer = setTimeout(() => {
-      idisTopLayerFadeTimer = null;
-
-      if (!active || currentSide !== 'idis' || !idisSequenceActive) {
-        return;
-      }
-
-      if (idisShowcaseCanvas) {
-        idisShowcaseCanvas.classList.add('coin-layer-fade');
-      }
-
-      if (idisShowcaseVideo) {
-        idisShowcaseVideo.classList.add('coin-layer-fade');
-      }
-
-      setTimeout(() => {
-        if (!active || currentSide !== 'idis' || !idisSequenceActive) {
-          return;
-        }
-        hideIDISAlphaSurface();
-      }, 760);
-    }, IDIS_COIN_LAYER_HOLD_MS);
-  }
 
   function handleIDISShowcaseEnded() {
     if (!idisSequenceActive || currentSide !== 'idis') {
@@ -3019,16 +2917,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function handleIDISFeatureEnded() {
-    if (!idisSequenceActive || currentSide !== 'idis' || !idisFeatureBottomVideo) {
-      return;
-    }
-
-    try {
-      if (Number.isFinite(idisFeatureBottomVideo.duration) && idisFeatureBottomVideo.duration > 0.08) {
-        idisFeatureBottomVideo.currentTime = Math.max(0, idisFeatureBottomVideo.duration - 0.04);
-      }
-      idisFeatureBottomVideo.pause();
-    } catch (_) {}
+    // Legacy hook retained. There is no second IDIS feature video in Build 46.
   }
 
   function finishIDISCinematicSequence() {
@@ -3077,7 +2966,6 @@ document.addEventListener('DOMContentLoaded', () => {
     idisSequencePhase = 'showcase';
 
     prepareIDISCinematicVideo(idisShowcaseVideo);
-    prepareIDISCinematicVideo(idisFeatureBottomVideo);
     playIDISVoiceover();
 
     startIDISShowcaseVideo();
@@ -3461,7 +3349,6 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function renderIDISFeature(now) {
-    if (!idisFeatureStage) return;
 
     /*
       Match the Atlanta interaction language:
@@ -3513,37 +3400,14 @@ document.addEventListener('DOMContentLoaded', () => {
       `rotateY(${ry.toFixed(3)}deg) ` +
       `scale(${sceneScale.toFixed(4)})`;
 
-    idisFeatureStage.style.transform =
-      stageTransform;
-
-    idisFeatureStage.style.webkitTransform =
-      stageTransform;
-
-    if (idisFeatureBottomLayer) {
-      const videoX = panX * 0.14;
-      const videoY = panY * 0.14;
-      const videoTransform =
-        `translate3d(${videoX.toFixed(2)}px, ` +
-        `${videoY.toFixed(2)}px, 55px)`;
-
-      idisFeatureBottomLayer.style.transform = videoTransform;
-      idisFeatureBottomLayer.style.webkitTransform = videoTransform;
-    }
-
-    if (idisFeatureMiddleLayer) {
-      const middleX = panX * 0.30;
-      const middleY = panY * 0.30;
-      const middleTransform =
-        `translate3d(${middleX.toFixed(2)}px, ` +
-        `${middleY.toFixed(2)}px, 185px)`;
-
-      idisFeatureMiddleLayer.style.transform = middleTransform;
-      idisFeatureMiddleLayer.style.webkitTransform = middleTransform;
+    if (idisFeatureStage) {
+      idisFeatureStage.style.transform = stageTransform;
+      idisFeatureStage.style.webkitTransform = stageTransform;
     }
 
     if (idisShowcaseCanvas && !idisShowcaseCanvas.classList.contains('cinematic-hidden')) {
       const coinTransform =
-        `translate(-50%, -50%) ` +
+        `translate(-50%, -50%) translateZ(400px) ` +
         `rotateX(${(rx * 1.95).toFixed(3)}deg) ` +
         `rotateY(${(ry * 2.1).toFixed(3)}deg) ` +
         `scale(${clamp(1 + (zoom - 1) * 0.12, 0.94, 1.1).toFixed(4)})`;
@@ -3554,7 +3418,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (idisShowcaseVideo && idisAlphaUseVideoFallback) {
       const fallbackTransform =
-        `translate(-50%, -50%) ` +
+        `translate(-50%, -50%) translateZ(400px) ` +
         `rotateX(${(rx * 1.95).toFixed(3)}deg) ` +
         `rotateY(${(ry * 2.1).toFixed(3)}deg) ` +
         `scale(${clamp(1 + (zoom - 1) * 0.12, 0.94, 1.1).toFixed(4)})`;
@@ -3721,10 +3585,12 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!active || endCardActive) return;
 
     /*
-      Either face belongs to the same physical GSX 2026 collectible.
-      Only a REAL scan can unlock it. Replays never create an unlock.
+      Collection rule: only a unique state/event face can unlock a collectible.
+      The shared IDIS face launches the IDIS experience but never adds a coin.
     */
-    if (source === 'scan') {
+    if (source === 'scan' && side === 'atlanta') {
+      // The shared IDIS face is informational and is NOT a collection coin.
+      // Only the unique state/event face unlocks the state-side collectible.
       unlockGSX2026Coin();
     }
 
@@ -3751,9 +3617,9 @@ document.addEventListener('DOMContentLoaded', () => {
       // Atlanta duration is now driven entirely by state-voiceover.mp3.
       showAtlantaPresentation();
 
-      if (source === 'collection') {
-        showCollectionReplayCoinIntro();
-      }
+      // Show the activated Atlanta coin for six seconds whether it was
+      // physically scanned or replayed from the saved collection.
+      showCollectionReplayCoinIntro();
     } else {
       // IDIS duration is driven by its cinematic media sequence.
       clearPresentationTimer();
@@ -4101,8 +3967,9 @@ document.addEventListener('DOMContentLoaded', () => {
         idisSequencePhase === 'showcase'
       ) {
         console.warn('IDIS showcase source error.');
+        // If the transparent video is missing, keep the MP3 alive and
+        // reveal the abstract background as a graceful visual fallback.
         showIDISAbstractBackground();
-        launchIDISFeatureSegment();
       }
     });
   }

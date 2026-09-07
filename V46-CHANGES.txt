@@ -1,0 +1,81 @@
+IDIS AMERICAS LIMITED COIN EXPERIENCE - BUILD 46
+=================================================
+Build key: 20260907-collectionux46
+
+LANDING / CAROUSEL
+- Keeps the luxury mobile-first landing composition from Build 45.
+- Carousel continues rotating automatically and remains swipeable.
+- Locked state/event coins can be rotated into view but cannot activate.
+- Atlanta activates only after it has been collected.
+- IDIS series coin is informational and opens limited-coins.html.
+- Chicago has a gold COMING SOON ribbon.
+- When Chicago is centered and still locked, an EMAIL US FOR MORE INFORMATION link appears.
+- YOUR COLLECTION • X / 5 is now a button linking to collection.html.
+
+COLLECTION RULES
+- The IDIS/shared side is NOT counted as a collectible.
+- Only unique state/event sides are counted.
+- Scanning the IDIS side does not unlock Atlanta.
+- Scanning the Atlanta side unlocks gsx2026-atlanta.
+- Collection storage key remains: idis-digital-coin-collection-v1
+
+COLLECTION PAGE
+- New collection.html.
+- Two-column mobile grid.
+- Uncollected slots stay visually empty.
+- Collected Atlanta opens event/date/location details and the associated experience video.
+- Coin data is sorted newest year first, then newest event within that year.
+- IDIS coin is intentionally excluded from the grid.
+
+IDIS SERIES PAGE
+- New limited-coins.html.
+- Brief limited-series explanation.
+- Interactive 3D tilt presentation of the IDIS side.
+- Close button returns to index.html.
+
+CHICAGO CONTACT
+- New coin-request.html.
+- Recipient: marketing@idisamericas.com
+- Subject: Coin Request
+- Visitor name is prefilled from the same local device name used by the AR page when available.
+- Personalized thank-you is shown after submission.
+- IMPORTANT: GitHub Pages is a static host. This build uses a mailto handoff, so the visitor's email app opens with the message ready to send. A server/API endpoint is required if you want the site to send email silently without the visitor's mail app.
+
+ATLANTA ACTIVATION
+- Atlanta activation coin now displays for 6 seconds total:
+  1.1 sec entrance + 4.1 sec hold + 0.8 sec fade.
+- This six-second activation appears after a physical Atlanta scan and on saved replay.
+
+IDIS MEDIA FIX
+- Removed the duplicate IDIS video layer.
+- One visible source only:
+  assets/video/idis-showcase-alpha.webm
+- IDIS MP3 remains:
+  assets/audio/idis-voiceover.mp3
+- Camera/live background stays visible behind transparent WebM for first 10 seconds.
+- Teal/blue blur and plus-symbol environment fades in after 10 seconds.
+- Transparent WebM foreground is rendered at translateZ(400px) within 1500px perspective.
+- If the WebM finishes before the MP3, its final frame remains while the MP3 continues.
+- IDIS finale now waits until the MP3 completes instead of cutting audio five seconds early.
+
+TARGET DATABASE
+- This patch intentionally DOES NOT replace your working .mind database.
+- The index still points to the existing proven path:
+  assets/targets/gsx2026-two-sided.mind
+- When you deploy the grouped collection database, your desired compiler order remains:
+  targetIndex 0 = IDIS
+  targetIndex 1 = Atlanta
+  targetIndex 2 = Chicago
+- At that point, update the scene target source and target entities together. Do not upload a missing master path before the compiled file is present.
+
+FILES TO UPLOAD FROM THE PATCH ZIP
+- index.html
+- ar.js
+- styles.css
+- collection.html
+- limited-coins.html
+- coin-request.html
+- assets/thumbs/idis-series.webp
+- assets/thumbs/apta-transform-2026-chicago.webp
+
+Do not delete or replace your working targets, MP3s, WebMs or parallax folders when applying this patch.
