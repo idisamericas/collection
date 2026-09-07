@@ -2926,6 +2926,9 @@ document.addEventListener('DOMContentLoaded', () => {
     preloadIDISBurstAssets();
     idisBurstField.classList.add('is-visible');
 
+    // Start at the first available card each time, then continuously cycle
+    // through shot-01 ... shot-08 until the IDIS sequence itself ends.
+    idisBurstCursor = 0;
     if (idisBurstInterval) clearInterval(idisBurstInterval);
     spawnIDISBurstCard();
     idisBurstInterval = setInterval(spawnIDISBurstCard, IDIS_BURST_INTERVAL_MS);

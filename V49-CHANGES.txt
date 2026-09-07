@@ -1,0 +1,36 @@
+IDIS Coin Experience Build 49
+Share Page + Collection Tilt + Transit Contact Fix + Burst Placeholders
+
+UPLOAD/REPLACE:
+- index.html
+- collection.html
+- coin-request.html
+- share.html
+- limited-coins.html
+- ar.js
+- styles.css
+- assets/ui/share-qr.png
+- assets/idis-burst/shot-01.webp through shot-08.webp
+
+CHANGES
+1. Added a top-right QR/share icon to index.html linking to share.html.
+2. share.html includes the supplied QR code for:
+   https://idisamericas.github.io/collection/index.html
+   It includes native phone sharing and Copy Link fallback.
+3. Collected coin detail view now supports finger/mouse tilt, phone DeviceOrientation tilt,
+   moving metallic highlight, rim light, and dynamic shadow/depth.
+4. Transit/Mobile sales lookup now takes priority over geography and returns the currently
+   published IDIS Americas Transit/Mobile contact. It also shows regional IDIS sales support
+   based on the selected location.
+5. Added eight blank white WebP placeholder application cards at 1200x800.
+6. IDIS burst animation resets to shot-01 and cycles continuously through all available
+   shot files until the IDIS interactive sequence ends.
+
+CONTACT SOURCE
+Current public contacts were verified against:
+https://idisamericas.com/en/contact
+on September 7, 2026.
+
+NOTE
+This is a static GitHub Pages experience. The contact page includes the official live IDIS
+Contact Us directory as the source of truth for future territory/staff changes.

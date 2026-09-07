@@ -11,7 +11,11 @@
     .close{position:fixed;z-index:10;right:max(14px,env(safe-area-inset-right));top:max(14px,env(safe-area-inset-top));width:42px;height:42px;border-radius:50%;border:1px solid rgba(255,255,255,.18);background:rgba(3,12,16,.72);color:#fff;font-size:28px;line-height:38px;text-align:center;text-decoration:none;backdrop-filter:blur(14px)}main{width:min(100%,660px);margin:auto;padding:max(58px,calc(env(safe-area-inset-top) + 42px)) 16px max(30px,env(safe-area-inset-bottom))}.logo{display:block;width:108px;margin:0 auto 18px}.kicker{text-align:center;color:#79fff4;font-size:8px;font-weight:900;letter-spacing:.24em}.title{text-align:center;margin:8px 0 6px;font-size:clamp(34px,10vw,58px);line-height:.98;letter-spacing:-.045em}.sub{text-align:center;margin:0 auto 22px;max-width:500px;color:rgba(239,248,249,.62);font-size:12px;line-height:1.55}
     .card{padding:18px;border:1px solid rgba(117,255,246,.14);border-radius:24px;background:rgba(4,15,20,.62);backdrop-filter:blur(18px);box-shadow:inset 0 1px rgba(255,255,255,.035),0 24px 70px rgba(0,0,0,.34)}.field{margin-bottom:13px}label{display:block;margin:0 0 6px;color:rgba(255,255,255,.58);font-size:7px;font-weight:900;letter-spacing:.17em}select{width:100%;border:1px solid rgba(255,255,255,.15);border-radius:14px;background:#06151b;color:#fff;padding:14px;outline:none;font-size:13px;appearance:none}select:focus{border-color:rgba(73,238,230,.55);box-shadow:0 0 0 3px rgba(39,222,216,.08)}
     .result{display:none;margin-top:17px;padding:17px;border:1px solid rgba(118,255,246,.16);border-radius:19px;background:linear-gradient(145deg,rgba(6,29,35,.82),rgba(2,10,14,.78));box-shadow:inset 0 1px rgba(255,255,255,.04)}.result.show{display:block}.result-kicker{color:#79fff4;font-size:7px;font-weight:900;letter-spacing:.18em}.rep-name{margin:6px 0 2px;font-size:25px;letter-spacing:-.03em}.rep-role{color:rgba(255,255,255,.56);font-size:10px;line-height:1.45}.rep-contact{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:13px}.rep-contact a{padding:12px 9px;border:1px solid rgba(255,255,255,.11);border-radius:12px;background:rgba(255,255,255,.035);color:#fff;text-align:center;text-decoration:none;font-size:8px;font-weight:850;overflow-wrap:anywhere}.rep-contact a:first-child{border-color:rgba(121,255,244,.22);color:#79fff4}.live-link{display:flex;align-items:center;justify-content:center;width:100%;min-height:50px;margin-top:12px;border-radius:14px;border:1px solid rgba(255,255,255,.18);background:linear-gradient(115deg,#b7c0c4,#f5f7f7 28%,#8b969b 52%,#f1f4f4 76%,#8a9499);color:#061014;text-decoration:none;font-size:8px;font-weight:950;letter-spacing:.11em}.source-note{margin:12px 3px 0;color:rgba(255,255,255,.36);font-size:8px;line-height:1.55;text-align:center}.source-note a{color:#72eee8;text-decoration:none}@media(max-width:430px){.rep-contact{grid-template-columns:1fr}}
-  </style>
+  
+    .secondary-result{display:none;margin-top:10px;padding:14px;border:1px solid rgba(255,255,255,.09);border-radius:15px;background:rgba(255,255,255,.025)}
+    .secondary-result.show{display:block}.secondary-result .secondary-kicker{color:rgba(255,255,255,.36);font-size:6px;font-weight:900;letter-spacing:.16em}.secondary-result strong{display:block;margin-top:5px;font-size:15px}.secondary-result span{display:block;margin-top:3px;color:rgba(255,255,255,.50);font-size:9px;line-height:1.45}.secondary-links{display:flex;gap:7px;margin-top:9px}.secondary-links a{flex:1;padding:9px 7px;border:1px solid rgba(255,255,255,.09);border-radius:10px;color:#bffbf7;text-align:center;text-decoration:none;font-size:7px;font-weight:850;overflow-wrap:anywhere}
+    .live-source-badge{display:inline-flex;align-items:center;gap:6px;margin:0 auto 13px;padding:6px 9px;border:1px solid rgba(114,255,246,.13);border-radius:999px;color:rgba(191,255,250,.72);background:rgba(16,76,79,.12);font-size:6px;font-weight:900;letter-spacing:.12em}.live-source-badge:before{content:"";width:6px;height:6px;border-radius:50%;background:#59f0e6;box-shadow:0 0 10px rgba(89,240,230,.55)}
+</style>
 </head>
 <body>
   <a class="close" href="./index.html" aria-label="Close and return to collection">×</a>
@@ -20,7 +24,7 @@
     <div class="kicker">IDIS AMERICAS SALES DIRECTORY</div>
     <h1 class="title">Find Your Sales Contact</h1>
     <p class="sub">Choose your location and the IDIS team you need. We’ll route you to the current published contact, with a direct link to the live IDIS Americas contact directory for territory verification.</p>
-    <div class="card">
+    <div class="live-source-badge">VERIFIED AGAINST IDISAMERICAS.COM</div><div class="card">
       <div class="field"><label for="rep-location">YOUR LOCATION</label><select id="rep-location"><option value="" selected disabled>Select state / region</option><option value="AL">Alabama</option>
 <option value="AK">Alaska</option>
 <option value="AZ">Arizona</option>
@@ -80,13 +84,22 @@
         <div id="rep-role" class="rep-role"></div>
         <div class="rep-contact"><a id="rep-email" href="#"></a><a id="rep-phone" href="#"></a></div>
       </div>
+      <div id="secondary-result" class="secondary-result" aria-live="polite">
+        <div class="secondary-kicker">REGIONAL IDIS AMERICAS SUPPORT</div>
+        <strong id="secondary-name"></strong>
+        <span id="secondary-role"></span>
+        <div class="secondary-links"><a id="secondary-email" href="#"></a><a id="secondary-phone" href="#"></a></div>
+      </div>
       <a class="live-link" href="https://idisamericas.com/en/contact" target="_blank" rel="noopener">VIEW LIVE IDIS CONTACT DIRECTORY →</a>
-      <p class="source-note">Current contact names and roles in this build were checked against the official <a href="https://idisamericas.com/en/contact" target="_blank" rel="noopener">IDIS Americas Contact Us page</a> on September 7, 2026. The live directory remains the source of truth if territories change.</p>
+      <p class="source-note">Current published contacts in this lookup were checked against the official <a href="https://idisamericas.com/en/contact" target="_blank" rel="noopener">IDIS Americas Contact Us page</a> on September 7, 2026. The live directory remains the source of truth if territories change.</p>
     </div>
   </main>
 <script>
 (()=>{
-  const location=document.getElementById('rep-location');const focus=document.getElementById('rep-focus');const result=document.getElementById('rep-result');
+  const location=document.getElementById('rep-location');
+  const focus=document.getElementById('rep-focus');
+  const result=document.getElementById('rep-result');
+  const secondary=document.getElementById('secondary-result');
   const west=new Set(['AK','AZ','CA','CO','HI','ID','MT','NV','NM','OR','UT','WA','WY']);
   const contacts={
     west:{name:'Joel Murawski',role:'Regional Sales Director, West',email:'jmurawski@idisamericas.com',phone:'(559) 367-6925'},
@@ -100,22 +113,50 @@
     bankingEast:{name:'Rick Roman',role:'Banking East & Data Centers',email:'rroman@idisamericas.com',phone:'(941) 526-6989'},
     educationTX:{name:'IDIS Americas Sales',role:'Education / Texas',email:'sales@idisamericas.com',phone:'(469) 635-6800'}
   };
+  const regionalFor=loc=>{
+    if(loc==='MEX')return contacts.latam;
+    if(loc==='CAN')return contacts.east;
+    return west.has(loc)?contacts.west:contacts.east;
+  };
+  const fill=(prefix,c)=>{
+    document.getElementById(prefix+'name').textContent=c.name;
+    document.getElementById(prefix+'role').textContent=c.role;
+    const em=document.getElementById(prefix+'email');em.textContent=c.email;em.href='mailto:'+c.email;
+    const ph=document.getElementById(prefix+'phone');ph.textContent=c.phone;ph.href='tel:'+c.phone.replace(/[^+\d]/g,'');
+  };
   const choose=()=>{
-    const loc=location.value;if(!loc)return;const area=west.has(loc)?'west':'east';let c;
+    const loc=location.value;
+    if(!loc){result.classList.remove('show');secondary.classList.remove('show');return;}
+    const area=west.has(loc)?'west':'east';
+    const selected=focus.value;
+    let c;
+
+    // Transit/Mobile intentionally takes priority over geography. The current
+    // IDIS Americas directory publishes Brendan Boyle as Director Sales Transit/Mobile.
+    // A regional sales-support contact is also shown for the selected location.
+    if(selected==='transit'){
+      c=contacts.transit;
+      fill('rep-',c);
+      result.classList.add('show');
+      fill('secondary-',regionalFor(loc));
+      secondary.classList.add('show');
+      return;
+    }
+
+    secondary.classList.remove('show');
     if(loc==='MEX')c=contacts.latam;
-    else if(focus.value==='transit')c=contacts.transit;
-    else if(focus.value==='strategic')c=contacts.strategic;
-    else if(focus.value==='retail')c=area==='west'?contacts.retailWest:contacts.retailEast;
-    else if(focus.value==='banking')c=area==='west'?contacts.bankingWest:contacts.bankingEast;
-    else if(focus.value==='healthcare')c=contacts.bankingWest;
-    else if(focus.value==='education'&&loc==='TX')c=contacts.educationTX;
-    else c=area==='west'?contacts.west:contacts.east;
-    document.getElementById('rep-name').textContent=c.name;document.getElementById('rep-role').textContent=c.role;
-    const em=document.getElementById('rep-email');em.textContent=c.email;em.href='mailto:'+c.email;
-    const ph=document.getElementById('rep-phone');ph.textContent=c.phone;ph.href='tel:'+c.phone.replace(/[^+\d]/g,'');
+    else if(selected==='strategic')c=contacts.strategic;
+    else if(selected==='retail')c=area==='west'?contacts.retailWest:contacts.retailEast;
+    else if(selected==='banking')c=area==='west'?contacts.bankingWest:contacts.bankingEast;
+    else if(selected==='healthcare')c=contacts.bankingWest;
+    else if(selected==='education'&&loc==='TX')c=contacts.educationTX;
+    else c=regionalFor(loc);
+
+    fill('rep-',c);
     result.classList.add('show');
   };
-  location.addEventListener('change',choose);focus.addEventListener('change',choose);
+  location.addEventListener('change',choose);
+  focus.addEventListener('change',choose);
 })();
 </script>
 </body>
