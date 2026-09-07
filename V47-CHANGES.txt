@@ -1,0 +1,12 @@
+BUILD 47
+
+- Reversed touch swipe direction on landing carousel.
+- Centered and shortened Chicago COMING SOON gold ribbon.
+- Fixed Chicago EMAIL US FOR MORE INFORMATION navigation to coin-request.html.
+- Expanded coin request form with phone, state, role/business type, company, event, and message.
+- Personalized thank-you retained. Subject remains Coin Request to marketing@idisamericas.com.
+- Rebuilt Limited Coin Series IDIS page with dynamic shine, deeper shadow, pointer/finger tilt, and DeviceOrientation phone tilt.
+- Replaced lower history copy with South Korea + Texas Americas headquarters story and One Solution. One Company.
+- Increased scanned IDIS transparent WebM presentation to dominate >80% of mobile viewport.
+- Kept IDIS transparent video at translateZ(400px).
+- Kept blue/teal blur + plus field delayed until 10 seconds.

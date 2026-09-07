@@ -7,7 +7,7 @@
   target recognition; both presentations render as detached HTML/video.
 */
 
-console.info('[IDIS WebAR] Build 46 Collection UX + Single IDIS Video: 20260907-collectionux46');
+console.info('[IDIS WebAR] Build 47 Collection UX + Single IDIS Video: 20260907-collectionux47');
 
 document.addEventListener('DOMContentLoaded', () => {
   const scene = document.querySelector('#ar-scene');
@@ -2917,7 +2917,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function handleIDISFeatureEnded() {
-    // Legacy hook retained. There is no second IDIS feature video in Build 46.
+    // Legacy hook retained. There is no second IDIS feature video in Build 47.
   }
 
   function finishIDISCinematicSequence() {
@@ -3410,7 +3410,7 @@ document.addEventListener('DOMContentLoaded', () => {
         `translate(-50%, -50%) translateZ(400px) ` +
         `rotateX(${(rx * 1.95).toFixed(3)}deg) ` +
         `rotateY(${(ry * 2.1).toFixed(3)}deg) ` +
-        `scale(${clamp(1 + (zoom - 1) * 0.12, 0.94, 1.1).toFixed(4)})`;
+        `scale(${clamp(1.58 + (zoom - 1) * 0.16, 1.48, 1.82).toFixed(4)})`;
 
       idisShowcaseCanvas.style.transform = coinTransform;
       idisShowcaseCanvas.style.webkitTransform = coinTransform;
@@ -3421,7 +3421,7 @@ document.addEventListener('DOMContentLoaded', () => {
         `translate(-50%, -50%) translateZ(400px) ` +
         `rotateX(${(rx * 1.95).toFixed(3)}deg) ` +
         `rotateY(${(ry * 2.1).toFixed(3)}deg) ` +
-        `scale(${clamp(1 + (zoom - 1) * 0.12, 0.94, 1.1).toFixed(4)})`;
+        `scale(${clamp(1.58 + (zoom - 1) * 0.16, 1.48, 1.82).toFixed(4)})`;
       idisShowcaseVideo.style.transform = fallbackTransform;
       idisShowcaseVideo.style.webkitTransform = fallbackTransform;
     }
