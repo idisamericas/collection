@@ -1,0 +1,18 @@
+IDIS COIN EXPERIENCE - BUILD 48.1 MOBILE CAMERA FIX
+===================================================
+
+This patch keeps Build 48 collection, rep finder, and IDIS burst features.
+
+CAMERA FIXES
+- Preserves synchronous A-Frame 1.5.0 -> MindAR 1.2.5 -> deferred local ar.js order.
+- Rear camera first requests the proven flexible 1080p/30 ideal constraints.
+- If a phone rejects those preferences, it automatically retries with a simple rear-camera request.
+- Final fallback requests any available camera instead of immediately failing.
+- Explicitly calls video.play() once camera metadata is available.
+- Adds a short dimension watchdog for mobile WebViews that delay loadedmetadata.
+- Cleans stale streams from a previous failed attempt.
+- Camera error screen now reports the real browser failure type when available.
+- Performs a lightweight HEAD check on the .mind file so a missing target database is no longer mislabeled as CAMERA ERROR.
+
+IMPORTANT TARGET NOTE
+This patch intentionally does NOT rename or replace your .mind file. index.html still points at the target filename that Build 48 used. If the new error says TARGET FILE ERROR, update imageTargetSrc in index.html to the exact filename of your grouped collection .mind file.

@@ -7,7 +7,7 @@
   target recognition; both presentations render as detached HTML/video.
 */
 
-console.info('[IDIS WebAR] Build 47 Collection UX + Single IDIS Video: 20260907-collectionux48');
+console.info('[IDIS WebAR] Build 48.1 Mobile Camera Recovery: 20260907-mobilecamera481');
 
 document.addEventListener('DOMContentLoaded', () => {
   const scene = document.querySelector('#ar-scene');
@@ -93,7 +93,10 @@ document.addEventListener('DOMContentLoaded', () => {
   const personalizedThanksLine1 = document.querySelector('#personalized-thanks-line1');
   const personalizedThanksLine2 = document.querySelector('#personalized-thanks-line2');
 
-  const TARGET_FILE = './assets/targets/gsx2026-two-sided.mind';
+  const mindarSceneConfig = scene.getAttribute('mindar-image') || {};
+  const TARGET_FILE =
+    mindarSceneConfig.imageTargetSrc ||
+    './assets/targets/gsx2026-two-sided.mind';
 
   const HOME_DELAY_MS = 3000;
 
@@ -1573,7 +1576,18 @@ document.addEventListener('DOMContentLoaded', () => {
   function install4KCameraPatch(system) {
     if (!system || system.__idisFastCameraPatched) return;
 
-    system._startVideo = function () {
+    system._startVideo = async function () {
+      // Remove a stale camera element/stream left behind by a previous failed
+      // attempt before requesting a new mobile camera stream.
+      try {
+        if (this.video && this.video.srcObject) {
+          this.video.srcObject.getTracks().forEach(track => track.stop());
+        }
+        if (this.video && this.video.parentNode) {
+          this.video.parentNode.removeChild(this.video);
+        }
+      } catch (_) {}
+
       this.video = document.createElement('video');
       this.video.setAttribute('autoplay', '');
       this.video.setAttribute('muted', '');
@@ -1581,6 +1595,7 @@ document.addEventListener('DOMContentLoaded', () => {
       this.video.setAttribute('webkit-playsinline', '');
       this.video.muted = true;
       this.video.playsInline = true;
+      this.video.autoplay = true;
       this.video.style.position = 'absolute';
       this.video.style.top = '0px';
       this.video.style.left = '0px';
@@ -1588,46 +1603,129 @@ document.addEventListener('DOMContentLoaded', () => {
       this.container.appendChild(this.video);
 
       if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        window.IDIS_CAMERA_ERROR = {
+          name: 'MediaDevicesUnavailable',
+          message: 'getUserMedia is unavailable in this browser.'
+        };
         this.el.emit('arError', { error: 'VIDEO_FAIL' });
         return;
       }
 
-      const constraints = {
-        audio: false,
-        video: {
-          facingMode: { ideal: 'environment' },
-          width: { ideal: 1920 },
-          height: { ideal: 1080 },
-          frameRate: { ideal: 30, max: 30 }
+      // Start with the proven rear-camera request. If a phone rejects the
+      // preferred resolution/fps combination, automatically fall back to a
+      // simpler rear-camera request rather than aborting the whole AR launch.
+      const attempts = [
+        {
+          label: 'REAR 1080P IDEAL',
+          constraints: {
+            audio: false,
+            video: {
+              facingMode: { ideal: 'environment' },
+              width: { ideal: 1920 },
+              height: { ideal: 1080 },
+              frameRate: { ideal: 30, max: 30 }
+            }
+          }
+        },
+        {
+          label: 'REAR CAMERA FLEX',
+          constraints: {
+            audio: false,
+            video: {
+              facingMode: { ideal: 'environment' }
+            }
+          }
+        },
+        {
+          label: 'ANY CAMERA FALLBACK',
+          constraints: {
+            audio: false,
+            video: true
+          }
         }
+      ];
+
+      let stream = null;
+      let lastError = null;
+      let selectedLabel = '';
+
+      for (const attempt of attempts) {
+        try {
+          stream = await navigator.mediaDevices.getUserMedia(attempt.constraints);
+          selectedLabel = attempt.label;
+          break;
+        } catch (error) {
+          lastError = error;
+
+          // Permission denial will not be fixed by another constraints retry.
+          if (
+            error &&
+            (error.name === 'NotAllowedError' || error.name === 'SecurityError')
+          ) {
+            break;
+          }
+        }
+      }
+
+      if (!stream) {
+        window.IDIS_CAMERA_ERROR = {
+          name: lastError && lastError.name ? lastError.name : 'CameraStartError',
+          message: lastError && lastError.message ? lastError.message : 'No compatible camera stream could be opened.'
+        };
+        console.warn('Mobile camera request unavailable', lastError);
+        this.el.emit('arError', { error: 'VIDEO_FAIL' });
+        return;
+      }
+
+      const track = stream.getVideoTracks()[0];
+      const settings = track && track.getSettings ? track.getSettings() : {};
+
+      window.IDIS_CAMERA_ERROR = null;
+      window.IDIS_CAMERA_INFO = {
+        requested: selectedLabel,
+        width: settings.width || 0,
+        height: settings.height || 0,
+        frameRate: settings.frameRate || 0,
+        facingMode: settings.facingMode || ''
       };
 
-      navigator.mediaDevices.getUserMedia(constraints)
-        .then(stream => {
-          const track = stream.getVideoTracks()[0];
-          const settings = track && track.getSettings ? track.getSettings() : {};
-          window.IDIS_CAMERA_INFO = {
-            requested: 'FAST 1080P',
-            width: settings.width || 0,
-            height: settings.height || 0,
-            frameRate: settings.frameRate || 0,
-            facingMode: settings.facingMode || ''
-          };
+      let arStarted = false;
+      const finishVideoStart = async () => {
+        if (arStarted) return;
+        if (!this.video.videoWidth || !this.video.videoHeight) return;
+        arStarted = true;
 
-          this.video.addEventListener('loadedmetadata', () => {
-            this.video.setAttribute('width', this.video.videoWidth);
-            this.video.setAttribute('height', this.video.videoHeight);
-            window.IDIS_CAMERA_INFO.width = this.video.videoWidth;
-            window.IDIS_CAMERA_INFO.height = this.video.videoHeight;
-            this._startAR();
-          }, { once: true });
+        this.video.setAttribute('width', this.video.videoWidth);
+        this.video.setAttribute('height', this.video.videoHeight);
+        window.IDIS_CAMERA_INFO.width = this.video.videoWidth;
+        window.IDIS_CAMERA_INFO.height = this.video.videoHeight;
 
-          this.video.srcObject = stream;
-        })
-        .catch(error => {
-          console.warn('Rear camera request unavailable', error);
-          this.el.emit('arError', { error: 'VIDEO_FAIL' });
-        });
+        try { await this.video.play(); } catch (_) {}
+        this._startAR();
+      };
+
+      this.video.addEventListener('loadedmetadata', finishVideoStart, { once: true });
+      this.video.addEventListener('loadeddata', finishVideoStart, { once: true });
+      this.video.srcObject = stream;
+
+      // Some mobile WebViews do not reliably emit loadedmetadata after a
+      // permission transition. Poll briefly for decoded dimensions as a safe
+      // fallback while preserving MindAR's normal _startAR path.
+      const videoReadyStartedAt = performance.now();
+      const videoReadyPoll = setInterval(() => {
+        if (arStarted) {
+          clearInterval(videoReadyPoll);
+          return;
+        }
+        if (this.video.videoWidth > 0 && this.video.videoHeight > 0) {
+          clearInterval(videoReadyPoll);
+          finishVideoStart();
+          return;
+        }
+        if (performance.now() - videoReadyStartedAt > 8000) {
+          clearInterval(videoReadyPoll);
+        }
+      }, 120);
     };
 
     system.__idisFastCameraPatched = true;
@@ -1674,9 +1772,35 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   async function verifyTargetFile() {
-    // MindAR loads the .mind file itself. Avoid downloading the same database
-    // once here and a second time during arSystem.start().
-    return true;
+    // A HEAD request catches the common case where a landing-page patch
+    // accidentally points back to an older .mind filename. It does not
+    // download the target database a second time.
+    try {
+      const response = await fetch(TARGET_FILE, {
+        method: 'HEAD',
+        cache: 'no-store'
+      });
+
+      if (!response.ok) {
+        const error = new Error(`TARGET_FILE_HTTP_${response.status}`);
+        error.code = 'TARGET_FILE_MISSING';
+        throw error;
+      }
+
+      return true;
+    } catch (error) {
+      // If HEAD itself is unsupported, allow MindAR to attempt the normal GET.
+      // A real 404/410 is still treated as a missing target file.
+      if (
+        error &&
+        error.code === 'TARGET_FILE_MISSING'
+      ) {
+        throw error;
+      }
+
+      console.warn('Target preflight could not run; continuing with MindAR.', error);
+      return true;
+    }
   }
 
   /* ------------------------------------------------------------------------
@@ -3870,13 +3994,54 @@ document.addEventListener('DOMContentLoaded', () => {
         }
       }, 1100);
     } catch (error) {
-      console.error(error);
+      console.error('[IDIS AR START ERROR]', error);
 
-      showError(
-        'Camera could not start.',
-        'Allow camera permission, close other camera apps, then try again.',
-        'CAMERA ERROR'
-      );
+      const cameraError = window.IDIS_CAMERA_ERROR || {};
+      const errorName =
+        (error && error.name) ||
+        cameraError.name ||
+        '';
+      const errorMessage =
+        (error && error.message) ||
+        cameraError.message ||
+        '';
+
+      if (
+        (error && error.code === 'TARGET_FILE_MISSING') ||
+        String(errorMessage).includes('TARGET_FILE_HTTP_')
+      ) {
+        showError(
+          'Tracking file could not load.',
+          `The AR page is looking for ${TARGET_FILE}. Confirm that exact .mind file exists on the deployed site.`,
+          'TARGET FILE ERROR'
+        );
+      } else if (errorName === 'NotAllowedError' || errorName === 'SecurityError') {
+        showError(
+          'Camera permission is blocked.',
+          'Allow camera access for this site in your browser settings, then reload and try again.',
+          'CAMERA PERMISSION'
+        );
+      } else if (errorName === 'NotReadableError') {
+        showError(
+          'Camera is busy.',
+          'Close other apps or browser tabs using the camera, then try again.',
+          'CAMERA IN USE'
+        );
+      } else if (errorName === 'NotFoundError') {
+        showError(
+          'No camera was found.',
+          'This device did not provide a usable camera to the browser.',
+          'CAMERA NOT FOUND'
+        );
+      } else {
+        showError(
+          'Camera could not start.',
+          errorMessage
+            ? `Mobile camera start failed: ${errorName || 'Error'} — ${errorMessage}`
+            : 'Allow camera permission, close other camera apps, then try again.',
+          'CAMERA ERROR'
+        );
+      }
     } finally {
       starting = false;
     }
