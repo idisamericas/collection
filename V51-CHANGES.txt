@@ -1,0 +1,8 @@
+BUILD 51
+
+- IDIS centered burst logo is 25% smaller and has a stronger black + teal shadow.
+- Upper-left AR IDIS logo hides while the centered burst logo is active, then returns after the IDIS show ends.
+- IDIS stage stays transparent/live-camera for 15 seconds. Black + abstract environment + burst begin at 15 seconds.
+- Burst cards use only the top or bottom rows of a 3x3 viewport composition, never the middle row.
+- Security Sales lookup replaced with current detailed IDIS regional sales territory team. Split states return both applicable representatives instead of guessing.
+- Transit routing is preserved.

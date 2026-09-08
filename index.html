@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <meta name="idis-build" content="20260907-layout500" />
+  <meta name="idis-build" content="20260907-layout510" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" />
   <meta name="theme-color" content="#02070a" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -11,14 +11,14 @@
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
   <title>IDIS Americas | Limited Coin Collection</title>
   <meta name="description" content="Discover, scan, and collect limited IDIS Americas event coins through an interactive AR experience." />
-  <link rel="icon" type="image/png" sizes="512x512" href="./assets/ui/favicon-coin.png?v=20260907-layout500" />
-  <link rel="apple-touch-icon" href="./assets/ui/favicon-coin.png?v=20260907-layout500" />
+  <link rel="icon" type="image/png" sizes="512x512" href="./assets/ui/favicon-coin.png?v=20260907-layout510" />
+  <link rel="apple-touch-icon" href="./assets/ui/favicon-coin.png?v=20260907-layout510" />
 
   <!-- Proven working A-Frame + MindAR load order restored for camera stability. -->
   <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
-  <link rel="stylesheet" href="./styles.css?v=20260907-layout500" />
-  <script defer src="./ar.js?v=20260907-layout500"></script>
+  <link rel="stylesheet" href="./styles.css?v=20260907-layout510" />
+  <script defer src="./ar.js?v=20260907-layout510"></script>
 
   <style id="idis-luxury-landing-v45">
     /* LANDING V45 ONLY. AR presentation styles remain in styles.css. */
@@ -958,19 +958,21 @@
       #intro .experience-action-row .landing-share-button svg { width:23px; height:23px; }
     }
 
-    /* Build 50: black IDIS stage + centered logo above burst cards. */
+    /* Build 51: delayed black stage + smaller foreground logo. */
     .idis-cinematic {
-      background: #000 !important;
+      background: transparent !important;
       perspective: 1100px !important;
       -webkit-perspective: 1100px !important;
+      transition: background-color 720ms cubic-bezier(.22,.61,.36,1);
     }
+    .idis-cinematic.black-stage-on { background: #000 !important; }
 
     .idis-burst-logo {
       position: absolute;
       left: 50%;
       top: 50%;
       z-index: 172;
-      width: clamp(150px, 35vw, 260px);
+      width: clamp(112px, 26vw, 195px);
       opacity: 0;
       pointer-events: none;
       transform: translate(-50%,-50%) translateZ(720px) scale(.9);
@@ -978,8 +980,9 @@
       -webkit-transform-style: preserve-3d;
       transition: opacity 700ms ease, filter 700ms ease;
       filter:
-        drop-shadow(0 26px 38px rgba(0,0,0,.74))
-        drop-shadow(0 0 22px rgba(63,238,231,.24));
+        drop-shadow(0 34px 50px rgba(0,0,0,.92))
+        drop-shadow(0 8px 16px rgba(0,0,0,.78))
+        drop-shadow(0 0 32px rgba(63,238,231,.32));
       will-change: transform, opacity, filter;
     }
     .idis-burst-logo.is-visible { opacity: 1; }
@@ -988,6 +991,14 @@
       width:100%;
       height:auto;
       object-fit:contain;
+    }
+
+    .header-idis-logo {
+      transition: opacity 360ms ease, visibility 360ms ease;
+    }
+    .header-idis-logo.is-hidden-during-idis-show {
+      opacity: 0 !important;
+      visibility: hidden !important;
     }
 
     /* The transparent/black-key video stays beneath the floating logo and burst. */
@@ -1019,7 +1030,7 @@
       <div class="luxury-landing-inner">
         <div class="brand-lockup" aria-label="IDIS Americas">
           <img class="idis-ui-logo intro-idis-logo"
-               src="./assets/ui/idis-logo.png?v=20260907-layout500"
+               src="./assets/ui/idis-logo.png?v=20260907-layout510"
                alt="IDIS Americas" />
         </div>
 
@@ -1052,7 +1063,7 @@
                    role="button"
                    tabindex="0"
                    aria-label="Learn about the IDIS limited coin series">
-                <img src="./assets/thumbs/idis-series.webp?v=20260907-layout500"
+                <img src="./assets/thumbs/idis-series.webp?v=20260907-layout510"
                      alt="IDIS Americas collectible coin side" />
                 <span class="landing-coin-status">COLLECTION SERIES</span>
               </div>
@@ -1065,7 +1076,7 @@
                       data-title="GSX 2026"
                       data-subtitle="Atlanta, Georgia"
                       aria-disabled="true">
-                <img src="./assets/thumbs/gsx2026-atlanta.webp?v=20260907-layout500"
+                <img src="./assets/thumbs/gsx2026-atlanta.webp?v=20260907-layout510"
                      alt="GSX 2026 Atlanta collectible coin" />
                 <span class="landing-coin-status">
                   <span class="status-locked">SCAN TO COLLECT</span>
@@ -1084,7 +1095,7 @@
                       aria-disabled="true"
                       aria-label="APTA TRANSform 2026 Chicago coin, coming soon. Tap for contact information">
                 <span class="coming-soon-ribbon" aria-hidden="true">COMING SOON</span>
-                <img src="./assets/thumbs/apta-transform-2026-chicago.webp?v=20260907-layout500"
+                <img src="./assets/thumbs/apta-transform-2026-chicago.webp?v=20260907-layout510"
                      alt="APTA TRANSform 2026 Chicago collectible coin" />
                 <span class="landing-coin-status">COMING SOON</span>
               </button>
@@ -1172,7 +1183,7 @@
     <header id="ar-header" class="ar-ui hidden">
       <div class="mini-brand" aria-label="IDIS Americas">
         <img class="idis-ui-logo header-idis-logo"
-             src="./assets/ui/idis-logo.png?v=20260907-layout500"
+             src="./assets/ui/idis-logo.png?v=20260907-layout510"
              alt="IDIS Americas" />
       </div>
       <button id="close-ar" class="icon-button" type="button" aria-label="Close augmented reality">×</button>
@@ -1217,12 +1228,12 @@
         <video id="atlanta-layer-back" class="atlanta-layer layer-back"
                muted playsinline webkit-playsinline loop preload="metadata"
                aria-hidden="true">
-          <source src="./assets/parallax/atlanta/layer-1-back.mp4?v=20260907-layout500" type="video/mp4" />
+          <source src="./assets/parallax/atlanta/layer-1-back.mp4?v=20260907-layout510" type="video/mp4" />
         </video>
         <img id="atlanta-layer-middle" class="atlanta-layer layer-middle"
-             src="./assets/parallax/atlanta/layer-2-middle.png?v=20260907-layout500" alt="" />
+             src="./assets/parallax/atlanta/layer-2-middle.png?v=20260907-layout510" alt="" />
         <img id="atlanta-layer-front" class="atlanta-layer layer-front"
-             src="./assets/parallax/atlanta/layer-3-front.png?v=20260907-layout500" alt="" />
+             src="./assets/parallax/atlanta/layer-3-front.png?v=20260907-layout510" alt="" />
       </div>
     </div>
 
@@ -1244,7 +1255,7 @@
             <span class="collection-coin-rim-highlight" aria-hidden="true"></span>
             <img id="collection-replay-coin-face"
                  class="collection-replay-coin-face"
-                 data-src="./assets/reference/GSX2026-Coin-Back.png?v=20260907-layout500"
+                 data-src="./assets/reference/GSX2026-Coin-Back.png?v=20260907-layout510"
                  alt="GSX 2026 Atlanta collectible coin" />
             <span class="collection-replay-coin-shine shine-a" aria-hidden="true"></span>
             <span class="collection-replay-coin-shine shine-b" aria-hidden="true"></span>
@@ -1263,7 +1274,7 @@
            preload="metadata"
            playsinline
            aria-hidden="true">
-      <source src="./assets/audio/state-voiceover.mp3?v=20260907-layout500"
+      <source src="./assets/audio/state-voiceover.mp3?v=20260907-layout510"
               type="audio/mpeg" />
     </audio>
 
@@ -1273,7 +1284,7 @@
            preload="metadata"
            playsinline
            aria-hidden="true">
-      <source src="./assets/audio/idis-voiceover.mp3?v=20260907-layout500"
+      <source src="./assets/audio/idis-voiceover.mp3?v=20260907-layout510"
               type="audio/mpeg" />
     </audio>
 
@@ -1283,8 +1294,8 @@
 
       1. IDIS face is recognized.
       2. One transparent WebM plays in the foreground while the MP3 plays.
-      3. Camera remains visible behind the transparent video for the first 10 seconds.
-      4. The blue/teal blur field and plus symbols fade in after 10 seconds.
+      3. Camera remains visible behind the transparent video for the first 15 seconds.
+      4. The black stage, blue/teal blur field, plus symbols and image burst fade in after 15 seconds.
       5. The IDIS thank-you finale begins near the end of the MP3.
     -->
     <div id="idis-cinematic"
@@ -1349,7 +1360,7 @@
       <div id="idis-burst-field" class="idis-burst-field" aria-hidden="true"></div>
 
       <div id="idis-burst-logo" class="idis-burst-logo" aria-hidden="true">
-        <img src="./assets/ui/idis-logo.png?v=20260907-layout500" alt="" />
+        <img src="./assets/ui/idis-logo.png?v=20260907-layout510" alt="" />
       </div>
 
       <!-- Visible transparent/composited showcase surface. -->
@@ -1367,7 +1378,7 @@
              class="idis-showcase-video-source"
              muted playsinline webkit-playsinline preload="metadata"
              aria-hidden="true">
-        <source src="./assets/video/idis-showcase-alpha.webm?v=20260907-layout500"
+        <source src="./assets/video/idis-showcase-alpha.webm?v=20260907-layout510"
                 type="video/webm" />
       </video>
 
@@ -1387,7 +1398,7 @@
       <div class="end-card-bg"></div>
       <div class="end-card-content">
         <img class="end-card-logo"
-             src="./assets/ui/idis-logo.png?v=20260907-layout500"
+             src="./assets/ui/idis-logo.png?v=20260907-layout510"
              alt="IDIS Americas" />
         <div id="personalized-thanks-line1" class="end-card-line1">Thank you,</div>
         <div id="personalized-thanks-line2" class="end-card-line2">Guest</div>

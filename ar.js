@@ -7,7 +7,7 @@
   target recognition; both presentations render as detached HTML/video.
 */
 
-console.info('[IDIS WebAR] Build 50 Share Row + Two-Stage Burst: 20260907-layout500');
+console.info('[IDIS WebAR] Build 50 Share Row + Two-Stage Burst: 20260907-layout510');
 
 document.addEventListener('DOMContentLoaded', () => {
   const scene = document.querySelector('#ar-scene');
@@ -62,6 +62,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const idisFeatureStage = document.querySelector('#idis-feature-stage');
   const idisBurstField = document.querySelector('#idis-burst-field');
   const idisBurstLogo = document.querySelector('#idis-burst-logo');
+  const headerIDISLogo = document.querySelector('.header-idis-logo');
 
   const guestNameInput = document.querySelector('#guest-name');
   const guestNameField = document.querySelector('.guest-name-field');
@@ -104,7 +105,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // IDIS is now media-driven.
   // IDIS uses one transparent WebM only. The camera stays clean behind it
   // until the abstract blur/plus environment fades in at ten seconds.
-  const IDIS_BACKGROUND_REVEAL_DELAY_MS = 10000;
+  const IDIS_BACKGROUND_REVEAL_DELAY_MS = 15000;
   const IDIS_BURST_REVEAL_DELAY_MS = 10000;
   const IDIS_BURST_INTERVAL_MS = 1550;
   const IDIS_BURST_ASSET_SETS = [
@@ -212,6 +213,7 @@ document.addEventListener('DOMContentLoaded', () => {
   let idisBurstRevealTimer = null;
   let idisBurstInterval = null;
   let idisBurstCursor = 0;
+  let idisBurstZoneCursor = 0;
   let idisBurstActiveSet = 0;
   let idisBurstLoadedSets = [[], []];
   let idisBurstPreloadStarted = false;
@@ -2937,12 +2939,27 @@ document.addEventListener('DOMContentLoaded', () => {
     img.draggable = false;
     card.appendChild(img);
 
-    const angle = Math.random() * Math.PI * 2;
-    const radius = 72 + Math.random() * Math.min(window.innerWidth, window.innerHeight) * .27;
-    const x1 = Math.cos(angle) * radius;
-    const y1 = Math.sin(angle) * radius * .78;
-    const x2 = x1 * (1.30 + Math.random() * .45);
-    const y2 = y1 * (1.18 + Math.random() * .36);
+    // Build 51: keep cards out of the middle row. Treat the viewport as a
+    // 3x3 grid and use only the three top cells or three bottom cells.
+    const zones = [
+      { x: -0.30, y: -0.34 },
+      { x:  0.00, y: -0.38 },
+      { x:  0.30, y: -0.34 },
+      { x: -0.30, y:  0.34 },
+      { x:  0.00, y:  0.38 },
+      { x:  0.30, y:  0.34 }
+    ];
+    const zone = zones[idisBurstZoneCursor % zones.length];
+    idisBurstZoneCursor += 1;
+
+    const jitterX = (Math.random() - .5) * window.innerWidth * .045;
+    const jitterY = (Math.random() - .5) * window.innerHeight * .035;
+    const x1 = zone.x * window.innerWidth + jitterX;
+    const y1 = zone.y * window.innerHeight + jitterY;
+    const outwardX = zone.x === 0 ? (Math.random() - .5) * 54 : Math.sign(zone.x) * (22 + Math.random() * 38);
+    const outwardY = Math.sign(zone.y) * (18 + Math.random() * 34);
+    const x2 = x1 + outwardX;
+    const y2 = y1 + outwardY;
     const z = 10 + Math.random() * 260;
     const rx = -13 + Math.random() * 26;
     const ry = -22 + Math.random() * 44;
@@ -2975,9 +2992,11 @@ document.addEventListener('DOMContentLoaded', () => {
     // cards already on screen.
     idisBurstActiveSet = selectIDISBurstSetFromVideo();
     idisBurstCursor = 0;
+    idisBurstZoneCursor = 0;
     if (idisBurstInterval) clearInterval(idisBurstInterval);
 
     if (idisBurstLogo) idisBurstLogo.classList.add('is-visible');
+    if (headerIDISLogo) headerIDISLogo.classList.add('is-hidden-during-idis-show');
 
     // Slower pacing: two initial cards, then one approximately every 1.55 sec.
     spawnIDISBurstCard();
@@ -2999,6 +3018,7 @@ document.addEventListener('DOMContentLoaded', () => {
       idisBurstLogo.style.transform = '';
       idisBurstLogo.style.webkitTransform = '';
     }
+    if (headerIDISLogo) headerIDISLogo.classList.remove('is-hidden-during-idis-show');
     if (idisBurstField) {
       idisBurstField.classList.remove('is-visible');
       idisBurstField.style.transform = '';
@@ -3007,6 +3027,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     idisBurstActiveSet = 0;
     idisBurstCursor = 0;
+    idisBurstZoneCursor = 0;
   }
 
   function clearIDISCinematicTimers() {
@@ -3082,7 +3103,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
     if (idisCinematic) {
-      idisCinematic.classList.remove('cinematic-exit');
+      idisCinematic.classList.remove('cinematic-exit', 'black-stage-on');
       idisCinematic.classList.add('cinematic-hidden');
       idisCinematic.setAttribute('aria-hidden', 'true');
     }
@@ -3157,10 +3178,11 @@ document.addEventListener('DOMContentLoaded', () => {
     idisBackgroundRevealTimer = setTimeout(() => {
       idisBackgroundRevealTimer = null;
       if (!active || currentSide !== 'idis' || !idisSequenceActive) return;
+      if (idisCinematic) idisCinematic.classList.add('black-stage-on');
       showIDISAbstractBackground();
 
-      // Reveal the application/product cards at the exact same moment as the
-      // 10-second blue/teal environment so the burst is immediately visible.
+      // Reveal cards at the same 15-second transition. The first fifteen
+      // seconds preserve the live camera behind the transparent IDIS video.
       if (idisBurstRevealTimer) {
         clearTimeout(idisBurstRevealTimer);
         idisBurstRevealTimer = null;
@@ -3174,9 +3196,8 @@ document.addEventListener('DOMContentLoaded', () => {
       })
       .catch(error => {
         console.warn('IDIS transparent showcase could not play:', error);
-        // If the transparent video is missing, keep the MP3 alive and
-        // reveal the abstract background as a graceful visual fallback.
-        showIDISAbstractBackground();
+        // If the transparent video is missing, keep the MP3 alive. The
+        // delayed 15-second stage timer still controls the environment.
       });
   }
 
@@ -4333,9 +4354,8 @@ document.addEventListener('DOMContentLoaded', () => {
         idisSequencePhase === 'showcase'
       ) {
         console.warn('IDIS showcase source error.');
-        // If the transparent video is missing, keep the MP3 alive and
-        // reveal the abstract background as a graceful visual fallback.
-        showIDISAbstractBackground();
+        // If the transparent video is missing, keep the MP3 alive. The
+        // delayed 15-second stage timer still controls the environment.
       }
     });
   }

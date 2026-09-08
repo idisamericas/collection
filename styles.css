@@ -2821,7 +2821,8 @@ body.collection-replay-mode #ar-footer {
 /* ==========================================================================
    BUILD 50: SLOWER TWO-STAGE IDIS IMAGE BURST + PROMINENT TILT
 ============================================================================ */
-.idis-cinematic { background:#000 !important; }
+.idis-cinematic { background:transparent !important; }
+.idis-cinematic.black-stage-on { background:#000 !important; }
 .idis-burst-card {
   --duration: 9200ms;
   animation-timing-function: cubic-bezier(.12,.58,.18,1) !important;
@@ -2830,7 +2831,9 @@ body.collection-replay-mode #ar-footer {
   0% {
     opacity: 0;
     filter: blur(8px) brightness(.72);
-    transform: translate3d(-50%,-50%,-900px) scale(.08) rotateX(0deg) rotateY(0deg) rotateZ(0deg);
+    transform:
+      translate3d(calc(-50% + var(--start-x)), calc(-50% + var(--start-y)), -900px)
+      scale(.08) rotateX(0deg) rotateY(0deg) rotateZ(0deg);
   }
   12% { opacity: .96; filter: blur(0) brightness(1); }
   72% {

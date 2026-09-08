@@ -100,21 +100,32 @@
   const focus=document.getElementById('rep-focus');
   const result=document.getElementById('rep-result');
   const secondary=document.getElementById('secondary-result');
-  // Security geography used by the non-Transit lookup.
-  const west=new Set(['AK','AZ','CA','CO','HI','ID','MT','NV','NM','OR','UT','WA','WY']);
 
-  // Current IDIS Transit/Mobile territory groups. The public IDIS directory
-  // identifies four Transit RSM regions: West, Central, South and East.
-  // Keep these groups isolated from the Security sales territories above.
+  // Current IDIS Transit/Mobile territory groups.
   const transitWest=new Set(['AK','AZ','CA','CO','HI','ID','MT','NV','NM','OR','UT','WA','WY']);
   const transitCentral=new Set(['IA','IL','IN','KS','MI','MN','MO','ND','NE','OH','SD','WI']);
   const transitSouth=new Set(['AL','AR','FL','GA','KY','LA','MS','NC','OK','SC','TN','TX']);
   const transitEast=new Set(['CT','DC','DE','MA','MD','ME','NH','NJ','NY','PA','RI','VT','VA','WV']);
 
   const contacts={
-    west:{name:'Joel Murawski',role:'Regional Sales Director, West',email:'jmurawski@idisamericas.com',phone:'(559) 367-6925'},
-    east:{name:'IDIS Americas Sales',role:'Regional Sales Director, East',email:'sales@idisamericas.com',phone:'(469) 635-6800'},
-    latam:{name:'Victor Merino',role:'Regional Sales Director - LATAM',email:'vdmerino@idisamericas.com',phone:'+52 (1) 203 694 4569'},
+    // Security regional sales managers from the current IDIS regional sales directory.
+    edSnow:{name:'Ed Snow',role:'Regional Sales Manager - Northwestern',email:'esnow@idisamericas.com',phone:'(262) 867-9021'},
+    davidLeiker:{name:'David Leiker',role:'Regional Sales Manager - Northwestern',email:'dleiker@idisamericas.com',phone:'(916) 547-3095'},
+    ivanMartinez:{name:'Ivan Martinez',role:'Regional Sales Manager - Southwestern',email:'imartinez@idisamericas.com',phone:'(310) 849-7445'},
+    benBarry:{name:'Ben Barry',role:'Regional Sales Manager - North Central',email:'bbarry@idisamericas.com',phone:'(319) 531-6329'},
+    paulPounds:{name:'Paul Pounds',role:'Regional Sales Manager - South Central',email:'ppounds@idisamericas.com',phone:'(512) 431-8491'},
+    willSwitzer:{name:'Will Switzer',role:'Regional Sales Manager - South Central',email:'wswitzer@idisamericas.com',phone:'(972) 998-7105'},
+    jimBall:{name:'Jim Ball',role:'Regional Sales Manager - North Central',email:'jball@idisamericas.com',phone:'(847) 757-7765'},
+    bobShiflett:{name:'Bob Shiflett',role:'Regional Sales Manager - North Central',email:'bshiflett@idisamericas.com',phone:'(317) 501-7804'},
+    jasonMorgan:{name:'Jason Morgan',role:'Regional Sales Manager - Northeastern',email:'jmorgan@idisamericas.com',phone:'(508) 328-3275'},
+    daveFarquhar:{name:'Dave Farquhar',role:'Regional Sales Manager - Northeastern',email:'dfarquhar@idisamericas.com',phone:'(516) 770-1432'},
+    johnNorman:{name:'John Norman',role:'Regional Sales Manager - Northeastern',email:'jnorman@idisamericas.com',phone:'(484) 678-5432'},
+    geneBayer:{name:'Gene Bayer',role:'Regional Sales Manager - Northeastern',email:'gbayer@idisamericas.com',phone:'(804) 334-5673'},
+    davidBell:{name:'David Bell',role:'Regional Sales Director, East / Southeastern',email:'dbell@idisamericas.com',phone:'(843) 246-4029'},
+    jonTurner:{name:'Jon Turner',role:'Regional Sales Manager - Florida',email:'jturner@idisamericas.com',phone:'(772) 925-2148'},
+    michaelDolhan:{name:'Michael Dolhan',role:'Regional Sales Manager - Canada',email:'mdolhan@idisamericas.com',phone:'+1 (416) 333-5187'},
+    victorMerino:{name:'Victor Merino',role:'Regional Sales Director - LATAM',email:'vdmerino@idisamericas.com',phone:'+52 (1) 203 694 4569'},
+    luisChavez:{name:'Luis Chavez',role:'Regional Sales Manager - Mexico, Central America & Caribbean',email:'lchavez@idisamericas.com',phone:'+52 (1) 956 606 5047'},
 
     transitDirector:{name:'Brendan Boyle',role:'Director Sales Transit/Mobile',email:'bboyle@idisamericas.com',phone:'(425) 445-3097'},
     transitWest:{name:'Brian Koske',role:'Regional Sales Manager - Transit West',email:'bkoske@idisamericas.com',phone:'(425) 445-3097'},
@@ -131,11 +142,7 @@
     educationTX:{name:'IDIS Americas Sales',role:'Education / Texas',email:'sales@idisamericas.com',phone:'(469) 635-6800'}
   };
 
-  const regionalFor=loc=>{
-    if(loc==='MEX')return contacts.latam;
-    if(loc==='CAN')return contacts.east;
-    return west.has(loc)?contacts.west:contacts.east;
-  };
+  const westVertical=new Set(['AK','AZ','CA','CO','HI','ID','MT','NV','NM','OR','UT','WA','WY']);
 
   const transitFor=loc=>{
     if(transitWest.has(loc)) return contacts.transitWest;
@@ -143,6 +150,32 @@
     if(transitSouth.has(loc)) return contacts.transitSouth;
     if(transitEast.has(loc)) return contacts.transitEast;
     return contacts.transitDirector;
+  };
+
+  // State-only lookup cannot distinguish sub-state territories. In those
+  // cases return both current IDIS representatives instead of guessing.
+  const securityFor=loc=>{
+    if(['AK','WA','OR','ID','MT'].includes(loc)) return [contacts.edSnow];
+    if(['CO','UT','WY'].includes(loc)) return [contacts.davidLeiker];
+    if(['AZ','HI','NM'].includes(loc)) return [contacts.ivanMartinez];
+    if(['CA','NV'].includes(loc)) return [contacts.davidLeiker,contacts.ivanMartinez];
+    if(['IA','KS','MO','NE','SD'].includes(loc)) return [contacts.benBarry];
+    if(['AR','MS','OK'].includes(loc)) return [contacts.paulPounds];
+    if(['TX','LA'].includes(loc)) return [contacts.paulPounds,contacts.willSwitzer];
+    if(['IL','MN','ND','WI'].includes(loc)) return [contacts.jimBall];
+    if(['OH','MI','KY'].includes(loc)) return [contacts.bobShiflett];
+    if(loc==='IN') return [contacts.jimBall,contacts.bobShiflett];
+    if(['CT','MA','ME','NH','RI','VT'].includes(loc)) return [contacts.jasonMorgan];
+    if(loc==='NY') return [contacts.jasonMorgan,contacts.daveFarquhar];
+    if(loc==='NJ') return [contacts.daveFarquhar,contacts.johnNorman];
+    if(loc==='PA') return [contacts.bobShiflett,contacts.johnNorman];
+    if(['MD','DE'].includes(loc)) return [contacts.johnNorman];
+    if(['VA','WV','DC'].includes(loc)) return [contacts.geneBayer];
+    if(['AL','GA','NC','SC','TN'].includes(loc)) return [contacts.davidBell];
+    if(loc==='FL') return [contacts.jonTurner];
+    if(loc==='CAN') return [contacts.michaelDolhan];
+    if(loc==='MEX') return [contacts.luisChavez,contacts.victorMerino];
+    return [];
   };
 
   const fill=(prefix,c)=>{
@@ -155,19 +188,16 @@
   const choose=()=>{
     const loc=location.value;
     if(!loc){result.classList.remove('show');secondary.classList.remove('show');return;}
-    const area=west.has(loc)?'west':'east';
     const selected=focus.value;
-    let c;
+    const area=westVertical.has(loc)?'west':'east';
 
-    // Transit uses the dedicated Transit/Mobile team, not the Security map.
     if(selected==='transit'){
       if(loc==='CAN'){
-        // Current IDIS directory lists both Cristina Fanjul and Alex Fata for Canada.
         fill('rep-',contacts.transitCentral);
         fill('secondary-',contacts.transitSouth);
       } else if(loc==='MEX'){
         fill('rep-',contacts.transitDirector);
-        fill('secondary-',contacts.latam);
+        fill('secondary-',contacts.victorMerino);
       } else {
         fill('rep-',transitFor(loc));
         fill('secondary-',contacts.transitDirector);
@@ -177,18 +207,34 @@
       return;
     }
 
+    if(selected==='security'){
+      const reps=securityFor(loc);
+      if(!reps.length){result.classList.remove('show');secondary.classList.remove('show');return;}
+      fill('rep-',reps[0]);
+      result.classList.add('show');
+      if(reps[1]){
+        fill('secondary-',reps[1]);
+        secondary.classList.add('show');
+      } else {
+        secondary.classList.remove('show');
+      }
+      return;
+    }
+
     secondary.classList.remove('show');
-    if(loc==='MEX')c=contacts.latam;
-    else if(selected==='strategic')c=contacts.strategic;
-    else if(selected==='retail')c=area==='west'?contacts.retailWest:contacts.retailEast;
-    else if(selected==='banking')c=area==='west'?contacts.bankingWest:contacts.bankingEast;
-    else if(selected==='healthcare')c=contacts.bankingWest;
-    else if(selected==='education'&&loc==='TX')c=contacts.educationTX;
-    else c=regionalFor(loc);
+    let c;
+    if(loc==='MEX') c=contacts.victorMerino;
+    else if(selected==='strategic') c=contacts.strategic;
+    else if(selected==='retail') c=area==='west'?contacts.retailWest:contacts.retailEast;
+    else if(selected==='banking') c=area==='west'?contacts.bankingWest:contacts.bankingEast;
+    else if(selected==='healthcare') c=contacts.bankingWest;
+    else if(selected==='education'&&loc==='TX') c=contacts.educationTX;
+    else c=securityFor(loc)[0] || contacts.strategic;
 
     fill('rep-',c);
     result.classList.add('show');
   };
+
   location.addEventListener('change',choose);
   focus.addEventListener('change',choose);
 })();
