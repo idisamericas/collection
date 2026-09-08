@@ -1,0 +1,11 @@
+BUILD 52
+
+- share.html QR presentation changed to a circular container.
+- IDIS opening transparent coin video reduced about 15% from the prior mobile size.
+- Added a soft circular black gaussian vignette behind the opening coin while preserving the live camera around it.
+- Full black IDIS stage still waits until 15 seconds.
+- IDIS image burst is now a strict 1-column / 2-row sequence: TOP then BOTTOM.
+- Only one burst image appears at a time.
+- Each burst image lasts 4 seconds with a short gap before the next.
+- Existing set-1 / set-2 folder switch at half of the IDIS video remains intact.
+- No .mind, MP3, WebM, contact, or collection data changed.

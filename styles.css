@@ -2854,3 +2854,49 @@ body.collection-replay-mode #ar-footer {
 @media (prefers-reduced-motion: reduce) {
   .idis-burst-card { animation-duration: 4800ms !important; }
 }
+
+
+/* ==========================================================================
+   BUILD 52: ONE-COLUMN / TWO-ROW IDIS BURST
+============================================================================ */
+.idis-burst-card {
+  width:clamp(130px,42vw,290px) !important;
+  --duration:4000ms;
+  animation-timing-function:cubic-bezier(.18,.72,.22,1) !important;
+}
+@keyframes idisBurstFly {
+  0% {
+    opacity:0;
+    filter:blur(7px) brightness(.76);
+    transform:
+      translate3d(calc(-50% + var(--start-x)),calc(-50% + var(--start-y)),-460px)
+      scale(.54) rotateX(0deg) rotateY(0deg) rotateZ(0deg);
+  }
+  14% {
+    opacity:.98;
+    filter:blur(0) brightness(1);
+    transform:
+      translate3d(calc(-50% + var(--start-x)),calc(-50% + var(--start-y)),var(--z))
+      scale(var(--scale)) rotateX(var(--rot-x)) rotateY(var(--rot-y)) rotateZ(var(--rot-z));
+  }
+  82% {
+    opacity:.98;
+    filter:blur(0) brightness(1);
+    transform:
+      translate3d(calc(-50% + var(--start-x)),calc(-50% + var(--start-y)),var(--z))
+      scale(var(--scale)) rotateX(var(--rot-x)) rotateY(var(--rot-y)) rotateZ(var(--rot-z));
+  }
+  100% {
+    opacity:0;
+    filter:blur(2px) brightness(1.08);
+    transform:
+      translate3d(calc(-50% + var(--end-x)),calc(-50% + var(--end-y)),260px)
+      scale(calc(var(--scale) * 1.05)) rotateX(var(--rot-x)) rotateY(var(--rot-y)) rotateZ(var(--rot-z));
+  }
+}
+@media (max-width:420px) {
+  .idis-burst-card { width:clamp(120px,44vw,190px) !important; }
+}
+@media (prefers-reduced-motion:reduce) {
+  .idis-burst-card { animation-duration:4000ms !important; }
+}

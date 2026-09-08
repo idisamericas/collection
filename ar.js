@@ -7,7 +7,7 @@
   target recognition; both presentations render as detached HTML/video.
 */
 
-console.info('[IDIS WebAR] Build 50 Share Row + Two-Stage Burst: 20260907-layout510');
+console.info('[IDIS WebAR] Build 50 Share Row + Two-Stage Burst: 20260907-layout520');
 
 document.addEventListener('DOMContentLoaded', () => {
   const scene = document.querySelector('#ar-scene');
@@ -104,10 +104,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // IDIS is now media-driven.
   // IDIS uses one transparent WebM only. The camera stays clean behind it
-  // until the abstract blur/plus environment fades in at ten seconds.
+  // until the abstract blur/plus environment fades in at fifteen seconds.
   const IDIS_BACKGROUND_REVEAL_DELAY_MS = 15000;
-  const IDIS_BURST_REVEAL_DELAY_MS = 10000;
-  const IDIS_BURST_INTERVAL_MS = 1550;
+  const IDIS_BURST_REVEAL_DELAY_MS = 15000;
+  const IDIS_BURST_INTERVAL_MS = 4100;
   const IDIS_BURST_ASSET_SETS = [
     [
       './assets/idis-burst/set-1/shot-01.webp',
@@ -2917,11 +2917,9 @@ document.addEventListener('DOMContentLoaded', () => {
     idisBurstActiveSet = nextSet;
     idisBurstCursor = 0;
 
-    // Bring the new half into view without clearing cards from the first half.
-    if (idisBurstField && idisBurstField.classList.contains('is-visible')) {
-      spawnIDISBurstCard();
-      setTimeout(spawnIDISBurstCard, 420);
-    }
+    // Do not inject an extra card at the halfway switch. The next scheduled
+    // top/bottom slot simply starts using the second image folder. This keeps
+    // the sequence strictly one image at a time.
   }
 
   function spawnIDISBurstCard() {
@@ -2939,33 +2937,24 @@ document.addEventListener('DOMContentLoaded', () => {
     img.draggable = false;
     card.appendChild(img);
 
-    // Build 51: keep cards out of the middle row. Treat the viewport as a
-    // 3x3 grid and use only the three top cells or three bottom cells.
-    const zones = [
-      { x: -0.30, y: -0.34 },
-      { x:  0.00, y: -0.38 },
-      { x:  0.30, y: -0.34 },
-      { x: -0.30, y:  0.34 },
-      { x:  0.00, y:  0.38 },
-      { x:  0.30, y:  0.34 }
-    ];
-    const zone = zones[idisBurstZoneCursor % zones.length];
+    // Build 52: one-column / two-row layout. Cards alternate between a
+    // centered TOP slot and a centered BOTTOM slot. Only one card is active
+    // at a time, keeping the IDIS logo and center lane visually clean.
+    const isTop = (idisBurstZoneCursor % 2) === 0;
     idisBurstZoneCursor += 1;
 
-    const jitterX = (Math.random() - .5) * window.innerWidth * .045;
-    const jitterY = (Math.random() - .5) * window.innerHeight * .035;
-    const x1 = zone.x * window.innerWidth + jitterX;
-    const y1 = zone.y * window.innerHeight + jitterY;
-    const outwardX = zone.x === 0 ? (Math.random() - .5) * 54 : Math.sign(zone.x) * (22 + Math.random() * 38);
-    const outwardY = Math.sign(zone.y) * (18 + Math.random() * 34);
-    const x2 = x1 + outwardX;
-    const y2 = y1 + outwardY;
-    const z = 10 + Math.random() * 260;
-    const rx = -13 + Math.random() * 26;
-    const ry = -22 + Math.random() * 44;
-    const rz = -8 + Math.random() * 16;
-    const scale = .72 + Math.random() * .46;
-    const duration = 8200 + Math.random() * 3000;
+    const jitterX = (Math.random() - .5) * window.innerWidth * .025;
+    const jitterY = (Math.random() - .5) * window.innerHeight * .018;
+    const x1 = jitterX;
+    const y1 = (isTop ? -0.29 : 0.29) * window.innerHeight + jitterY;
+    const x2 = x1 + (Math.random() - .5) * 16;
+    const y2 = y1 + (isTop ? -12 : 12);
+    const z = 95 + Math.random() * 110;
+    const rx = -5 + Math.random() * 10;
+    const ry = -9 + Math.random() * 18;
+    const rz = -3 + Math.random() * 6;
+    const scale = .92 + Math.random() * .12;
+    const duration = 4000;
 
     card.style.setProperty('--start-x', `${x1.toFixed(1)}px`);
     card.style.setProperty('--start-y', `${y1.toFixed(1)}px`);
@@ -2976,7 +2965,7 @@ document.addEventListener('DOMContentLoaded', () => {
     card.style.setProperty('--rot-y', `${ry.toFixed(1)}deg`);
     card.style.setProperty('--rot-z', `${rz.toFixed(1)}deg`);
     card.style.setProperty('--scale', scale.toFixed(3));
-    card.style.setProperty('--duration', `${Math.round(duration)}ms`);
+    card.style.setProperty('--duration', `${duration}ms`);
 
     idisBurstField.appendChild(card);
     card.addEventListener('animationend', () => card.remove(), { once: true });
@@ -2998,9 +2987,9 @@ document.addEventListener('DOMContentLoaded', () => {
     if (idisBurstLogo) idisBurstLogo.classList.add('is-visible');
     if (headerIDISLogo) headerIDISLogo.classList.add('is-hidden-during-idis-show');
 
-    // Slower pacing: two initial cards, then one approximately every 1.55 sec.
+    // One card at a time. Alternate TOP then BOTTOM, four seconds each,
+    // with a short gap before the next card enters.
     spawnIDISBurstCard();
-    setTimeout(spawnIDISBurstCard, 720);
     idisBurstInterval = setInterval(spawnIDISBurstCard, IDIS_BURST_INTERVAL_MS);
   }
 
