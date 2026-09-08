@@ -1,0 +1,14 @@
+BUILD 50 — ACTION ROW / CONTACT / IDIS TWO-STAGE BURST
+
+- Moved Share/QR control beside START THE EXPERIENCE.
+- Share is a square metallic button, then a vertical divider, then the Start button fills the remaining row.
+- Centered Chicago COMING SOON coin now opens coin-request.html when tapped.
+- Added visible chevron arrows to both contact dropdowns.
+- IDIS cinematic base background is now black.
+- Increased IDIS touch/phone tilt response.
+- Added a centered IDIS logo layer above the burst cards, with strong preserve-3D phone/touch tilt.
+- Slowed image burst interval to ~1.55 seconds and extended card lifetime to ~8.2–11.2 seconds.
+- Burst now uses two folders: set-1 for first half of showcase video, set-2 for second half.
+- Existing blank placeholder WebPs were copied into both folders for immediate testing.
+
+This patch does not replace .mind target files or user media outside the listed burst placeholders.

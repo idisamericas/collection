@@ -7,7 +7,7 @@
   target recognition; both presentations render as detached HTML/video.
 */
 
-console.info('[IDIS WebAR] Build 48.1 Mobile Camera Recovery: 20260907-mobilecamera481');
+console.info('[IDIS WebAR] Build 50 Share Row + Two-Stage Burst: 20260907-layout500');
 
 document.addEventListener('DOMContentLoaded', () => {
   const scene = document.querySelector('#ar-scene');
@@ -61,6 +61,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const idisFeatureOverlay = document.querySelector('#idis-feature-overlay');
   const idisFeatureStage = document.querySelector('#idis-feature-stage');
   const idisBurstField = document.querySelector('#idis-burst-field');
+  const idisBurstLogo = document.querySelector('#idis-burst-logo');
 
   const guestNameInput = document.querySelector('#guest-name');
   const guestNameField = document.querySelector('.guest-name-field');
@@ -105,16 +106,28 @@ document.addEventListener('DOMContentLoaded', () => {
   // until the abstract blur/plus environment fades in at ten seconds.
   const IDIS_BACKGROUND_REVEAL_DELAY_MS = 10000;
   const IDIS_BURST_REVEAL_DELAY_MS = 10000;
-  const IDIS_BURST_INTERVAL_MS = 720;
-  const IDIS_BURST_ASSETS = [
-    './assets/idis-burst/shot-01.webp',
-    './assets/idis-burst/shot-02.webp',
-    './assets/idis-burst/shot-03.webp',
-    './assets/idis-burst/shot-04.webp',
-    './assets/idis-burst/shot-05.webp',
-    './assets/idis-burst/shot-06.webp',
-    './assets/idis-burst/shot-07.webp',
-    './assets/idis-burst/shot-08.webp'
+  const IDIS_BURST_INTERVAL_MS = 1550;
+  const IDIS_BURST_ASSET_SETS = [
+    [
+      './assets/idis-burst/set-1/shot-01.webp',
+      './assets/idis-burst/set-1/shot-02.webp',
+      './assets/idis-burst/set-1/shot-03.webp',
+      './assets/idis-burst/set-1/shot-04.webp',
+      './assets/idis-burst/set-1/shot-05.webp',
+      './assets/idis-burst/set-1/shot-06.webp',
+      './assets/idis-burst/set-1/shot-07.webp',
+      './assets/idis-burst/set-1/shot-08.webp'
+    ],
+    [
+      './assets/idis-burst/set-2/shot-01.webp',
+      './assets/idis-burst/set-2/shot-02.webp',
+      './assets/idis-burst/set-2/shot-03.webp',
+      './assets/idis-burst/set-2/shot-04.webp',
+      './assets/idis-burst/set-2/shot-05.webp',
+      './assets/idis-burst/set-2/shot-06.webp',
+      './assets/idis-burst/set-2/shot-07.webp',
+      './assets/idis-burst/set-2/shot-08.webp'
+    ]
   ];
   const IDIS_ENDCARD_LEAD_SECONDS = 0;
   const IDIS_CINEMATIC_EXIT_MS = 620;
@@ -199,7 +212,8 @@ document.addEventListener('DOMContentLoaded', () => {
   let idisBurstRevealTimer = null;
   let idisBurstInterval = null;
   let idisBurstCursor = 0;
-  let idisBurstLoadedAssets = [];
+  let idisBurstActiveSet = 0;
+  let idisBurstLoadedSets = [[], []];
   let idisBurstPreloadStarted = false;
 
   // GPU compositor for the transparent/black-key showcase.
@@ -2866,23 +2880,53 @@ document.addEventListener('DOMContentLoaded', () => {
     if (idisBurstPreloadStarted) return;
     idisBurstPreloadStarted = true;
 
-    IDIS_BURST_ASSETS.forEach(src => {
-      const img = new Image();
-      img.decoding = 'async';
-      img.onload = () => {
-        if (!idisBurstLoadedAssets.includes(src)) {
-          idisBurstLoadedAssets.push(src);
-        }
-      };
-      img.onerror = () => {};
-      img.src = src;
+    IDIS_BURST_ASSET_SETS.forEach((assetSet, setIndex) => {
+      assetSet.forEach(src => {
+        const img = new Image();
+        img.decoding = 'async';
+        img.onload = () => {
+          const loaded = idisBurstLoadedSets[setIndex];
+          if (loaded && !loaded.includes(src)) loaded.push(src);
+        };
+        img.onerror = () => {};
+        img.src = src;
+      });
     });
   }
 
-  function spawnIDISBurstCard() {
-    if (!idisBurstField || !idisBurstLoadedAssets.length || !idisSequenceActive || currentSide !== 'idis') return;
+  function getActiveIDISBurstAssets() {
+    const preferred = idisBurstLoadedSets[idisBurstActiveSet] || [];
+    if (preferred.length) return preferred;
+    const other = idisBurstLoadedSets[idisBurstActiveSet === 0 ? 1 : 0] || [];
+    return other;
+  }
 
-    const src = idisBurstLoadedAssets[idisBurstCursor % idisBurstLoadedAssets.length];
+  function selectIDISBurstSetFromVideo() {
+    if (!idisShowcaseVideo || !Number.isFinite(idisShowcaseVideo.duration) || idisShowcaseVideo.duration <= 0) {
+      return 0;
+    }
+    return idisShowcaseVideo.currentTime >= idisShowcaseVideo.duration * 0.5 ? 1 : 0;
+  }
+
+  function updateIDISBurstSetFromVideo() {
+    if (!idisSequenceActive || currentSide !== 'idis') return;
+    const nextSet = selectIDISBurstSetFromVideo();
+    if (nextSet === idisBurstActiveSet) return;
+    idisBurstActiveSet = nextSet;
+    idisBurstCursor = 0;
+
+    // Bring the new half into view without clearing cards from the first half.
+    if (idisBurstField && idisBurstField.classList.contains('is-visible')) {
+      spawnIDISBurstCard();
+      setTimeout(spawnIDISBurstCard, 420);
+    }
+  }
+
+  function spawnIDISBurstCard() {
+    const activeAssets = getActiveIDISBurstAssets();
+    if (!idisBurstField || !activeAssets.length || !idisSequenceActive || currentSide !== 'idis') return;
+
+    const src = activeAssets[idisBurstCursor % activeAssets.length];
     idisBurstCursor += 1;
 
     const card = document.createElement('div');
@@ -2894,17 +2938,17 @@ document.addEventListener('DOMContentLoaded', () => {
     card.appendChild(img);
 
     const angle = Math.random() * Math.PI * 2;
-    const radius = 90 + Math.random() * Math.min(window.innerWidth, window.innerHeight) * .30;
+    const radius = 72 + Math.random() * Math.min(window.innerWidth, window.innerHeight) * .27;
     const x1 = Math.cos(angle) * radius;
     const y1 = Math.sin(angle) * radius * .78;
     const x2 = x1 * (1.30 + Math.random() * .45);
     const y2 = y1 * (1.18 + Math.random() * .36);
-    const z = 35 + Math.random() * 300;
+    const z = 10 + Math.random() * 260;
     const rx = -13 + Math.random() * 26;
     const ry = -22 + Math.random() * 44;
     const rz = -8 + Math.random() * 16;
     const scale = .72 + Math.random() * .46;
-    const duration = 4400 + Math.random() * 2100;
+    const duration = 8200 + Math.random() * 3000;
 
     card.style.setProperty('--start-x', `${x1.toFixed(1)}px`);
     card.style.setProperty('--start-y', `${y1.toFixed(1)}px`);
@@ -2926,16 +2970,18 @@ document.addEventListener('DOMContentLoaded', () => {
     preloadIDISBurstAssets();
     idisBurstField.classList.add('is-visible');
 
-    // Start at the first available card each time, then continuously cycle
-    // through shot-01 ... shot-08 until the IDIS sequence itself ends.
+    // The first folder runs during the first half of the showcase video.
+    // Once the video crosses 50%, new cards come from set-2 without removing
+    // cards already on screen.
+    idisBurstActiveSet = selectIDISBurstSetFromVideo();
     idisBurstCursor = 0;
     if (idisBurstInterval) clearInterval(idisBurstInterval);
 
-    // Seed three depths immediately so the effect reads as a 3D field instead
-    // of waiting for the first few interval ticks.
+    if (idisBurstLogo) idisBurstLogo.classList.add('is-visible');
+
+    // Slower pacing: two initial cards, then one approximately every 1.55 sec.
     spawnIDISBurstCard();
-    setTimeout(spawnIDISBurstCard, 160);
-    setTimeout(spawnIDISBurstCard, 340);
+    setTimeout(spawnIDISBurstCard, 720);
     idisBurstInterval = setInterval(spawnIDISBurstCard, IDIS_BURST_INTERVAL_MS);
   }
 
@@ -2948,12 +2994,19 @@ document.addEventListener('DOMContentLoaded', () => {
       clearInterval(idisBurstInterval);
       idisBurstInterval = null;
     }
+    if (idisBurstLogo) {
+      idisBurstLogo.classList.remove('is-visible');
+      idisBurstLogo.style.transform = '';
+      idisBurstLogo.style.webkitTransform = '';
+    }
     if (idisBurstField) {
       idisBurstField.classList.remove('is-visible');
       idisBurstField.style.transform = '';
       idisBurstField.style.webkitTransform = '';
       idisBurstField.replaceChildren();
     }
+    idisBurstActiveSet = 0;
+    idisBurstCursor = 0;
   }
 
   function clearIDISCinematicTimers() {
@@ -3605,15 +3658,15 @@ document.addEventListener('DOMContentLoaded', () => {
     */
 
     const gestureRX = clamp(
-      -(panY / Math.max(1, window.innerHeight)) * 7,
-      -3.5,
-      3.5
+      -(panY / Math.max(1, window.innerHeight)) * 15,
+      -8.0,
+      8.0
     );
 
     const gestureRY = clamp(
-      (panX / Math.max(1, window.innerWidth)) * 8,
-      -4,
-      4
+      (panX / Math.max(1, window.innerWidth)) * 17,
+      -9.0,
+      9.0
     );
 
     const phoneTilt = updatePhoneTilt();
@@ -3622,16 +3675,18 @@ document.addEventListener('DOMContentLoaded', () => {
       phoneTilt
     );
 
+    // Intentionally stronger than Atlanta so the IDIS foreground and logo
+    // visibly react to both phone tilt and touch drag.
     const rx = clamp(
-      gestureRX + phoneTilt.x,
-      -9.0,
-      9.0
+      gestureRX * 1.20 + phoneTilt.x * 1.75,
+      -16.0,
+      16.0
     );
 
     const ry = clamp(
-      gestureRY + phoneTilt.y,
-      -10.0,
-      10.0
+      gestureRY * 1.18 + phoneTilt.y * 1.85,
+      -18.0,
+      18.0
     );
 
     // Keep pinch useful without allowing the embedded video to become huge.
@@ -3656,16 +3711,28 @@ document.addEventListener('DOMContentLoaded', () => {
       const burstY = panY * 0.08;
       const burstTransform =
         `translate3d(${burstX.toFixed(2)}px, ${burstY.toFixed(2)}px, 0) ` +
-        `rotateX(${(rx * .34).toFixed(3)}deg) rotateY(${(ry * .38).toFixed(3)}deg)`;
+        `rotateX(${(rx * .28).toFixed(3)}deg) rotateY(${(ry * .32).toFixed(3)}deg)`;
       idisBurstField.style.transform = burstTransform;
       idisBurstField.style.webkitTransform = burstTransform;
+    }
+
+    if (idisBurstLogo && idisBurstLogo.classList.contains('is-visible')) {
+      const logoX = panX * 0.20;
+      const logoY = panY * 0.20;
+      const logoTransform =
+        `translate(-50%, -50%) translate3d(${logoX.toFixed(2)}px, ${logoY.toFixed(2)}px, 720px) ` +
+        `rotateX(${(rx * 1.55).toFixed(3)}deg) ` +
+        `rotateY(${(ry * 1.72).toFixed(3)}deg) ` +
+        `scale(${clamp(1 + (zoom - 1) * .08, .96, 1.10).toFixed(4)})`;
+      idisBurstLogo.style.transform = logoTransform;
+      idisBurstLogo.style.webkitTransform = logoTransform;
     }
 
     if (idisShowcaseCanvas && !idisShowcaseCanvas.classList.contains('cinematic-hidden')) {
       const coinTransform =
         `translate(-50%, -50%) translateZ(400px) ` +
-        `rotateX(${(rx * 1.95).toFixed(3)}deg) ` +
-        `rotateY(${(ry * 2.1).toFixed(3)}deg) ` +
+        `rotateX(${(rx * 1.68).toFixed(3)}deg) ` +
+        `rotateY(${(ry * 1.78).toFixed(3)}deg) ` +
         `scale(${clamp(1.58 + (zoom - 1) * 0.16, 1.48, 1.82).toFixed(4)})`;
 
       idisShowcaseCanvas.style.transform = coinTransform;
@@ -3675,8 +3742,8 @@ document.addEventListener('DOMContentLoaded', () => {
     if (idisShowcaseVideo && idisAlphaUseVideoFallback) {
       const fallbackTransform =
         `translate(-50%, -50%) translateZ(400px) ` +
-        `rotateX(${(rx * 1.95).toFixed(3)}deg) ` +
-        `rotateY(${(ry * 2.1).toFixed(3)}deg) ` +
+        `rotateX(${(rx * 1.68).toFixed(3)}deg) ` +
+        `rotateY(${(ry * 1.78).toFixed(3)}deg) ` +
         `scale(${clamp(1.58 + (zoom - 1) * 0.16, 1.48, 1.82).toFixed(4)})`;
       idisShowcaseVideo.style.transform = fallbackTransform;
       idisShowcaseVideo.style.webkitTransform = fallbackTransform;
@@ -4234,6 +4301,8 @@ document.addEventListener('DOMContentLoaded', () => {
         sizeIDISAlphaCanvas();
       }
     );
+
+    idisShowcaseVideo.addEventListener('timeupdate', updateIDISBurstSetFromVideo);
 
     idisShowcaseVideo.addEventListener(
       'seeked',

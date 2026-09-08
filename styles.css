@@ -2816,3 +2816,38 @@ body.collection-replay-mode #ar-footer {
 @media (prefers-reduced-motion: reduce) {
   .idis-burst-card { animation-duration: 2400ms; }
 }
+
+
+/* ==========================================================================
+   BUILD 50: SLOWER TWO-STAGE IDIS IMAGE BURST + PROMINENT TILT
+============================================================================ */
+.idis-cinematic { background:#000 !important; }
+.idis-burst-card {
+  --duration: 9200ms;
+  animation-timing-function: cubic-bezier(.12,.58,.18,1) !important;
+}
+@keyframes idisBurstFly {
+  0% {
+    opacity: 0;
+    filter: blur(8px) brightness(.72);
+    transform: translate3d(-50%,-50%,-900px) scale(.08) rotateX(0deg) rotateY(0deg) rotateZ(0deg);
+  }
+  12% { opacity: .96; filter: blur(0) brightness(1); }
+  72% {
+    opacity: .96;
+    filter: blur(0) brightness(1);
+    transform:
+      translate3d(calc(-50% + var(--start-x)), calc(-50% + var(--start-y)), var(--z))
+      scale(var(--scale)) rotateX(var(--rot-x)) rotateY(var(--rot-y)) rotateZ(var(--rot-z));
+  }
+  100% {
+    opacity: 0;
+    filter: blur(2px) brightness(1.10);
+    transform:
+      translate3d(calc(-50% + var(--end-x)), calc(-50% + var(--end-y)), 430px)
+      scale(calc(var(--scale) * 1.12)) rotateX(var(--rot-x)) rotateY(var(--rot-y)) rotateZ(var(--rot-z));
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .idis-burst-card { animation-duration: 4800ms !important; }
+}
