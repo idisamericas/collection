@@ -2900,3 +2900,23 @@ body.collection-replay-mode #ar-footer {
 @media (prefers-reduced-motion:reduce) {
   .idis-burst-card { animation-duration:4000ms !important; }
 }
+
+
+/* ==========================================================================
+   BUILD 53: LARGER / CLOSER TWO-ROW BURST
+============================================================================ */
+.idis-burst-card {
+  width: clamp(170px, 50vw, 360px) !important;
+}
+@media (max-width: 520px) {
+  .idis-burst-card {
+    width: clamp(170px, 60vw, 265px) !important;
+  }
+}
+@media (max-width: 370px) {
+  .idis-burst-card {
+    width: clamp(160px, 58vw, 220px) !important;
+  }
+}
+
+/* BUILD 54.1: Build 53 visuals retained; grouped 4-target scanner handled in index/ar.js. */

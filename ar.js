@@ -1,21 +1,25 @@
 /*
   IDIS Americas | GSX 2026 WebAR - FAST LOAD PRODUCTION
-  targetIndex 0 = Atlanta / Georgia
-  targetIndex 1 = IDIS Americas
+  targetIndex 0 = IDIS Americas
+  targetIndex 1 = Atlanta / Georgia physical coin
+  targetIndex 2 = Chicago / Illinois
+  targetIndex 3 = Atlanta / Georgia paper card
 
   Target-attached 3D holograms were removed. MindAR is used only for
   target recognition; both presentations render as detached HTML/video.
 */
 
-console.info('[IDIS WebAR] Build 50 Share Row + Two-Stage Burst: 20260907-layout520');
+console.info('[IDIS WebAR] Build 54.1 Build53 + Atlanta Paper Target: 20260911-paper541');
 
 document.addEventListener('DOMContentLoaded', () => {
   const scene = document.querySelector('#ar-scene');
   const arContainer = document.querySelector('#ar-container');
   if (!scene) return;
 
-  const atlantaTarget = document.querySelector('#atlanta-target');
   const idisTarget = document.querySelector('#idis-target');
+  const atlantaTarget = document.querySelector('#atlanta-target');
+  const chicagoTarget = document.querySelector('#chicago-target');
+  const atlantaPaperTarget = document.querySelector('#atlanta-paper-target');
 
   const intro = document.querySelector('#intro');
   const header = document.querySelector('#ar-header');
@@ -98,7 +102,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const mindarSceneConfig = scene.getAttribute('mindar-image') || {};
   const TARGET_FILE =
     mindarSceneConfig.imageTargetSrc ||
-    './assets/targets/gsx2026-two-sided.mind';
+    './assets/targets/idis-collection-2026.mind';
 
   const HOME_DELAY_MS = 3000;
 
@@ -2946,10 +2950,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const jitterX = (Math.random() - .5) * window.innerWidth * .025;
     const jitterY = (Math.random() - .5) * window.innerHeight * .018;
     const x1 = jitterX;
-    const y1 = (isTop ? -0.29 : 0.29) * window.innerHeight + jitterY;
+    const y1 = (isTop ? -0.20 : 0.20) * window.innerHeight + jitterY;
     const x2 = x1 + (Math.random() - .5) * 16;
     const y2 = y1 + (isTop ? -12 : 12);
-    const z = 95 + Math.random() * 110;
+    const z = 150 + Math.random() * 120;
     const rx = -5 + Math.random() * 10;
     const ry = -9 + Math.random() * 18;
     const rz = -3 + Math.random() * 6;
@@ -3789,6 +3793,13 @@ document.addEventListener('DOMContentLoaded', () => {
      maxTrack:2 is enabled on the scene.
   ------------------------------------------------------------------------ */
 
+  function isAtlantaTargetVisible() {
+    const targets = [atlantaTarget, atlantaPaperTarget];
+    return targets.some(target =>
+      !!(target && target.object3D && target.object3D.visible)
+    );
+  }
+
   function stopSwitchWatcher() {
     cancelAnimationFrame(switchWatcherRAF);
     switchWatcherRAF = 0;
@@ -3815,17 +3826,14 @@ document.addEventListener('DOMContentLoaded', () => {
           ? 'idis'
           : 'atlanta';
 
-      const oppositeTarget =
-        oppositeSide === 'atlanta'
-          ? atlantaTarget
-          : idisTarget;
-
       const oppositeVisible =
-        !!(
-          oppositeTarget &&
-          oppositeTarget.object3D &&
-          oppositeTarget.object3D.visible
-        );
+        oppositeSide === 'atlanta'
+          ? isAtlantaTargetVisible()
+          : !!(
+              idisTarget &&
+              idisTarget.object3D &&
+              idisTarget.object3D.visible
+            );
 
       if (oppositeVisible) {
         if (!oppositeVisibleSince) {
@@ -3972,6 +3980,17 @@ document.addEventListener('DOMContentLoaded', () => {
     beginPresentation('atlanta', 'scan');
   }
 
+  function foundAtlantaPaper() {
+    // Alternate paper target for the SAME Atlanta experience/collectible.
+    beginPresentation('atlanta', 'scan');
+  }
+
+  function foundChicago() {
+    // Chicago is recognized by the master .mind file but its interactive
+    // experience is still intentionally marked Coming Soon.
+    console.info('[IDIS WebAR] Chicago target recognized');
+  }
+
   function foundIDIS() {
     // Scanner mode -> IDIS begins.
     // Atlanta presentation -> IDIS immediately replaces it.
@@ -3983,6 +4002,8 @@ document.addEventListener('DOMContentLoaded', () => {
   // targetLost intentionally does NOTHING while a presentation is active.
   // Once the coin has unlocked the scene, the scene is independent.
   function lostAtlanta() {}
+  function lostAtlantaPaper() {}
+  function lostChicago() {}
   function lostIDIS() {}
 
   /* ------------------------------------------------------------------------
@@ -4388,25 +4409,25 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  atlantaTarget.addEventListener(
-    'targetFound',
-    foundAtlanta
-  );
+  if (idisTarget) {
+    idisTarget.addEventListener('targetFound', foundIDIS);
+    idisTarget.addEventListener('targetLost', lostIDIS);
+  }
 
-  atlantaTarget.addEventListener(
-    'targetLost',
-    lostAtlanta
-  );
+  if (atlantaTarget) {
+    atlantaTarget.addEventListener('targetFound', foundAtlanta);
+    atlantaTarget.addEventListener('targetLost', lostAtlanta);
+  }
 
-  idisTarget.addEventListener(
-    'targetFound',
-    foundIDIS
-  );
+  if (chicagoTarget) {
+    chicagoTarget.addEventListener('targetFound', foundChicago);
+    chicagoTarget.addEventListener('targetLost', lostChicago);
+  }
 
-  idisTarget.addEventListener(
-    'targetLost',
-    lostIDIS
-  );
+  if (atlantaPaperTarget) {
+    atlantaPaperTarget.addEventListener('targetFound', foundAtlantaPaper);
+    atlantaPaperTarget.addEventListener('targetLost', lostAtlantaPaper);
+  }
 
   gestureSurface.addEventListener(
     'pointerdown',
