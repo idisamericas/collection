@@ -1,0 +1,57 @@
+IDIS BUILD 56 — REAL IDIS BURST IMAGE BUILD
+
+BASE
+----
+Build 55 Collection Entry + Build 54.1 four-target paper scanner + Build 53 visual changes.
+
+SCANNER TARGET ORDER RETAINED
+-----------------------------
+0 = IDIS shared side
+1 = Atlanta physical coin
+2 = Chicago coin
+3 = Atlanta paper card
+
+Expected master target file:
+assets/targets/idis-collection-2026.mind
+
+IDIS BURST UPDATE
+-----------------
+All 17 supplied JPG images were converted to WebP at photographic quality 86.
+Source dimensions were preserved.
+
+The existing two-stage sequence is retained:
+- before 50% of the transparent IDIS WebM duration -> set-1
+- after 50% -> set-2
+
+The burst remains one image at a time in the alternating top/bottom positions.
+Each image remains on screen approximately 4 seconds, following the current Build 53/55 animation.
+
+IMAGE MAP
+---------
+First half  : shot-00.jpg -> assets/idis-burst/set-1/shot-00.webp
+First half  : shot-01.jpg -> assets/idis-burst/set-1/shot-01.webp
+First half  : shot-02.jpg -> assets/idis-burst/set-1/shot-02.webp
+First half  : shot-03.jpg -> assets/idis-burst/set-1/shot-03.webp
+First half  : shot-04.jpg -> assets/idis-burst/set-1/shot-04.webp
+First half  : shot-05.jpg -> assets/idis-burst/set-1/shot-05.webp
+First half  : shot-06.jpg -> assets/idis-burst/set-1/shot-06.webp
+First half  : shot-07.jpg -> assets/idis-burst/set-1/shot-07.webp
+First half  : shot-08.jpg -> assets/idis-burst/set-1/shot-08.webp
+Second half : shot-09.jpg -> assets/idis-burst/set-2/shot-09.webp
+Second half : shot-11.jpg -> assets/idis-burst/set-2/shot-11.webp
+Second half : shot-22.jpg -> assets/idis-burst/set-2/shot-22.webp
+Second half : shot-33.jpg -> assets/idis-burst/set-2/shot-33.webp
+Second half : shot-44.jpg -> assets/idis-burst/set-2/shot-44.webp
+Second half : shot-55.jpg -> assets/idis-burst/set-2/shot-55.webp
+Second half : shot-66.jpg -> assets/idis-burst/set-2/shot-66.webp
+Second half : shot-77.jpg -> assets/idis-burst/set-2/shot-77.webp
+
+CACHE KEY
+---------
+20260913-burst56
+
+UPLOAD
+------
+Upload the full contents of this patch over the current site.
+Do not delete your existing assets/targets/idis-collection-2026.mind, MP3, WebM, Chicago, Atlanta, reference, or thumbnail files.
+The new assets/idis-burst folders in this patch should replace the previous white placeholder burst assets.

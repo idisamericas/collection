@@ -51,6 +51,14 @@
     }
     .detail-tilt-note{margin:-2px 0 12px;text-align:center;color:rgba(255,255,255,.32);font-size:7px;font-weight:800;letter-spacing:.13em}
     @media(max-width:360px){.detail-coin-stage{width:min(100%,300px)}}
+
+    .empty-collection-cta{display:none;align-items:center;justify-content:space-between;gap:14px;margin:0 0 18px;padding:15px 15px 15px 17px;border:1px solid rgba(123,255,246,.24);border-radius:18px;background:linear-gradient(135deg,rgba(7,31,38,.88),rgba(5,14,21,.80));box-shadow:inset 0 1px rgba(255,255,255,.05),0 14px 34px rgba(0,0,0,.22)}
+    .empty-collection-cta.is-visible{display:flex}
+    .empty-collection-copy{min-width:0}
+    .empty-collection-copy strong{display:block;font-size:12px;line-height:1.25;letter-spacing:.01em;color:#fff}
+    .empty-collection-copy span{display:block;margin-top:4px;color:rgba(235,249,250,.48);font-size:9px;line-height:1.45}
+    .empty-collection-scan{flex:0 0 auto;min-height:44px;padding:0 17px;border:1px solid rgba(168,255,250,.36);border-radius:999px;display:inline-flex;align-items:center;justify-content:center;background:linear-gradient(180deg,#e9f2f1 0%,#aebdbc 46%,#667574 100%);box-shadow:inset 0 1px 0 rgba(255,255,255,.95),0 0 22px rgba(48,238,228,.13);color:#071012;text-decoration:none;font-size:9px;font-weight:950;letter-spacing:.12em;white-space:nowrap}
+    @media(max-width:420px){.empty-collection-cta{align-items:stretch;flex-direction:column}.empty-collection-scan{width:100%}}
 </style>
 </head>
 <body>
@@ -59,6 +67,13 @@
     <div class="kicker">IDIS LIMITED EVENT COINS</div>
     <div class="heading"><h1>Your Collection</h1><div id="page-count" class="count">0 / 5</div></div>
     <p class="intro">Only unique event and state sides are counted here. Newer years appear first, so as the collection grows your oldest completed sets naturally move toward the bottom.</p>
+    <section id="empty-collection-cta" class="empty-collection-cta" aria-live="polite">
+      <div class="empty-collection-copy">
+        <strong>Scan your first coin to get started.</strong>
+        <span>Your collected event coins will appear here automatically.</span>
+      </div>
+      <a class="empty-collection-scan" href="./index.html#start-ar">SCAN NOW</a>
+    </section>
     <section id="collection-grid" class="grid" aria-label="Collected coin grid"></section>
   </main>
 
@@ -86,7 +101,7 @@
   ];
   coins.sort((a,b)=>(b.year-a.year)||String(b.sortDate).localeCompare(String(a.sortDate)));
   let collected=[];try{const raw=localStorage.getItem(storageKey);const parsed=raw?JSON.parse(raw):null;collected=Array.isArray(parsed)?parsed:(parsed&&Array.isArray(parsed.coins)?parsed.coins:[])}catch(_){ }
-  const realIds=coins.filter(c=>!c.future).map(c=>c.id);const count=collected.filter(id=>realIds.includes(id)).length;document.getElementById('page-count').textContent=`${count} / 5`;
+  const realIds=coins.filter(c=>!c.future).map(c=>c.id);const count=collected.filter(id=>realIds.includes(id)).length;document.getElementById('page-count').textContent=`${count} / 5`;const emptyCTA=document.getElementById('empty-collection-cta');if(emptyCTA)emptyCTA.classList.toggle('is-visible',count===0);
   const grid=document.getElementById('collection-grid');const dialog=document.getElementById('coin-detail');
   const openDetail=coin=>{
     const detailCoin=document.getElementById('detail-coin');detailCoin.src=coin.image;detailCoin.alt=`${coin.title} collectible coin`;

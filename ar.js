@@ -9,7 +9,7 @@
   target recognition; both presentations render as detached HTML/video.
 */
 
-console.info('[IDIS WebAR] Build 54.1 Build53 + Atlanta Paper Target: 20260911-paper541');
+console.info('[IDIS WebAR] Build 56 Real IDIS Burst + Paper Target: 20260913-burst56');
 
 document.addEventListener('DOMContentLoaded', () => {
   const scene = document.querySelector('#ar-scene');
@@ -114,6 +114,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const IDIS_BURST_INTERVAL_MS = 4100;
   const IDIS_BURST_ASSET_SETS = [
     [
+      './assets/idis-burst/set-1/shot-00.webp',
       './assets/idis-burst/set-1/shot-01.webp',
       './assets/idis-burst/set-1/shot-02.webp',
       './assets/idis-burst/set-1/shot-03.webp',
@@ -124,14 +125,14 @@ document.addEventListener('DOMContentLoaded', () => {
       './assets/idis-burst/set-1/shot-08.webp'
     ],
     [
-      './assets/idis-burst/set-2/shot-01.webp',
-      './assets/idis-burst/set-2/shot-02.webp',
-      './assets/idis-burst/set-2/shot-03.webp',
-      './assets/idis-burst/set-2/shot-04.webp',
-      './assets/idis-burst/set-2/shot-05.webp',
-      './assets/idis-burst/set-2/shot-06.webp',
-      './assets/idis-burst/set-2/shot-07.webp',
-      './assets/idis-burst/set-2/shot-08.webp'
+      './assets/idis-burst/set-2/shot-09.webp',
+      './assets/idis-burst/set-2/shot-11.webp',
+      './assets/idis-burst/set-2/shot-22.webp',
+      './assets/idis-burst/set-2/shot-33.webp',
+      './assets/idis-burst/set-2/shot-44.webp',
+      './assets/idis-burst/set-2/shot-55.webp',
+      './assets/idis-burst/set-2/shot-66.webp',
+      './assets/idis-burst/set-2/shot-77.webp'
     ]
   ];
   const IDIS_ENDCARD_LEAD_SECONDS = 0;
