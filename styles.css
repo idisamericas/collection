@@ -2923,3 +2923,58 @@ body.collection-replay-mode #ar-footer {
 
 
 /* BUILD 56: Real IDIS application/product WebP burst assets. */
+
+/* ==========================================================================
+   BUILD 56.1: IDIS END PHOTO USING SHOT-00 ONLY AT THE FINALE
+============================================================================ */
+
+.end-card-photo {
+  display: block;
+  width: min(74vw, 420px);
+  max-width: 100%;
+  height: auto;
+  margin: 0 auto 24px;
+  border-radius: 18px;
+  opacity: 0;
+  transform: translateY(18px) scale(.972);
+  filter: blur(6px) drop-shadow(0 10px 26px rgba(0,0,0,.42));
+  will-change: opacity, transform, filter;
+  box-shadow:
+    0 10px 24px rgba(0,0,0,.34),
+    0 22px 48px rgba(0,0,0,.28),
+    0 0 0 1px rgba(255,255,255,.1) inset;
+}
+
+.end-card-photo.is-hidden {
+  display: none !important;
+}
+
+.end-card.phase-in .end-card-photo {
+  animation: endCardPhotoIn 900ms cubic-bezier(.16,.84,.26,1) 240ms forwards;
+}
+
+@keyframes endCardPhotoIn {
+  0% {
+    opacity: 0;
+    transform: translateY(18px) scale(.972);
+    filter: blur(6px) drop-shadow(0 10px 26px rgba(0,0,0,.42));
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0) drop-shadow(0 14px 32px rgba(0,0,0,.5));
+  }
+}
+
+.end-card.is-idis-closing .end-card-photo {
+  width: min(72vw, 400px);
+  margin-bottom: 20px;
+}
+
+@media (max-width: 390px) {
+  .end-card-photo {
+    width: min(78vw, 340px);
+    margin-bottom: 18px;
+    border-radius: 16px;
+  }
+}

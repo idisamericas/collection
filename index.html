@@ -17,8 +17,8 @@
   <!-- Proven working A-Frame + MindAR load order restored for camera stability. -->
   <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
-  <link rel="stylesheet" href="./styles.css?v=20260913-burst56" />
-  <script defer src="./ar.js?v=20260913-burst56"></script>
+  <link rel="stylesheet" href="./styles.css?v=20260916-cointest57" />
+  <script defer src="./ar.js?v=20260916-cointest57"></script>
 
   <style id="idis-luxury-landing-v45">
     /* LANDING V45 ONLY. AR presentation styles remain in styles.css. */
@@ -1403,6 +1403,9 @@
         <img class="end-card-logo"
              src="./assets/ui/idis-logo.png?v=20260911-collection55"
              alt="IDIS Americas" />
+        <img id="end-card-photo"
+             class="end-card-photo is-hidden"
+             alt="" />
         <div id="personalized-thanks-line1" class="end-card-line1">Thank you,</div>
         <div id="personalized-thanks-line2" class="end-card-line2">Guest</div>
         <div class="end-card-tagline-wrap">
@@ -1445,7 +1448,7 @@
   <a-scene
     id="ar-scene"
     class="ar-stage"
-    mindar-image="imageTargetSrc: ./assets/targets/idis-collection-2026.mind; autoStart: false; uiLoading: no; uiError: no; uiScanning: no; filterMinCF: 0.0001; filterBeta: 0.001; warmupTolerance: 8; missTolerance: 20; maxTrack: 2;"
+    mindar-image="imageTargetSrc: ./assets/targets/coin-test.mind; autoStart: false; uiLoading: no; uiError: no; uiScanning: no; filterMinCF: 0.0001; filterBeta: 0.001; warmupTolerance: 8; missTolerance: 20; maxTrack: 2;"
     color-space="sRGB"
     renderer="colorManagement: true; alpha: true; antialias: false;"
     vr-mode-ui="enabled: false"
@@ -1455,10 +1458,8 @@
 <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
 
     <!-- Target order MUST match the grouped MindAR compiler order. -->
-    <a-entity id="idis-target" mindar-image-target="targetIndex: 0"></a-entity>
-    <a-entity id="atlanta-target" mindar-image-target="targetIndex: 1"></a-entity>
-    <a-entity id="chicago-target" mindar-image-target="targetIndex: 2"></a-entity>
-    <a-entity id="atlanta-paper-target" mindar-image-target="targetIndex: 3"></a-entity>
+    <a-entity id="atlanta-target" mindar-image-target="targetIndex: 0"></a-entity>
+    <a-entity id="idis-target" mindar-image-target="targetIndex: 1"></a-entity>
   </a-scene>
   </div>
 

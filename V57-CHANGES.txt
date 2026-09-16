@@ -1,0 +1,34 @@
+IDIS BUILD 57 — COIN PHOTO TARGET TEST
+
+TARGET FILE
+-----------
+assets/targets/coin-test.mind
+
+The uploaded coin-test.mind is included in this patch.
+
+TARGET ORDER
+------------
+targetIndex 0 = Atlanta / Georgia actual coin photo
+targetIndex 1 = IDIS Americas actual coin photo
+
+CODE CHANGES
+------------
+- index.html now loads ./assets/targets/coin-test.mind
+- Atlanta entity now uses targetIndex 0
+- IDIS entity now uses targetIndex 1
+- Chicago and Atlanta paper target entities/listeners are removed from this scanner build
+- opposite-face switching now watches only Atlanta and IDIS
+- Atlanta still unlocks the SAME gsx2026-atlanta collection item
+- all Build 56.1 behavior is retained, including the real IDIS burst images
+  and shot-00 as the final IDIS closing photo
+
+IMPORTANT
+---------
+Chicago remains visible in the collection/landing UI, but it will NOT scan with
+coin-test.mind because this new target database contains only Atlanta and IDIS.
+
+The previous Atlanta paper-card target will also NOT scan in this build.
+
+CACHE KEY
+---------
+20260916-cointest57

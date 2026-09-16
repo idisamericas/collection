@@ -48,10 +48,15 @@ Second half : shot-77.jpg -> assets/idis-burst/set-2/shot-77.webp
 
 CACHE KEY
 ---------
-20260913-burst56
+20260913-burst56a
 
 UPLOAD
 ------
 Upload the full contents of this patch over the current site.
 Do not delete your existing assets/targets/idis-collection-2026.mind, MP3, WebM, Chicago, Atlanta, reference, or thumbnail files.
 The new assets/idis-burst folders in this patch should replace the previous white placeholder burst assets.
+
+Build 56.1
+- Removed shot-00 from the live IDIS burst rotation.
+- Added shot-00 as the final IDIS end-card photo above the closing copy.
+- Cache key updated to 20260913-burst56a.

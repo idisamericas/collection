@@ -1,15 +1,15 @@
 /*
-  IDIS Americas | GSX 2026 WebAR - FAST LOAD PRODUCTION
-  targetIndex 0 = IDIS Americas
-  targetIndex 1 = Atlanta / Georgia physical coin
-  targetIndex 2 = Chicago / Illinois
-  targetIndex 3 = Atlanta / Georgia paper card
+  IDIS Americas | GSX 2026 WebAR - COIN PHOTO TARGET TEST
+  coin-test.mind target order:
+  targetIndex 0 = Atlanta / Georgia physical coin photo
+  targetIndex 1 = IDIS Americas physical coin photo
 
-  Target-attached 3D holograms were removed. MindAR is used only for
-  target recognition; both presentations render as detached HTML/video.
+  This .mind contains only the two photographed physical coin faces.
+  Target-attached 3D holograms are removed. MindAR is used only for
+  recognition; both presentations render as detached HTML/video.
 */
 
-console.info('[IDIS WebAR] Build 56 Real IDIS Burst + Paper Target: 20260913-burst56');
+console.info('[IDIS WebAR] Build 57 Coin Photo Targets: 20260916-cointest57');
 
 document.addEventListener('DOMContentLoaded', () => {
   const scene = document.querySelector('#ar-scene');
@@ -18,8 +18,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const idisTarget = document.querySelector('#idis-target');
   const atlantaTarget = document.querySelector('#atlanta-target');
-  const chicagoTarget = document.querySelector('#chicago-target');
-  const atlantaPaperTarget = document.querySelector('#atlanta-paper-target');
 
   const intro = document.querySelector('#intro');
   const header = document.querySelector('#ar-header');
@@ -98,11 +96,12 @@ document.addEventListener('DOMContentLoaded', () => {
   const endCard = document.querySelector('#end-card');
   const personalizedThanksLine1 = document.querySelector('#personalized-thanks-line1');
   const personalizedThanksLine2 = document.querySelector('#personalized-thanks-line2');
+  const endCardPhoto = document.querySelector('#end-card-photo');
 
   const mindarSceneConfig = scene.getAttribute('mindar-image') || {};
   const TARGET_FILE =
     mindarSceneConfig.imageTargetSrc ||
-    './assets/targets/idis-collection-2026.mind';
+    './assets/targets/coin-test.mind';
 
   const HOME_DELAY_MS = 3000;
 
@@ -112,9 +111,9 @@ document.addEventListener('DOMContentLoaded', () => {
   const IDIS_BACKGROUND_REVEAL_DELAY_MS = 15000;
   const IDIS_BURST_REVEAL_DELAY_MS = 15000;
   const IDIS_BURST_INTERVAL_MS = 4100;
+  const IDIS_ENDCARD_PHOTO_SRC = './assets/idis-burst/set-1/shot-00.webp';
   const IDIS_BURST_ASSET_SETS = [
     [
-      './assets/idis-burst/set-1/shot-00.webp',
       './assets/idis-burst/set-1/shot-01.webp',
       './assets/idis-burst/set-1/shot-02.webp',
       './assets/idis-burst/set-1/shot-03.webp',
@@ -1369,6 +1368,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
+function updateEndCardPhoto(variant = 'atlanta') {    if (!endCardPhoto) return;    const isIDIS = variant === 'idis';    if (isIDIS) {      endCardPhoto.src = IDIS_ENDCARD_PHOTO_SRC;      endCardPhoto.alt = 'IDIS closing highlight';      endCardPhoto.classList.remove('is-hidden');    } else {      endCardPhoto.classList.add('is-hidden');      endCardPhoto.removeAttribute('src');      endCardPhoto.alt = '';    }  }
   function updatePersonalizedThanks(variant = 'atlanta') {
     if (!personalizedThanksLine1 || !personalizedThanksLine2) return;
 
@@ -1427,6 +1427,11 @@ document.addEventListener('DOMContentLoaded', () => {
       'phase-out',
       'is-idis-closing'
     );
+    if (endCardPhoto) {
+      endCardPhoto.classList.add('is-hidden');
+      endCardPhoto.removeAttribute('src');
+      endCardPhoto.alt = '';
+    }
     endCard.classList.add('hidden');
     endCard.setAttribute('aria-hidden', 'true');
   }
@@ -1436,6 +1441,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     endCardVariant = variant;
     updatePersonalizedThanks(variant);
+    updateEndCardPhoto(variant);
 
     if (!endCard) {
       finishEndCardToScan();
@@ -3791,13 +3797,14 @@ document.addEventListener('DOMContentLoaded', () => {
      detached media-driven presentation even on phones where a second targetFound
      callback is slow or inconsistent.
 
-     maxTrack:2 is enabled on the scene.
+     coin-test.mind has two targets and maxTrack:2 is enabled on the scene.
   ------------------------------------------------------------------------ */
 
   function isAtlantaTargetVisible() {
-    const targets = [atlantaTarget, atlantaPaperTarget];
-    return targets.some(target =>
-      !!(target && target.object3D && target.object3D.visible)
+    return !!(
+      atlantaTarget &&
+      atlantaTarget.object3D &&
+      atlantaTarget.object3D.visible
     );
   }
 
@@ -3981,16 +3988,6 @@ document.addEventListener('DOMContentLoaded', () => {
     beginPresentation('atlanta', 'scan');
   }
 
-  function foundAtlantaPaper() {
-    // Alternate paper target for the SAME Atlanta experience/collectible.
-    beginPresentation('atlanta', 'scan');
-  }
-
-  function foundChicago() {
-    // Chicago is recognized by the master .mind file but its interactive
-    // experience is still intentionally marked Coming Soon.
-    console.info('[IDIS WebAR] Chicago target recognized');
-  }
 
   function foundIDIS() {
     // Scanner mode -> IDIS begins.
@@ -4003,8 +4000,6 @@ document.addEventListener('DOMContentLoaded', () => {
   // targetLost intentionally does NOTHING while a presentation is active.
   // Once the coin has unlocked the scene, the scene is independent.
   function lostAtlanta() {}
-  function lostAtlantaPaper() {}
-  function lostChicago() {}
   function lostIDIS() {}
 
   /* ------------------------------------------------------------------------
@@ -4420,15 +4415,6 @@ document.addEventListener('DOMContentLoaded', () => {
     atlantaTarget.addEventListener('targetLost', lostAtlanta);
   }
 
-  if (chicagoTarget) {
-    chicagoTarget.addEventListener('targetFound', foundChicago);
-    chicagoTarget.addEventListener('targetLost', lostChicago);
-  }
-
-  if (atlantaPaperTarget) {
-    atlantaPaperTarget.addEventListener('targetFound', foundAtlantaPaper);
-    atlantaPaperTarget.addEventListener('targetLost', lostAtlantaPaper);
-  }
 
   gestureSurface.addEventListener(
     'pointerdown',
