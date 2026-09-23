@@ -1,0 +1,33 @@
+IDIS BUILD 58 — CHICAGO COLLECTION UX
+
+Homepage
+- Chicago remains visible in the rotating homepage lineup.
+- COMING SOON is replaced by a compact NEW badge.
+- Chicago uses the updated actual coin artwork thumbnail.
+- If Chicago is not collected, tapping the centered coin or SCAN NOW launches the existing AR camera.
+- If Chicago is collected, tapping it or OPEN COLLECTION goes to collection.html.
+- The caption keeps the APTA TRANSform 2026 / Chicago, Illinois event information.
+
+Collection
+- Real event coins that are not collected are now shown as black/gray versions instead of empty circles.
+- Future placeholder slots remain empty.
+- A locked coin cannot open details or its interactive experience.
+- Once collected, the same coin returns to full color and becomes clickable.
+- Chicago is marked NEW while uncollected and COLLECTED after unlock.
+
+New collection notification
+- Newly collected IDs are stored in idis-digital-coin-new-v1.
+- The homepage YOUR COLLECTION button turns gold and pulses with a white outline until collection.html is opened.
+- Atlanta unlock is wired to this notification now.
+- A future-ready unlockChicago2026Coin() helper is included for the next Chicago MindAR target update.
+
+Scanner
+- coin-test.mind is unchanged in this build. It still contains only Atlanta targetIndex 0 and IDIS targetIndex 1.
+- SCAN NOW opens the camera now, but Chicago cannot unlock until a new .mind containing the Chicago target is supplied and wired.
+
+Test pages
+- test-collection-glow.html
+- test-chicago-collection-states.html
+
+Cache key
+- 20260917-chicago58

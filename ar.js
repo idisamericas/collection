@@ -9,7 +9,7 @@
   recognition; both presentations render as detached HTML/video.
 */
 
-console.info('[IDIS WebAR] Build 57 Coin Photo Targets: 20260916-cointest57');
+console.info('[IDIS WebAR] Build 58 Chicago Collection UX: 20260917-chicago58');
 
 document.addEventListener('DOMContentLoaded', () => {
   const scene = document.querySelector('#ar-scene');
@@ -74,6 +74,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const collectionCount =
     document.querySelector('#collection-count');
+
+  const collectionPageLink =
+    document.querySelector('.collection-page-link');
+
+  const chicagoCollectionCard =
+    document.querySelector('#collection-chicago2026');
 
   const gsxCollectionCard =
     document.querySelector('#collection-gsx2026');
@@ -150,6 +156,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const GSX_2026_COIN_ID =
     'gsx2026-atlanta';
+
+  const CHICAGO_2026_COIN_ID =
+    'apta-transform-2026-chicago';
+
+  const COLLECTION_UNSEEN_STORAGE_KEY =
+    'idis-digital-coin-new-v1';
 
   const COLLECTION_TOTAL_SLOTS = 5;
 
@@ -982,47 +994,64 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  function renderCoinCollection() {
-    const hasGSX =
-      collectedCoinIds.has(
-        GSX_2026_COIN_ID
+  function readNewCollectionItems() {
+    try {
+      const raw = window.localStorage.getItem(COLLECTION_UNSEEN_STORAGE_KEY);
+      if (!raw) return new Set();
+      const parsed = JSON.parse(raw);
+      const ids = Array.isArray(parsed) ? parsed : (parsed && Array.isArray(parsed.coins) ? parsed.coins : []);
+      return new Set(ids.filter(id => typeof id === 'string' && id.length > 0));
+    } catch (_) {
+      return new Set();
+    }
+  }
+
+  function markCollectionItemNew(coinId) {
+    try {
+      const ids = readNewCollectionItems();
+      ids.add(coinId);
+      window.localStorage.setItem(
+        COLLECTION_UNSEEN_STORAGE_KEY,
+        JSON.stringify({ version: 1, coins: Array.from(ids), updatedAt: Date.now() })
       );
+    } catch (_) {}
+  }
+
+  function clearNewCollectionItems() {
+    try { window.localStorage.removeItem(COLLECTION_UNSEEN_STORAGE_KEY); } catch (_) {}
+    if (collectionPageLink) collectionPageLink.classList.remove('has-new-coin');
+  }
+
+  function renderCoinCollection() {
+    const hasGSX = collectedCoinIds.has(GSX_2026_COIN_ID);
+    const hasChicago = collectedCoinIds.has(CHICAGO_2026_COIN_ID);
 
     if (gsxCollectionCard) {
-      gsxCollectionCard.classList.toggle(
-        'is-unlocked',
-        hasGSX
-      );
+      gsxCollectionCard.classList.toggle('is-unlocked', hasGSX);
+      gsxCollectionCard.classList.toggle('is-locked', !hasGSX);
+      gsxCollectionCard.setAttribute('aria-disabled', 'false');
+    }
 
-      gsxCollectionCard.classList.toggle(
-        'is-locked',
-        !hasGSX
-      );
-
-      gsxCollectionCard.setAttribute(
-        'aria-disabled',
-        hasGSX
-          ? 'false'
-          : 'true'
-      );
-
-      gsxCollectionCard.setAttribute(
+    if (chicagoCollectionCard) {
+      chicagoCollectionCard.classList.toggle('is-unlocked', hasChicago);
+      chicagoCollectionCard.classList.toggle('is-locked', !hasChicago);
+      chicagoCollectionCard.setAttribute('aria-disabled', 'false');
+      chicagoCollectionCard.setAttribute(
         'aria-label',
-        hasGSX
-          ? 'GSX 2026 Atlanta coin collected. Tap to replay the Atlanta experience.'
-          : 'GSX 2026 Atlanta coin. Scan the physical coin to unlock it.'
+        hasChicago
+          ? 'APTA TRANSform 2026 Chicago coin collected. Open your collection.'
+          : 'APTA TRANSform 2026 Chicago coin. Scan now to collect it.'
       );
     }
 
     if (collectionCount) {
-      const collected =
-        Math.min(
-          collectedCoinIds.size,
-          COLLECTION_TOTAL_SLOTS
-        );
+      const knownCollected = [GSX_2026_COIN_ID, CHICAGO_2026_COIN_ID]
+        .filter(id => collectedCoinIds.has(id)).length;
+      collectionCount.textContent = `${Math.min(knownCollected, COLLECTION_TOTAL_SLOTS)} / ${COLLECTION_TOTAL_SLOTS}`;
+    }
 
-      collectionCount.textContent =
-        `${collected} / ${COLLECTION_TOTAL_SLOTS}`;
+    if (collectionPageLink) {
+      collectionPageLink.classList.toggle('has-new-coin', readNewCollectionItems().size > 0);
     }
   }
 
@@ -1031,6 +1060,10 @@ document.addEventListener('DOMContentLoaded', () => {
       readCoinCollection();
 
     renderCoinCollection();
+  }
+
+  if (collectionPageLink) {
+    collectionPageLink.addEventListener('click', clearNewCollectionItems, { capture: true });
   }
 
   function unlockGSX2026Coin() {
@@ -1047,6 +1080,7 @@ document.addEventListener('DOMContentLoaded', () => {
     );
 
     saveCoinCollection();
+    markCollectionItemNew(GSX_2026_COIN_ID);
     renderCoinCollection();
 
     window.dispatchEvent(
@@ -1058,6 +1092,18 @@ document.addEventListener('DOMContentLoaded', () => {
       })
     );
 
+    return true;
+  }
+
+  function unlockChicago2026Coin() {
+    if (collectedCoinIds.has(CHICAGO_2026_COIN_ID)) return false;
+    collectedCoinIds.add(CHICAGO_2026_COIN_ID);
+    saveCoinCollection();
+    markCollectionItemNew(CHICAGO_2026_COIN_ID);
+    renderCoinCollection();
+    window.dispatchEvent(new CustomEvent('idis:collection-changed', {
+      detail: { coinId: CHICAGO_2026_COIN_ID, source: 'scan' }
+    }));
     return true;
   }
 

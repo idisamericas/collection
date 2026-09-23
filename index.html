@@ -17,8 +17,8 @@
   <!-- Proven working A-Frame + MindAR load order restored for camera stability. -->
   <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
-  <link rel="stylesheet" href="./styles.css?v=20260916-cointest57" />
-  <script defer src="./ar.js?v=20260916-cointest57"></script>
+  <link rel="stylesheet" href="./styles.css?v=20260917-chicago58" />
+  <script defer src="./ar.js?v=20260917-chicago58"></script>
 
   <style id="idis-luxury-landing-v45">
     /* LANDING V45 ONLY. AR presentation styles remain in styles.css. */
@@ -1007,7 +1007,56 @@
     .idis-burst-field { z-index: 128 !important; }
 
 
-</style>
+
+
+    /* BUILD 58: Chicago NEW coin + collection notification glow */
+    .new-coin-ribbon {
+      position:absolute;
+      z-index:16;
+      left:50%;
+      top:18%;
+      width:auto;
+      min-width:54px;
+      padding:6px 12px 5px;
+      transform:translateX(-50%) translateZ(30px);
+      border:1px solid rgba(255,234,154,.88);
+      border-radius:999px;
+      background:linear-gradient(105deg,#88600f 0%,#f5d56f 28%,#fff3b8 49%,#d59b25 70%,#8a5d0d 100%);
+      box-shadow:0 7px 20px rgba(0,0,0,.42),0 0 16px rgba(246,211,101,.17),inset 0 1px rgba(255,255,255,.82);
+      color:#191105;
+      font-size:7px;
+      line-height:1;
+      font-weight:950;
+      letter-spacing:.15em;
+      text-align:center;
+      pointer-events:none;
+    }
+    #collection-chicago2026 .status-unlocked { display:none; }
+    #collection-chicago2026.is-unlocked .status-locked { display:none; }
+    #collection-chicago2026.is-unlocked .status-unlocked { display:inline; color:#f5d56f; }
+
+    .collection-page-link.has-new-coin {
+      border-color:rgba(255,222,116,.82) !important;
+      background:linear-gradient(110deg,rgba(100,63,5,.82),rgba(227,184,65,.88) 43%,rgba(126,78,7,.82)) !important;
+      color:#fff9df !important;
+      box-shadow:
+        0 0 0 1px rgba(255,255,255,.72),
+        0 0 16px rgba(255,255,255,.46),
+        0 0 34px rgba(245,207,95,.32),
+        inset 0 1px rgba(255,255,255,.45) !important;
+      animation:collectionNewPulse 1.5s ease-in-out infinite;
+    }
+    .collection-page-link.has-new-coin .collection-count,
+    .collection-page-link.has-new-coin .collection-link-arrow { color:#fff !important; }
+    @keyframes collectionNewPulse {
+      0%,100% { transform:scale(1); box-shadow:0 0 0 1px rgba(255,255,255,.62),0 0 11px rgba(255,255,255,.32),0 0 26px rgba(245,207,95,.24),inset 0 1px rgba(255,255,255,.38); }
+      50% { transform:scale(1.035); box-shadow:0 0 0 2px rgba(255,255,255,.98),0 0 24px rgba(255,255,255,.72),0 0 45px rgba(245,207,95,.45),inset 0 1px rgba(255,255,255,.62); }
+    }
+    @media (prefers-reduced-motion:reduce) {
+      .collection-page-link.has-new-coin { animation:none; }
+    }
+
+  </style>
 
 </head>
 <body>
@@ -1088,19 +1137,23 @@
               </button>
 
               <button id="collection-chicago2026"
-                      class="landing-coin pos-right is-locked landing-coin-coming-soon"
+                      class="landing-coin pos-right is-locked landing-coin-new"
                       type="button"
                       data-coin-id="apta-transform-2026-chicago"
                       data-coin-index="2"
                       data-title="APTA TRANSform 2026"
                       data-subtitle="Chicago, Illinois"
-                      data-contact="./coin-request.html?coin=apta-transform-2026-chicago"
-                      aria-disabled="true"
-                      aria-label="APTA TRANSform 2026 Chicago coin, coming soon. Tap for contact information">
-                <span class="coming-soon-ribbon" aria-hidden="true">COMING SOON</span>
-                <img src="./assets/thumbs/apta-transform-2026-chicago.webp?v=20260911-collection55"
+                      data-scan-when-locked="true"
+                      data-collected-href="./collection.html"
+                      aria-disabled="false"
+                      aria-label="APTA TRANSform 2026 Chicago coin. Scan to collect or open your collection if already collected.">
+                <span class="new-coin-ribbon" aria-hidden="true">NEW</span>
+                <img src="./assets/thumbs/apta-transform-2026-chicago.webp?v=20260917-chicago58"
                      alt="APTA TRANSform 2026 Chicago collectible coin" />
-                <span class="landing-coin-status">COMING SOON</span>
+                <span class="landing-coin-status">
+                  <span class="status-locked">SCAN NOW</span>
+                  <span class="status-unlocked">OPEN COLLECTION</span>
+                </span>
               </button>
             </div>
 
@@ -1116,7 +1169,7 @@
             <div class="luxury-coin-caption" aria-live="polite">
               <strong id="landing-coin-title">IDIS Americas</strong>
               <span id="landing-coin-subtitle">Limited Collection Series</span>
-              <a id="landing-coin-contact" class="landing-coin-contact hidden" href="./coin-request.html">FIND YOUR SALES REP</a>
+              <a id="landing-coin-contact" class="landing-coin-contact hidden" href="#start-ar">SCAN NOW</a>
             </div>
 
             <div class="luxury-carousel-dots" aria-label="Choose collectible coin">
@@ -1463,7 +1516,7 @@
   </a-scene>
   </div>
 
-  <script id="idis-luxury-carousel-v46">
+  <script id="idis-luxury-carousel-v58">
     (() => {
       const carousel = document.getElementById('collection-carousel');
       if (!carousel) return;
@@ -1472,19 +1525,12 @@
       const dots = Array.from(carousel.querySelectorAll('.luxury-carousel-dot'));
       const title = document.getElementById('landing-coin-title');
       const subtitle = document.getElementById('landing-coin-subtitle');
-      const contact = document.getElementById('landing-coin-contact');
-      if (contact) {
-        const goToContact = event => {
-          event.preventDefault();
-          event.stopPropagation();
-          const href = contact.getAttribute('href') || './coin-request.html';
-          window.location.assign(href);
-        };
-        contact.addEventListener('click', goToContact);
-        contact.addEventListener('touchend', goToContact, { passive: false });
-      }
+      const action = document.getElementById('landing-coin-contact');
+      const startButton = document.getElementById('start-ar');
+      const collectionLink = document.querySelector('.collection-page-link');
       const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
       const collectionKey = 'idis-digital-coin-collection-v1';
+      const unseenKey = 'idis-digital-coin-new-v1';
 
       if (coins.length < 2) return;
 
@@ -1494,15 +1540,40 @@
       let resumeTimer = 0;
       const modulo = (n, m) => ((n % m) + m) % m;
 
+      function readIds(key) {
+        try {
+          const raw = localStorage.getItem(key);
+          if (!raw) return [];
+          const parsed = JSON.parse(raw);
+          return Array.isArray(parsed) ? parsed : (parsed && Array.isArray(parsed.coins) ? parsed.coins : []);
+        } catch (_) { return []; }
+      }
+
       function isCollected(coin) {
         if (!coin.dataset.coinId) return true;
-        try {
-          const raw = localStorage.getItem(collectionKey);
-          const parsed = raw ? JSON.parse(raw) : null;
-          const ids = Array.isArray(parsed) ? parsed : (parsed && Array.isArray(parsed.coins) ? parsed.coins : []);
-          return ids.includes(coin.dataset.coinId);
-        } catch (_) {
-          return coin.classList.contains('is-unlocked');
+        return readIds(collectionKey).includes(coin.dataset.coinId);
+      }
+
+      function syncCollectionGlow() {
+        if (!collectionLink) return;
+        collectionLink.classList.toggle('has-new-coin', readIds(unseenKey).length > 0);
+      }
+
+      function clearNewCollectionNotice() {
+        try { localStorage.removeItem(unseenKey); } catch (_) {}
+        syncCollectionGlow();
+      }
+
+      collectionLink?.addEventListener('click', clearNewCollectionNotice, { capture:true });
+
+      function launchScanner() {
+        temporarilyPause();
+        if (startButton) {
+          startButton.scrollIntoView({ behavior: reducedMotion ? 'auto' : 'smooth', block: 'center' });
+          // Keep camera permission inside the original tap/click task on mobile.
+          startButton.click();
+        } else {
+          window.location.href = './index.html#start-ar';
         }
       }
 
@@ -1512,9 +1583,25 @@
           const collected = isCollected(coin);
           coin.classList.toggle('is-unlocked', collected);
           coin.classList.toggle('is-locked', !collected);
-          const navigatesWhenLocked = !!coin.dataset.href;
-          coin.setAttribute('aria-disabled', (collected || navigatesWhenLocked) ? 'false' : 'true');
+          coin.setAttribute('aria-disabled', 'false');
         });
+        syncCollectionGlow();
+      }
+
+      function renderAction(activeCoin) {
+        if (!action) return;
+        const isChicago = activeCoin?.dataset.coinId === 'apta-transform-2026-chicago';
+        if (!isChicago) {
+          action.classList.add('hidden');
+          action.removeAttribute('data-action');
+          return;
+        }
+
+        const collected = isCollected(activeCoin);
+        action.classList.remove('hidden');
+        action.textContent = collected ? 'OPEN COLLECTION' : 'SCAN NOW';
+        action.href = collected ? './collection.html' : '#start-ar';
+        action.dataset.action = collected ? 'collection' : 'scan';
       }
 
       function renderCarousel(nextIndex) {
@@ -1525,7 +1612,6 @@
           coin.classList.remove('pos-center', 'pos-left', 'pos-right', 'pos-hidden');
           const forward = modulo(index - activeIndex, coins.length);
           const backward = modulo(activeIndex - index, coins.length);
-
           if (index === activeIndex) {
             coin.classList.add('pos-center');
             coin.setAttribute('aria-current', 'true');
@@ -1542,16 +1628,10 @@
         });
 
         dots.forEach((dot, index) => dot.classList.toggle('is-active', index === activeIndex));
-
         const activeCoin = coins[activeIndex];
         if (title) title.textContent = activeCoin.dataset.title || '';
         if (subtitle) subtitle.textContent = activeCoin.dataset.subtitle || '';
-        if (contact) {
-          const href = activeCoin.dataset.contact || '';
-          const shouldShow = !!href && !isCollected(activeCoin);
-          contact.classList.toggle('hidden', !shouldShow);
-          if (href) contact.href = href;
-        }
+        renderAction(activeCoin);
       }
 
       function startAuto() {
@@ -1576,6 +1656,14 @@
           return false;
         }
 
+        if (coin.dataset.coinId === 'apta-transform-2026-chicago') {
+          event.preventDefault();
+          event.stopPropagation();
+          if (isCollected(coin)) window.location.href = './collection.html';
+          else launchScanner();
+          return false;
+        }
+
         const href = coin.dataset.href;
         if (href) {
           event.preventDefault();
@@ -1583,25 +1671,19 @@
           window.location.href = href;
           return false;
         }
-
-        const contactHref = coin.dataset.contact;
-        if (contactHref && !isCollected(coin)) {
-          event.preventDefault();
-          event.stopPropagation();
-          temporarilyPause();
-          window.location.href = contactHref;
-          return false;
-        }
-
-        if (coin.dataset.coinId && !isCollected(coin)) {
-          event.preventDefault();
-          event.stopImmediatePropagation();
-          temporarilyPause();
-          return false;
-        }
-
         return true;
       }
+
+      action?.addEventListener('click', event => {
+        if (action.dataset.action === 'scan') {
+          event.preventDefault();
+          launchScanner();
+        } else if (action.dataset.action === 'collection') {
+          event.preventDefault();
+          clearNewCollectionNotice();
+          window.location.href = './collection.html';
+        }
+      });
 
       carousel.querySelectorAll('[data-carousel-dir]').forEach(button => {
         button.addEventListener('click', event => {
@@ -1625,7 +1707,7 @@
       carousel.addEventListener('touchstart', event => {
         touchStartX = event.touches && event.touches[0] ? event.touches[0].clientX : null;
         temporarilyPause();
-      }, { passive: true });
+      }, { passive:true });
 
       carousel.addEventListener('touchend', event => {
         if (touchStartX == null || !event.changedTouches || !event.changedTouches[0]) return;
@@ -1633,10 +1715,11 @@
         touchStartX = null;
         if (Math.abs(delta) < 34) return;
         renderCarousel(activeIndex + (delta < 0 ? -1 : 1));
-      }, { passive: true });
+      }, { passive:true });
 
       window.addEventListener('idis:collection-changed', () => renderCarousel(activeIndex));
       window.addEventListener('storage', () => renderCarousel(activeIndex));
+      window.addEventListener('pageshow', () => renderCarousel(activeIndex));
       document.addEventListener('visibilitychange', () => document.hidden ? clearInterval(autoTimer) : startAuto());
 
       renderCarousel(0);
