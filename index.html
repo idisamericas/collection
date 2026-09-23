@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <meta name="idis-build" content="20260923-statecamera62" />
+  <meta name="idis-build" content="20260923-chicago63" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" />
   <meta name="theme-color" content="#02070a" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -17,8 +17,8 @@
   <!-- Proven working A-Frame + MindAR load order restored for camera stability. -->
   <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
-  <link rel="stylesheet" href="./styles.css?v=20260923-statecamera62" />
-  <script defer src="./ar.js?v=20260923-statecamera62"></script>
+  <link rel="stylesheet" href="./styles.css?v=20260923-chicago63" />
+  <script defer src="./ar.js?v=20260923-chicago63"></script>
 
   <style id="idis-luxury-landing-v45">
     /* LANDING V45 ONLY. AR presentation styles remain in styles.css. */
@@ -1012,25 +1012,27 @@
     /* BUILD 58: Chicago NEW coin + collection notification glow */
     .new-coin-ribbon {
       position:absolute;
-      z-index:16;
+      z-index:24;
       left:50%;
-      top:13%;
-      min-width:58px;
-      padding:6px 12px 5px;
-      transform:translateX(-50%) translateZ(30px);
-      border:1px solid rgba(246,210,92,.58);
+      top:50%;
+      min-width:104px;
+      padding:11px 18px 10px;
+      transform:translate(-50%,-50%) translateZ(80px);
+      border:1px solid rgba(255,225,116,.82);
       border-radius:999px;
-      background:rgba(4,7,8,.78);
-      box-shadow:0 8px 22px rgba(0,0,0,.5),0 0 18px rgba(244,202,74,.16),inset 0 1px rgba(255,255,255,.08);
-      color:#f5d56f;
-      text-shadow:0 0 10px rgba(255,220,102,.32);
-      font-size:8px;
+      background:rgba(3,7,8,.84);
+      box-shadow:0 10px 28px rgba(0,0,0,.62),0 0 26px rgba(247,205,74,.42),0 0 0 1px rgba(255,255,255,.10) inset;
+      color:#ffd969;
+      text-shadow:0 0 14px rgba(255,220,102,.62);
+      font-size:16px;
       line-height:1;
       font-weight:950;
-      letter-spacing:.18em;
+      letter-spacing:.20em;
+      text-indent:.20em;
       text-align:center;
       pointer-events:none;
     }
+    #collection-chicago2026.is-unlocked .new-coin-ribbon { display:none; }
     #collection-chicago2026 .status-unlocked { display:none; }
     #collection-chicago2026.is-unlocked .status-locked { display:none; }
     #collection-chicago2026.is-unlocked .status-unlocked { display:inline; color:#f5d56f; }
@@ -1153,11 +1155,11 @@
                       aria-disabled="false"
                       aria-label="APTA TRANSform 2026 Chicago coin. Scan to collect or open your collection if already collected.">
                 <span class="new-coin-ribbon" aria-hidden="true">NEW</span>
-                <img src="./assets/thumbs/apta-transform-2026-chicago.webp?v=20260923-statecamera62"
+                <img src="./assets/thumbs/apta-transform-2026-chicago.webp?v=20260923-chicago63"
                      alt="APTA TRANSform 2026 Chicago collectible coin" />
                 <span class="landing-coin-status">
-                  <span class="status-locked">SCAN NOW</span>
-                  <span class="status-unlocked">OPEN COLLECTION</span>
+                  <span class="status-locked">COLLECT NOW</span>
+                  <span class="status-unlocked">COLLECTED</span>
                 </span>
               </button>
             </div>
@@ -1308,30 +1310,30 @@
       layers and the whole detached scene responds to touch + phone tilt.
     -->
     <div id="chicago-experience"
-         class="chicago-experience hidden"
+         class="atlanta-parallax chicago-experience hidden"
          aria-hidden="true">
-      <div class="chicago-background-wash" aria-hidden="true"></div>
-      <div id="chicago-stage" class="chicago-stage">
+      <div class="atlanta-background-wash chicago-background-wash" aria-hidden="true"></div>
+      <div id="chicago-stage" class="atlanta-parallax-stage chicago-stage">
         <video id="chicago-layer-back"
-               class="chicago-layer chicago-layer-back"
-               preload="metadata"
+               class="atlanta-layer layer-back chicago-layer chicago-layer-back"
+               preload="auto"
                muted
                loop
                playsinline
                webkit-playsinline
                aria-hidden="true">
-          <source src="./assets/parallax/chicago/layer-1-bottom.mp4?v=20260923-statecamera62"
+          <source src="./assets/parallax/chicago/layer-1-bottom.mp4?v=20260923-chicago63"
                   type="video/mp4" />
         </video>
 
         <img id="chicago-layer-frames"
-             class="chicago-layer chicago-layer-frames"
-             src="./assets/parallax/chicago/Chicago-Layer-Frames-Bottom.webp?v=20260923-statecamera62"
+             class="atlanta-layer layer-middle chicago-layer chicago-layer-frames"
+             src="./assets/parallax/chicago/Chicago-Layer-Frames-Bottom.webp?v=20260923-chicago63"
              alt="" />
 
         <img id="chicago-layer-top"
-             class="chicago-layer chicago-layer-top"
-             src="./assets/parallax/chicago/Chicago-Layer-TopArt.webp?v=20260923-statecamera62"
+             class="atlanta-layer layer-front chicago-layer chicago-layer-top"
+             src="./assets/parallax/chicago/Chicago-Layer-TopArt.webp?v=20260923-chicago63"
              alt="" />
       </div>
     </div>
@@ -1354,7 +1356,7 @@
            preload="metadata"
            playsinline
            aria-hidden="true">
-      <source src="./assets/audio/chicago-voiceover.mp3?v=20260923-statecamera62"
+      <source src="./assets/audio/chicago-voiceover.mp3?v=20260923-chicago63"
               type="audio/mpeg" />
     </audio>
 
@@ -1634,7 +1636,7 @@
 
         const collected = isCollected(activeCoin);
         action.classList.remove('hidden');
-        action.textContent = collected ? 'OPEN COLLECTION' : 'SCAN NOW';
+        action.textContent = collected ? 'OPEN COLLECTION' : 'COLLECT NOW';
         action.href = collected ? './collection.html' : '#start-ar';
         action.dataset.action = collected ? 'collection' : 'scan';
       }

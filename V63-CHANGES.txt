@@ -1,0 +1,11 @@
+IDIS BUILD 63 — CHICAGO VISIBILITY + CAROUSEL CLEANUP
+
+- Chicago now reuses Atlanta overlay classes and presentation geometry.
+- Chicago video starts decoding immediately and fades in on the Atlanta 2–3 second reveal window.
+- Chicago image/video layer width, height, opacity and transforms are forced at runtime to prevent stale CSS from hiding them.
+- Repaired escaped newline text left in styles.css by the prior patch.
+- Chicago NEW badge is larger and centered over the middle of the coin.
+- Uncollected Chicago status now says COLLECT NOW under the coin and in the lower CTA.
+- Collected Chicago status says COLLECTED and the lower CTA becomes OPEN COLLECTION.
+- Existing 9-target idis-coins.mind mapping is unchanged.
+- Cache key: 20260923-chicago63

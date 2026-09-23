@@ -2722,7 +2722,10 @@ body.collection-replay-mode #ar-footer {
 }
 
 
-/* ==========================================================================\n   BUILD 48: LIGHTWEIGHT IDIS APPLICATION IMAGE BURST\n   Static WebP cards are much lighter than decoding a second concurrent video.\n============================================================================ */
+/* ==========================================================================
+   BUILD 48: LIGHTWEIGHT IDIS APPLICATION IMAGE BURST
+   Static WebP cards are much lighter than decoding a second concurrent video.
+============================================================================ */
 .idis-burst-field {
   position: absolute;
   inset: 0;
@@ -3386,4 +3389,120 @@ body.collection-replay-mode .chicago-experience {
     width: auto !important;
   }
 }
-\n\n/* ==========================================================================\n   BUILD 62: STATE-SIDE LIVE CAMERA + CHICAGO VISIBILITY FIX\n============================================================================ */\n\n/* Camera stays visible behind both state interactions. JS caps these washes\n   at 50% opacity as their background layers reveal. */\n.atlanta-background-wash {\n  background:\n    radial-gradient(circle at 50% 42%,\n      rgba(11,63,68,1) 0%,\n      rgba(3,35,39,1) 42%,\n      rgba(1,18,21,1) 100%) !important;\n}\n\n.chicago-experience {\n  background: transparent !important;\n  z-index: 9100 !important;\n  opacity: 1;\n  visibility: visible;\n}\n\n.chicago-experience.hidden {\n  opacity: 0 !important;\n  visibility: hidden !important;\n}\n\n.chicago-background-wash {\n  inset: 0 !important;\n  background:\n    radial-gradient(circle at 25% 22%, rgba(18,86,88,.88), transparent 48%),\n    radial-gradient(circle at 78% 72%, rgba(74,58,26,.72), transparent 48%),\n    linear-gradient(180deg, rgba(2,8,10,.72), rgba(2,15,17,.82)) !important;\n  filter: none !important;\n}\n\n/* Collection replay has no live camera, so give the same scene a dark base. */\nbody.collection-replay-mode .chicago-experience {\n  background:\n    radial-gradient(circle at 50% 34%, rgba(7,58,61,.86), transparent 48%),\n    #020708 !important;\n}\n
+
+
+/* ==========================================================================
+   BUILD 62: STATE-SIDE LIVE CAMERA + CHICAGO VISIBILITY FIX
+============================================================================ */
+
+/* Camera stays visible behind both state interactions. JS caps these washes
+   at 50% opacity as their background layers reveal. */
+.atlanta-background-wash {
+  background:
+    radial-gradient(circle at 50% 42%,
+      rgba(11,63,68,1) 0%,
+      rgba(3,35,39,1) 42%,
+      rgba(1,18,21,1) 100%) !important;
+}
+
+.chicago-experience {
+  background: transparent !important;
+  z-index: 9100 !important;
+  opacity: 1;
+  visibility: visible;
+}
+
+.chicago-experience.hidden {
+  opacity: 0 !important;
+  visibility: hidden !important;
+}
+
+.chicago-background-wash {
+  inset: 0 !important;
+  background:
+    radial-gradient(circle at 25% 22%, rgba(18,86,88,.88), transparent 48%),
+    radial-gradient(circle at 78% 72%, rgba(74,58,26,.72), transparent 48%),
+    linear-gradient(180deg, rgba(2,8,10,.72), rgba(2,15,17,.82)) !important;
+  filter: none !important;
+}
+
+/* Collection replay has no live camera, so give the same scene a dark base. */
+body.collection-replay-mode .chicago-experience {
+  background:
+    radial-gradient(circle at 50% 34%, rgba(7,58,61,.86), transparent 48%),
+    #020708 !important;
+}
+
+
+/* ==========================================================================
+   BUILD 63: CHICAGO VISIBILITY + ATLANTA-MATCHED OVERLAY
+============================================================================ */
+.chicago-experience {
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 9000 !important;
+  overflow: hidden !important;
+  display: block;
+  background: transparent !important;
+  perspective: 820px !important;
+  -webkit-perspective: 820px !important;
+  perspective-origin: 50% 50% !important;
+  pointer-events: none !important;
+}
+.chicago-experience.hidden {
+  display: none !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+}
+.chicago-experience.is-visible {
+  display: block !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+.chicago-background-wash {
+  position: absolute !important;
+  inset: 0 !important;
+  z-index: 0 !important;
+  background:
+    radial-gradient(circle at 25% 22%, rgba(18,86,88,.88), transparent 48%),
+    radial-gradient(circle at 78% 72%, rgba(74,58,26,.72), transparent 48%),
+    linear-gradient(180deg, rgba(2,8,10,.72), rgba(2,15,17,.82)) !important;
+  filter: none !important;
+  opacity: 0;
+}
+.chicago-stage {
+  position: absolute !important;
+  inset: 0 !important;
+  z-index: 1 !important;
+  width: auto !important;
+  height: auto !important;
+  transform-style: preserve-3d !important;
+  -webkit-transform-style: preserve-3d !important;
+  transform-origin: 50% 50% !important;
+  overflow: visible !important;
+}
+.chicago-layer {
+  position: absolute !important;
+  inset: auto !important;
+  left: 0 !important;
+  top: 0 !important;
+  display: block !important;
+  visibility: visible !important;
+  max-width: none !important;
+  max-height: none !important;
+  object-fit: contain !important;
+  transform-origin: 50% 50% !important;
+  transform-style: preserve-3d !important;
+  -webkit-transform-style: preserve-3d !important;
+  backface-visibility: visible !important;
+  -webkit-backface-visibility: visible !important;
+  animation: none !important;
+  -webkit-animation: none !important;
+  pointer-events: none !important;
+}
+.chicago-layer-back { z-index: 1 !important; object-fit: contain !important; }
+.chicago-layer-frames { z-index: 3 !important; }
+.chicago-layer-top { z-index: 6 !important; }
+body.collection-replay-mode .chicago-experience {
+  background: radial-gradient(circle at 50% 34%, rgba(7,58,61,.72), transparent 48%), #020708 !important;
+}

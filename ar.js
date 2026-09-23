@@ -9,7 +9,7 @@
   MindAR is used for recognition; presentations render detached from tracking.
 */
 
-console.info('[IDIS WebAR] Build 62 State Camera + Chicago Scene Fix: 20260923-statecamera62');
+console.info('[IDIS WebAR] Build 63 Chicago Visibility + Carousel Fix: 20260923-chicago63');
 
 document.addEventListener('DOMContentLoaded', () => {
   const scene = document.querySelector('#ar-scene');
@@ -2817,36 +2817,31 @@ function updateEndCardPhoto(variant = 'atlanta') {    if (!endCardPhoto) return;
 
     chicagoRevealStartedAt = performance.now();
 
-    // Explicit visibility reset makes the detached Chicago scene reliable on
-    // mobile Safari/Chrome after scanner and collection transitions.
+    // Reuse Atlanta's proven detached-overlay structure and explicitly force
+    // every Chicago layer on-screen before media playback begins.
     chicagoExperience.classList.remove('hidden');
     chicagoExperience.classList.add('is-visible');
     chicagoExperience.setAttribute('aria-hidden', 'false');
-    chicagoExperience.style.display = 'block';
-    chicagoExperience.style.visibility = 'visible';
-    chicagoExperience.style.opacity = '1';
+    chicagoExperience.style.setProperty('display', 'block', 'important');
+    chicagoExperience.style.setProperty('visibility', 'visible', 'important');
+    chicagoExperience.style.setProperty('opacity', '1', 'important');
 
-    // Draw the first frame immediately before media playback begins.
+    chicagoStage.style.setProperty('display', 'block', 'important');
+    chicagoStage.style.setProperty('visibility', 'visible', 'important');
+
+    [chicagoLayerBack, chicagoLayerFrames, chicagoLayerTop].forEach(layer => {
+      layer.style.setProperty('display', 'block', 'important');
+      layer.style.setProperty('visibility', 'visible', 'important');
+    });
+
+    // Start the muted looping video immediately so it has time to decode.
+    // Its opacity still follows the same 2-3 second Atlanta reveal window.
+    startChicagoVideo();
+
+    // Draw immediately, then keep the shared render loop running.
     renderChicago(chicagoRevealStartedAt);
-
-    // Match Atlanta's presentation pacing.
-    // Top art reveals first, frames second, background video third.
     startChicagoVoiceover();
 
-    chicagoVideoStartTimer = setTimeout(() => {
-      chicagoVideoStartTimer = null;
-
-      if (
-        active &&
-        currentSide === 'chicago' &&
-        !chicagoExperience.classList.contains('hidden')
-      ) {
-        startChicagoVideo();
-      }
-    }, 2000);
-
-    // Restart the detached render loop even if a prior presentation RAF was
-    // cancelled during the transition into Chicago.
     cancelAnimationFrame(presentationRAF);
     presentationRAF = 0;
     renderPresentation();
@@ -4066,9 +4061,9 @@ function updateEndCardPhoto(variant = 'atlanta') {    if (!endCardPhoto) return;
     const topX = centerX + panX * 1.13;
     const topY = centerY + panY * 1.13;
 
-    chicagoLayerBack.style.opacity = String(clamp(backOpacity, 0, 1));
-    chicagoLayerFrames.style.opacity = String(clamp(framesOpacity, 0, 1));
-    chicagoLayerTop.style.opacity = String(clamp(topOpacity, 0, 1));
+    chicagoLayerBack.style.setProperty('opacity', String(clamp(backOpacity, 0, 1)), 'important');
+    chicagoLayerFrames.style.setProperty('opacity', String(clamp(framesOpacity, 0, 1)), 'important');
+    chicagoLayerTop.style.setProperty('opacity', String(clamp(topOpacity, 0, 1)), 'important');
 
     const chicagoWash = chicagoExperience.querySelector('.chicago-background-wash');
     if (chicagoWash) {
@@ -4081,27 +4076,27 @@ function updateEndCardPhoto(variant = 'atlanta') {    if (!endCardPhoto) return;
     const framesZ = 72;
     const topZ = 245;
 
-    chicagoLayerBack.style.width = `${backSize}px`;
-    chicagoLayerBack.style.height = `${backSize}px`;
+    chicagoLayerBack.style.setProperty('width', `${backSize}px`, 'important');
+    chicagoLayerBack.style.setProperty('height', `${backSize}px`, 'important');
     const backTransform =
       `translate3d(${backX - backSize / 2}px, ${backY - backSize / 2}px, ${backZ}px)`;
-    chicagoLayerBack.style.transform = backTransform;
-    chicagoLayerBack.style.webkitTransform = backTransform;
+    chicagoLayerBack.style.setProperty('transform', backTransform, 'important');
+    chicagoLayerBack.style.setProperty('-webkit-transform', backTransform, 'important');
 
-    chicagoLayerFrames.style.width = `${baseSize}px`;
-    chicagoLayerFrames.style.height = `${baseSize}px`;
+    chicagoLayerFrames.style.setProperty('width', `${baseSize}px`, 'important');
+    chicagoLayerFrames.style.setProperty('height', `${baseSize}px`, 'important');
     const framesTransform =
       `translate3d(${framesX - baseSize / 2}px, ${framesY - baseSize / 2}px, ${framesZ}px)`;
-    chicagoLayerFrames.style.transform = framesTransform;
-    chicagoLayerFrames.style.webkitTransform = framesTransform;
+    chicagoLayerFrames.style.setProperty('transform', framesTransform, 'important');
+    chicagoLayerFrames.style.setProperty('-webkit-transform', framesTransform, 'important');
 
-    chicagoLayerTop.style.width = `${baseSize}px`;
-    chicagoLayerTop.style.height = `${baseSize}px`;
+    chicagoLayerTop.style.setProperty('width', `${baseSize}px`, 'important');
+    chicagoLayerTop.style.setProperty('height', `${baseSize}px`, 'important');
     const topTransform =
       `translate3d(${topX - baseSize / 2}px, ${topY - baseSize / 2}px, ${topZ}px) ` +
       `scale(${topRevealScale})`;
-    chicagoLayerTop.style.transform = topTransform;
-    chicagoLayerTop.style.webkitTransform = topTransform;
+    chicagoLayerTop.style.setProperty('transform', topTransform, 'important');
+    chicagoLayerTop.style.setProperty('-webkit-transform', topTransform, 'important');
 
     // Same drag-to-angle response as Atlanta.
     const gestureRX = clamp(
@@ -4133,8 +4128,8 @@ function updateEndCardPhoto(variant = 'atlanta') {    if (!endCardPhoto) return;
     const stageTransform =
       `rotateX(${rx.toFixed(3)}deg) rotateY(${ry.toFixed(3)}deg)`;
 
-    chicagoStage.style.transform = stageTransform;
-    chicagoStage.style.webkitTransform = stageTransform;
+    chicagoStage.style.setProperty('transform', stageTransform, 'important');
+    chicagoStage.style.setProperty('-webkit-transform', stageTransform, 'important');
   }
 
   function renderIDISAbstractBackground(phoneTilt) {
