@@ -1,0 +1,37 @@
+IDIS BUILD 64 — CHICAGO SHARED ATLANTA PARALLAX
+
+MAIN FIX
+--------
+Chicago no longer uses its own separate overlay/renderer.
+It now uses the exact same DOM elements and renderAtlanta() pipeline that already works for Atlanta.
+
+When Chicago starts, Build 64 swaps the shared state overlay to:
+- assets/parallax/chicago/layer-1-bottom.mp4
+- assets/parallax/chicago/Chicago-Layer-Frames-Bottom.webp
+- assets/parallax/chicago/Chicago-Layer-TopArt.webp
+- assets/audio/chicago-voiceover.mp3
+
+When Atlanta starts again, the same overlay swaps back to the Atlanta media paths.
+
+This keeps the Atlanta zoom, reveal timing, pan ratios, preserve-3D depth, phone tilt,
+drag, pinch zoom, auto-center and 50% camera-visible wash exactly the same for Chicago.
+
+CHICAGO REVEAL
+--------------
+0-1 sec  TopArt
+1-2 sec  Frames
+2-3 sec  looping background MP4
+MP3 owns the full interaction duration.
+
+DEBUG PAGES
+-----------
+test-build64.html
+test-chicago-interaction.html
+test-chicago-assets.html
+
+The raw asset page displays the two WebPs and MP4 directly. If those display,
+the paths are good independently of the AR interaction.
+
+CACHE KEY
+---------
+20260923-chicago64

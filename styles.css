@@ -3506,3 +3506,29 @@ body.collection-replay-mode .chicago-experience {
 body.collection-replay-mode .chicago-experience {
   background: radial-gradient(circle at 50% 34%, rgba(7,58,61,.72), transparent 48%), #020708 !important;
 }
+
+/* ==========================================================================
+   BUILD 64: CHICAGO USES THE SAME STATE PARALLAX OVERLAY AS ATLANTA
+============================================================================ */
+
+/* Chicago no longer uses a separate presentation layer. The proven Atlanta
+   overlay swaps media sources based on the active state coin. */
+#atlanta-parallax.state-chicago .atlanta-background-wash {
+  background:
+    radial-gradient(circle at 24% 22%, rgba(18,86,88,.92), transparent 48%),
+    radial-gradient(circle at 78% 72%, rgba(83,62,27,.82), transparent 48%),
+    linear-gradient(180deg, rgba(2,8,10,.82), rgba(2,15,17,.88)) !important;
+}
+
+#atlanta-parallax.state-atlanta .atlanta-background-wash {
+  background:
+    radial-gradient(circle at 50% 42%,
+      rgba(11,63,68,1) 0%,
+      rgba(3,35,39,1) 42%,
+      rgba(1,18,21,1) 100%) !important;
+}
+
+/* Legacy Chicago overlay is intentionally retired. */
+#chicago-experience {
+  display: none !important;
+}

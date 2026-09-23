@@ -9,7 +9,7 @@
   MindAR is used for recognition; presentations render detached from tracking.
 */
 
-console.info('[IDIS WebAR] Build 63 Chicago Visibility + Carousel Fix: 20260923-chicago63');
+console.info('[IDIS WebAR] Build 64 Chicago Shared Atlanta Parallax: 20260923-chicago64');
 
 document.addEventListener('DOMContentLoaded', () => {
   const scene = document.querySelector('#ar-scene');
@@ -177,6 +177,22 @@ document.addEventListener('DOMContentLoaded', () => {
   const ATLANTA_THANK_YOU_LEAD_SECONDS = 5;
 
   const CHICAGO_FALLBACK_DURATION_MS = 45000;
+
+  // Build 64: Atlanta and Chicago now use the SAME proven state-side
+  // parallax DOM and renderer. Only the media sources and voiceover change.
+  const STATE_VISUAL_ASSETS = {
+    atlanta: {
+      back: './assets/parallax/atlanta/layer-1-back.mp4?v=20260923-chicago64',
+      middle: './assets/parallax/atlanta/layer-2-middle.png?v=20260923-chicago64',
+      front: './assets/parallax/atlanta/layer-3-front.png?v=20260923-chicago64'
+    },
+    chicago: {
+      back: './assets/parallax/chicago/layer-1-bottom.mp4?v=20260923-chicago64',
+      middle: './assets/parallax/chicago/Chicago-Layer-Frames-Bottom.webp?v=20260923-chicago64',
+      front: './assets/parallax/chicago/Chicago-Layer-TopArt.webp?v=20260923-chicago64'
+    }
+  };
+  let activeStateVisualSide = 'atlanta';
 
   const GUEST_NAME_STORAGE_KEY = 'idis-gsx2026-guest-name';
 
@@ -2610,6 +2626,45 @@ function updateEndCardPhoto(variant = 'atlanta') {    if (!endCardPhoto) return;
   }
 
 
+  function preloadStateVisualAssets() {
+    ['atlanta', 'chicago'].forEach(side => {
+      const assets = STATE_VISUAL_ASSETS[side];
+      [assets.middle, assets.front].forEach(src => {
+        const img = new Image();
+        img.decoding = 'async';
+        img.src = src;
+      });
+    });
+  }
+
+  function applyStateVisualAssets(side) {
+    const assets = STATE_VISUAL_ASSETS[side] || STATE_VISUAL_ASSETS.atlanta;
+    activeStateVisualSide = side;
+
+    if (overlay) {
+      overlay.dataset.stateSide = side;
+      overlay.classList.toggle('state-chicago', side === 'chicago');
+      overlay.classList.toggle('state-atlanta', side !== 'chicago');
+    }
+
+    if (layerBack && layerBack.tagName === 'VIDEO') {
+      try { layerBack.pause(); } catch (_) {}
+      const source = layerBack.querySelector('source');
+      if (source && source.getAttribute('src') !== assets.back) {
+        source.setAttribute('src', assets.back);
+        try { layerBack.load(); } catch (_) {}
+      }
+      layerBack.preload = 'auto';
+    }
+
+    if (layerMiddle && layerMiddle.getAttribute('src') !== assets.middle) {
+      layerMiddle.setAttribute('src', assets.middle);
+    }
+    if (layerFront && layerFront.getAttribute('src') !== assets.front) {
+      layerFront.setAttribute('src', assets.front);
+    }
+  }
+
   /* ------------------------------------------------------------------------
      ATLANTA VIDEO / LAYERS
   ------------------------------------------------------------------------ */
@@ -2689,6 +2744,7 @@ function updateEndCardPhoto(variant = 'atlanta') {    if (!endCardPhoto) return;
   function showAtlantaPresentation() {
     hideAtlantaPresentation();
     resetAtlantaThankYouFinale();
+    applyStateVisualAssets('atlanta');
 
     overlay.classList.remove('hidden');
     overlay.classList.add('is-visible');
@@ -2759,46 +2815,40 @@ function updateEndCardPhoto(variant = 'atlanta') {    if (!endCardPhoto) return;
     clearChicagoPresentationTimer();
     clearChicagoVideoStartTimer();
     stopChicagoVoiceover(true);
-    stopChicagoVideo(true);
 
-    if (!chicagoExperience) return;
-
-    chicagoExperience.classList.remove('is-visible');
-    chicagoExperience.classList.add('hidden');
-    chicagoExperience.setAttribute('aria-hidden', 'true');
-    chicagoExperience.style.display = '';
-    chicagoExperience.style.visibility = '';
-    chicagoExperience.style.opacity = '';
-
-    const chicagoWash = chicagoExperience.querySelector('.chicago-background-wash');
-    if (chicagoWash) chicagoWash.style.opacity = '0';
-
-    [chicagoStage, chicagoLayerBack, chicagoLayerFrames, chicagoLayerTop]
-      .filter(Boolean)
-      .forEach(el => {
-        el.style.transform = '';
-        el.style.webkitTransform = '';
-        el.style.opacity = '0';
-        el.style.width = '';
-        el.style.height = '';
+    if (overlay && overlay.dataset.stateSide === 'chicago') {
+      clearBackVideoTimer();
+      stopBackVideo(true);
+      overlay.classList.remove('is-visible');
+      overlay.classList.add('hidden');
+      overlay.setAttribute('aria-hidden', 'true');
+      if (backgroundWash) backgroundWash.style.opacity = '0';
+      [layerBack, layerMiddle, layerFront].filter(Boolean).forEach(layer => {
+        layer.style.opacity = '0';
+        layer.style.transform = 'translate3d(-9999px,-9999px,0)';
+        layer.style.webkitTransform = 'translate3d(-9999px,-9999px,0)';
       });
+      if (overlayStage) {
+        overlayStage.style.transform = 'none';
+        overlayStage.style.webkitTransform = 'none';
+      }
+    }
   }
 
   function finishChicagoPresentation() {
     if (!active || currentSide !== 'chicago') return;
 
     clearChicagoPresentationTimer();
+    clearChicagoVideoStartTimer();
     chicagoVoiceoverPlaying = false;
     hidePresentationControls();
+    clearBackVideoTimer();
+    stopBackVideo(true);
 
-    // Do not call hideChicagoPresentation here before reading the state,
-    // because that would reset the voiceover. The MP3 has already ended.
-    stopChicagoVideo(true);
-
-    if (chicagoExperience) {
-      chicagoExperience.classList.remove('is-visible');
-      chicagoExperience.classList.add('hidden');
-      chicagoExperience.setAttribute('aria-hidden', 'true');
+    if (overlay) {
+      overlay.classList.remove('is-visible');
+      overlay.classList.add('hidden');
+      overlay.setAttribute('aria-hidden', 'true');
     }
 
     currentSide = null;
@@ -2809,39 +2859,34 @@ function updateEndCardPhoto(variant = 'atlanta') {    if (!endCardPhoto) return;
   }
 
   function showChicagoPresentation() {
-    hideChicagoPresentation();
-    if (!chicagoExperience || !chicagoStage || !chicagoLayerBack || !chicagoLayerFrames || !chicagoLayerTop) {
-      console.warn('[IDIS Chicago] Presentation elements are missing.');
+    // Build 64 uses Atlanta's exact DOM, reveal timing, zoom and parallax math.
+    // Only the media sources and the duration-driving MP3 are Chicago-specific.
+    hideAtlantaPresentation();
+    stopChicagoVoiceover(true);
+    clearChicagoPresentationTimer();
+    clearChicagoVideoStartTimer();
+    applyStateVisualAssets('chicago');
+
+    if (!overlay || !overlayStage || !layerBack || !layerMiddle || !layerFront) {
+      console.warn('[IDIS Chicago] Shared state parallax elements are missing.');
       return;
     }
 
-    chicagoRevealStartedAt = performance.now();
+    overlay.classList.remove('hidden');
+    overlay.classList.add('is-visible');
+    overlay.setAttribute('aria-hidden', 'false');
+    revealStartedAt = performance.now();
 
-    // Reuse Atlanta's proven detached-overlay structure and explicitly force
-    // every Chicago layer on-screen before media playback begins.
-    chicagoExperience.classList.remove('hidden');
-    chicagoExperience.classList.add('is-visible');
-    chicagoExperience.setAttribute('aria-hidden', 'false');
-    chicagoExperience.style.setProperty('display', 'block', 'important');
-    chicagoExperience.style.setProperty('visibility', 'visible', 'important');
-    chicagoExperience.style.setProperty('opacity', '1', 'important');
-
-    chicagoStage.style.setProperty('display', 'block', 'important');
-    chicagoStage.style.setProperty('visibility', 'visible', 'important');
-
-    [chicagoLayerBack, chicagoLayerFrames, chicagoLayerTop].forEach(layer => {
-      layer.style.setProperty('display', 'block', 'important');
-      layer.style.setProperty('visibility', 'visible', 'important');
-    });
-
-    // Start the muted looping video immediately so it has time to decode.
-    // Its opacity still follows the same 2-3 second Atlanta reveal window.
-    startChicagoVideo();
-
-    // Draw immediately, then keep the shared render loop running.
-    renderChicago(chicagoRevealStartedAt);
     startChicagoVoiceover();
 
+    chicagoVideoStartTimer = setTimeout(() => {
+      chicagoVideoStartTimer = null;
+      if (active && currentSide === 'chicago' && !overlay.classList.contains('hidden')) {
+        startBackVideo();
+      }
+    }, 2000);
+
+    renderAtlanta(revealStartedAt);
     cancelAnimationFrame(presentationRAF);
     presentationRAF = 0;
     renderPresentation();
@@ -4311,7 +4356,7 @@ function updateEndCardPhoto(variant = 'atlanta') {    if (!endCardPhoto) return;
     if (currentSide === 'atlanta') {
       renderAtlanta(now);
     } else if (currentSide === 'chicago') {
-      renderChicago(now);
+      renderAtlanta(now);
     } else if (currentSide === 'idis') {
       renderIDISFeature(now);
     }
@@ -4946,6 +4991,9 @@ function updateEndCardPhoto(variant = 'atlanta') {    if (!endCardPhoto) return;
       }
     });
   }
+
+  // Preload state artwork so Chicago is ready before its first scan.
+  preloadStateVisualAssets();
 
   // Restore remembered visitor name + collected coins on page load.
   loadRememberedGuestName();
