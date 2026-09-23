@@ -1,0 +1,12 @@
+IDIS BUILD 62 — STATE CAMERA + CHICAGO SCENE FIX
+
+- Atlanta state background tint now tops out at 50% opacity so live camera remains visible.
+- Chicago state interaction no longer uses an opaque full-screen black background.
+- Chicago background tint tops out at 50% opacity while scanning.
+- Added explicit Chicago presentation visibility reset and immediate first render frame.
+- Chicago render loop is force-restarted when the scene opens.
+- YOUR COLLECTION stays gold/glowing whenever at least one collectible coin exists.
+- Visiting Collection no longer removes the gold/glowing state.
+- Chicago NEW badge is centered and rendered as gold text.
+- Existing 9-target idis-coins.mind mapping remains unchanged.
+- Cache key: 20260923-statecamera62

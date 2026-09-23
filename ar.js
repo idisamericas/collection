@@ -9,7 +9,7 @@
   MindAR is used for recognition; presentations render detached from tracking.
 */
 
-console.info('[IDIS WebAR] Build 60 Chicago Real Assets + 9 Targets: 20260923-chicago61');
+console.info('[IDIS WebAR] Build 62 State Camera + Chicago Scene Fix: 20260923-statecamera62');
 
 document.addEventListener('DOMContentLoaded', () => {
   const scene = document.querySelector('#ar-scene');
@@ -1054,7 +1054,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function clearNewCollectionItems() {
     try { window.localStorage.removeItem(COLLECTION_UNSEEN_STORAGE_KEY); } catch (_) {}
-    if (collectionPageLink) collectionPageLink.classList.remove('has-new-coin');
+    if (collectionPageLink) collectionPageLink.classList.toggle('has-new-coin', collectedCoinIds.size > 0);
   }
 
   function renderCoinCollection() {
@@ -1086,7 +1086,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     if (collectionPageLink) {
-      collectionPageLink.classList.toggle('has-new-coin', readNewCollectionItems().size > 0);
+      collectionPageLink.classList.toggle('has-new-coin', collectedCoinIds.size > 0);
     }
   }
 
@@ -1097,9 +1097,6 @@ document.addEventListener('DOMContentLoaded', () => {
     renderCoinCollection();
   }
 
-  if (collectionPageLink) {
-    collectionPageLink.addEventListener('click', clearNewCollectionItems, { capture: true });
-  }
 
   function unlockGSX2026Coin() {
     if (
@@ -2769,6 +2766,9 @@ function updateEndCardPhoto(variant = 'atlanta') {    if (!endCardPhoto) return;
     chicagoExperience.classList.remove('is-visible');
     chicagoExperience.classList.add('hidden');
     chicagoExperience.setAttribute('aria-hidden', 'true');
+    chicagoExperience.style.display = '';
+    chicagoExperience.style.visibility = '';
+    chicagoExperience.style.opacity = '';
 
     const chicagoWash = chicagoExperience.querySelector('.chicago-background-wash');
     if (chicagoWash) chicagoWash.style.opacity = '0';
@@ -2810,12 +2810,24 @@ function updateEndCardPhoto(variant = 'atlanta') {    if (!endCardPhoto) return;
 
   function showChicagoPresentation() {
     hideChicagoPresentation();
-    if (!chicagoExperience) return;
+    if (!chicagoExperience || !chicagoStage || !chicagoLayerBack || !chicagoLayerFrames || !chicagoLayerTop) {
+      console.warn('[IDIS Chicago] Presentation elements are missing.');
+      return;
+    }
 
     chicagoRevealStartedAt = performance.now();
+
+    // Explicit visibility reset makes the detached Chicago scene reliable on
+    // mobile Safari/Chrome after scanner and collection transitions.
     chicagoExperience.classList.remove('hidden');
     chicagoExperience.classList.add('is-visible');
     chicagoExperience.setAttribute('aria-hidden', 'false');
+    chicagoExperience.style.display = 'block';
+    chicagoExperience.style.visibility = 'visible';
+    chicagoExperience.style.opacity = '1';
+
+    // Draw the first frame immediately before media playback begins.
+    renderChicago(chicagoRevealStartedAt);
 
     // Match Atlanta's presentation pacing.
     // Top art reveals first, frames second, background video third.
@@ -2833,6 +2845,10 @@ function updateEndCardPhoto(variant = 'atlanta') {    if (!endCardPhoto) return;
       }
     }, 2000);
 
+    // Restart the detached render loop even if a prior presentation RAF was
+    // cancelled during the transition into Chicago.
+    cancelAnimationFrame(presentationRAF);
+    presentationRAF = 0;
     renderPresentation();
   }
 
@@ -3934,7 +3950,7 @@ function updateEndCardPhoto(variant = 'atlanta') {    if (!endCardPhoto) return;
     // stream underneath this visual overlay.
     if (backgroundWash) {
       backgroundWash.style.opacity =
-        String(clamp(backOpacity * 0.985, 0, 0.985));
+        String(clamp(backOpacity * 0.50, 0, 0.50));
     }
 
     // No coin tracking is used here. All coordinates are screen-centered.
@@ -4057,7 +4073,7 @@ function updateEndCardPhoto(variant = 'atlanta') {    if (!endCardPhoto) return;
     const chicagoWash = chicagoExperience.querySelector('.chicago-background-wash');
     if (chicagoWash) {
       chicagoWash.style.opacity =
-        String(clamp(backOpacity * 0.985, 0, 0.985));
+        String(clamp(backOpacity * 0.50, 0, 0.50));
     }
 
     // Match Atlanta's preserve-3D depth spacing.
