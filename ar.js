@@ -9,7 +9,7 @@
   MindAR is used for recognition; presentations render detached from tracking.
 */
 
-console.info('[IDIS WebAR] Build 60 Chicago Real Assets + 9 Targets: 20260923-chicago60');
+console.info('[IDIS WebAR] Build 60 Chicago Real Assets + 9 Targets: 20260923-chicago61');
 
 document.addEventListener('DOMContentLoaded', () => {
   const scene = document.querySelector('#ar-scene');
@@ -228,6 +228,7 @@ document.addEventListener('DOMContentLoaded', () => {
   let atlantaThankYouFinaleActive = false;
 
   let chicagoPresentationTimer = null;
+  let chicagoVideoStartTimer = null;
   let chicagoRevealStartedAt = 0;
   let chicagoVoiceoverPrimed = false;
   let chicagoVoiceoverPlaying = false;
@@ -2731,6 +2732,13 @@ function updateEndCardPhoto(variant = 'atlanta') {    if (!endCardPhoto) return;
     }
   }
 
+  function clearChicagoVideoStartTimer() {
+    if (chicagoVideoStartTimer) {
+      clearTimeout(chicagoVideoStartTimer);
+      chicagoVideoStartTimer = null;
+    }
+  }
+
   function setExperienceFooter(side) {
     if (!footerEventKicker || !footerEventLocation) return;
 
@@ -2752,6 +2760,7 @@ function updateEndCardPhoto(variant = 'atlanta') {    if (!endCardPhoto) return;
 
   function hideChicagoPresentation() {
     clearChicagoPresentationTimer();
+    clearChicagoVideoStartTimer();
     stopChicagoVoiceover(true);
     stopChicagoVideo(true);
 
@@ -2761,12 +2770,17 @@ function updateEndCardPhoto(variant = 'atlanta') {    if (!endCardPhoto) return;
     chicagoExperience.classList.add('hidden');
     chicagoExperience.setAttribute('aria-hidden', 'true');
 
+    const chicagoWash = chicagoExperience.querySelector('.chicago-background-wash');
+    if (chicagoWash) chicagoWash.style.opacity = '0';
+
     [chicagoStage, chicagoLayerBack, chicagoLayerFrames, chicagoLayerTop]
       .filter(Boolean)
       .forEach(el => {
         el.style.transform = '';
         el.style.webkitTransform = '';
-        el.style.opacity = '';
+        el.style.opacity = '0';
+        el.style.width = '';
+        el.style.height = '';
       });
   }
 
@@ -2803,8 +2817,21 @@ function updateEndCardPhoto(variant = 'atlanta') {    if (!endCardPhoto) return;
     chicagoExperience.classList.add('is-visible');
     chicagoExperience.setAttribute('aria-hidden', 'false');
 
-    startChicagoVideo();
+    // Match Atlanta's presentation pacing.
+    // Top art reveals first, frames second, background video third.
     startChicagoVoiceover();
+
+    chicagoVideoStartTimer = setTimeout(() => {
+      chicagoVideoStartTimer = null;
+
+      if (
+        active &&
+        currentSide === 'chicago' &&
+        !chicagoExperience.classList.contains('hidden')
+      ) {
+        startChicagoVideo();
+      }
+    }, 2000);
 
     renderPresentation();
   }
@@ -3990,77 +4017,108 @@ function updateEndCardPhoto(variant = 'atlanta') {    if (!endCardPhoto) return;
       ? now - chicagoRevealStartedAt
       : 5000;
 
-    const reveal = clamp(elapsed / 1500, 0, 1);
-    const phoneTilt = updatePhoneTilt();
+    // Match Atlanta's exact 1-second staged reveal cadence.
+    // TOP:    0.0s -> 1.0s
+    // FRAMES: 1.0s -> 2.0s
+    // VIDEO:  2.0s -> 3.0s
+    const topOpacity = easeOutCubic(elapsed / 1000);
+    const framesOpacity = easeOutCubic((elapsed - 1000) / 1000);
+    const backOpacity = easeOutCubic((elapsed - 2000) / 1000);
 
+    const topRevealScale = lerp(
+      0.82,
+      1,
+      easeOutCubic(elapsed / 1000)
+    );
+
+    // Atlanta motion profile: use the long side so the art is intentionally
+    // larger than the phone viewport and feels more immersive/zoomed-in.
+    const longSide = Math.max(window.innerWidth, window.innerHeight);
+    const baseSize = longSide * 0.92 * zoom;
+    const backSize = baseSize * 1.12;
+
+    const centerX = window.innerWidth / 2;
+    const centerY = window.innerHeight / 2;
+
+    // Same tactile parallax speed as Atlanta.
+    const backX = centerX + panX * 0.72;
+    const backY = centerY + panY * 0.72;
+
+    const framesX = centerX + panX * 0.94;
+    const framesY = centerY + panY * 0.94;
+
+    const topX = centerX + panX * 1.13;
+    const topY = centerY + panY * 1.13;
+
+    chicagoLayerBack.style.opacity = String(clamp(backOpacity, 0, 1));
+    chicagoLayerFrames.style.opacity = String(clamp(framesOpacity, 0, 1));
+    chicagoLayerTop.style.opacity = String(clamp(topOpacity, 0, 1));
+
+    const chicagoWash = chicagoExperience.querySelector('.chicago-background-wash');
+    if (chicagoWash) {
+      chicagoWash.style.opacity =
+        String(clamp(backOpacity * 0.985, 0, 0.985));
+    }
+
+    // Match Atlanta's preserve-3D depth spacing.
+    const backZ = -95;
+    const framesZ = 72;
+    const topZ = 245;
+
+    chicagoLayerBack.style.width = `${backSize}px`;
+    chicagoLayerBack.style.height = `${backSize}px`;
+    const backTransform =
+      `translate3d(${backX - backSize / 2}px, ${backY - backSize / 2}px, ${backZ}px)`;
+    chicagoLayerBack.style.transform = backTransform;
+    chicagoLayerBack.style.webkitTransform = backTransform;
+
+    chicagoLayerFrames.style.width = `${baseSize}px`;
+    chicagoLayerFrames.style.height = `${baseSize}px`;
+    const framesTransform =
+      `translate3d(${framesX - baseSize / 2}px, ${framesY - baseSize / 2}px, ${framesZ}px)`;
+    chicagoLayerFrames.style.transform = framesTransform;
+    chicagoLayerFrames.style.webkitTransform = framesTransform;
+
+    chicagoLayerTop.style.width = `${baseSize}px`;
+    chicagoLayerTop.style.height = `${baseSize}px`;
+    const topTransform =
+      `translate3d(${topX - baseSize / 2}px, ${topY - baseSize / 2}px, ${topZ}px) ` +
+      `scale(${topRevealScale})`;
+    chicagoLayerTop.style.transform = topTransform;
+    chicagoLayerTop.style.webkitTransform = topTransform;
+
+    // Same drag-to-angle response as Atlanta.
     const gestureRX = clamp(
-      -(panY / Math.max(1, window.innerHeight)) * 9,
-      -6.0,
-      6.0
+      -(panY / Math.max(1, window.innerHeight)) * 7,
+      -3.5,
+      3.5
     );
 
     const gestureRY = clamp(
-      (panX / Math.max(1, window.innerWidth)) * 11,
-      -7.0,
-      7.0
+      (panX / Math.max(1, window.innerWidth)) * 8,
+      -4,
+      4
     );
 
+    const phoneTilt = updatePhoneTilt();
+
     const rx = clamp(
-      gestureRX + phoneTilt.x * 1.05,
-      -12,
-      12
+      gestureRX + phoneTilt.x,
+      -9.0,
+      9.0
     );
 
     const ry = clamp(
-      gestureRY + phoneTilt.y * 1.10,
-      -14,
-      14
-    );
-
-    const stageScale = clamp(
-      .985 + reveal * .015 + (zoom - 1) * .09,
-      .96,
-      1.10
+      gestureRY + phoneTilt.y,
+      -10.0,
+      10.0
     );
 
     const stageTransform =
-      `translate(-50%, -50%) ` +
-      `rotateX(${rx.toFixed(3)}deg) ` +
-      `rotateY(${ry.toFixed(3)}deg) ` +
-      `scale(${stageScale.toFixed(4)})`;
+      `rotateX(${rx.toFixed(3)}deg) rotateY(${ry.toFixed(3)}deg)`;
 
     chicagoStage.style.transform = stageTransform;
     chicagoStage.style.webkitTransform = stageTransform;
-
-    if (chicagoLayerBack) {
-      const bx = panX * .040 + phoneTilt.y * 1.0;
-      const by = panY * .040 + phoneTilt.x * .8;
-      const t =
-        `translate3d(${bx.toFixed(2)}px, ${by.toFixed(2)}px, -120px) ` +
-        `scale(1.075)`;
-      chicagoLayerBack.style.transform = t;
-      chicagoLayerBack.style.webkitTransform = t;
-    }
-
-    if (chicagoLayerFrames) {
-      const mx = panX * .085 + phoneTilt.y * 1.8;
-      const my = panY * .075 + phoneTilt.x * 1.45;
-      const t =
-        `translate3d(${mx.toFixed(2)}px, ${my.toFixed(2)}px, 70px) ` +
-        `scale(1.025)`;
-      chicagoLayerFrames.style.transform = t;
-      chicagoLayerFrames.style.webkitTransform = t;
-    }
-
-    if (chicagoLayerTop) {
-      const fx = panX * .135 + phoneTilt.y * 2.65;
-      const fy = panY * .120 + phoneTilt.x * 2.20;
-      const t =
-        `translate3d(${fx.toFixed(2)}px, ${fy.toFixed(2)}px, 180px) ` +
-        `scale(1.01)`;
-      chicagoLayerTop.style.transform = t;
-      chicagoLayerTop.style.webkitTransform = t;
-    }
   }
 
   function renderIDISAbstractBackground(phoneTilt) {

@@ -3321,3 +3321,68 @@ body.collection-replay-mode .chicago-experience {
     animation-delay: 0ms !important;
   }
 }
+
+
+/* ==========================================================================
+   BUILD 61: CHICAGO MATCHES ATLANTA MOTION / ZOOM PROFILE
+   Keeps Chicago artwork, MP4 and MP3. Only presentation geometry changes.
+============================================================================ */
+
+.chicago-experience {
+  perspective: 820px !important;
+  -webkit-perspective: 820px !important;
+  perspective-origin: 50% 50% !important;
+  -webkit-perspective-origin: 50% 50% !important;
+}
+
+.chicago-stage {
+  position: absolute !important;
+  inset: 0 !important;
+  left: 0 !important;
+  top: 0 !important;
+  width: auto !important;
+  height: auto !important;
+  aspect-ratio: auto !important;
+  transform: none;
+  transform-style: preserve-3d !important;
+  -webkit-transform-style: preserve-3d !important;
+  backface-visibility: visible;
+  -webkit-backface-visibility: visible;
+}
+
+.chicago-layer {
+  position: absolute !important;
+  inset: auto !important;
+  left: 0 !important;
+  top: 0 !important;
+  max-width: none !important;
+  object-fit: contain !important;
+  transform-origin: 50% 50% !important;
+  transform-style: preserve-3d !important;
+  -webkit-transform-style: preserve-3d !important;
+  backface-visibility: visible;
+  -webkit-backface-visibility: visible;
+  animation: none !important;
+  -webkit-animation: none !important;
+}
+
+.chicago-layer-back {
+  object-fit: contain !important;
+}
+
+.chicago-experience.is-visible .chicago-layer-back,
+.chicago-experience.is-visible .chicago-layer-frames,
+.chicago-experience.is-visible .chicago-layer-top {
+  animation: none !important;
+  -webkit-animation: none !important;
+}
+
+.chicago-background-wash {
+  transition: none !important;
+}
+
+@media (max-width: 520px) {
+  .chicago-stage {
+    width: auto !important;
+  }
+}

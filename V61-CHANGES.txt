@@ -1,0 +1,29 @@
+IDIS BUILD 61 — CHICAGO ATLANTA MOTION MATCH
+
+Chicago keeps its existing real media:
+- Chicago-Layer-TopArt.webp
+- Chicago-Layer-Frames-Bottom.webp
+- layer-1-bottom.mp4
+- chicago-voiceover.mp3
+
+Chicago presentation now matches Atlanta's motion profile:
+- same long-side 0.92 base sizing for a more zoomed-in scene
+- same 1.12 background-video overscale
+- same pan speeds: back .72, middle .94, front 1.13
+- same preserve-3D depths: -95, +72, +245
+- same 820px perspective
+- same drag-to-angle response
+- same phone-tilt response/clamps
+- same pinch zoom range from the shared gesture system
+- same automatic return-to-center behavior
+- same staged reveal: top 0-1s, middle 1-2s, video 2-3s
+- Chicago MP3 remains the master duration
+- Chicago MP4 still loops silently
+
+Scanner mapping remains unchanged:
+0-2 IDIS
+3-5 Atlanta
+6-8 Chicago
+
+Cache key:
+20260923-chicago61
