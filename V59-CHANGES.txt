@@ -1,0 +1,25 @@
+IDIS BUILD 59 — CHICAGO INTERACTION + ATLANTA INTRO REMOVAL
+
+ATLANTA
+- Removed the six-second Atlanta coin PNG activation/replay intro.
+- Atlanta now goes directly into the existing state-side interaction after scan or collection replay.
+
+CHICAGO
+- Added a complete detached Chicago interaction section using the current APTA TRANSform 2026 coin artwork.
+- Interaction responds to drag, pinch zoom, and phone tilt through the existing gesture system.
+- Chicago interaction runs for 18 seconds, then uses the standard personalized thank-you end card.
+- Collected Chicago replay now works from collection.html via ?replay=apta-transform-2026-chicago.
+- Future scanner wiring is prepared: beginPresentation('chicago', 'scan') unlocks the Chicago collectible.
+- Current coin-test.mind remains unchanged and still contains only Atlanta targetIndex 0 and IDIS targetIndex 1.
+
+TESTING
+- test-build59.html provides real-state controls for:
+  * Chicago NEW / uncollected homepage
+  * newly collected gold/white collection-button glow
+  * black/gray locked collection coin
+  * full-color collected coin + interaction access
+  * Chicago interaction test mode
+- test-chicago-interaction.html opens the dedicated Chicago interaction test.
+
+CACHE KEY
+20260923-chicago59

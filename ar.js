@@ -1,23 +1,30 @@
 /*
-  IDIS Americas | GSX 2026 WebAR - COIN PHOTO TARGET TEST
-  coin-test.mind target order:
-  targetIndex 0 = Atlanta / Georgia physical coin photo
-  targetIndex 1 = IDIS Americas physical coin photo
+  IDIS Americas | 2026 Limited Coin WebAR
+  idis-coins.mind target order:
+  0-2 = IDIS (black / white / tan background)
+  3-5 = Atlanta (black / white / tan background)
+  6-8 = Chicago (black / white / tan background)
 
-  This .mind contains only the two photographed physical coin faces.
-  Target-attached 3D holograms are removed. MindAR is used only for
-  recognition; both presentations render as detached HTML/video.
+  Each three-target group launches one face-specific interaction.
+  MindAR is used for recognition; presentations render detached from tracking.
 */
 
-console.info('[IDIS WebAR] Build 58 Chicago Collection UX: 20260917-chicago58');
+console.info('[IDIS WebAR] Build 60 Chicago Real Assets + 9 Targets: 20260923-chicago60');
 
 document.addEventListener('DOMContentLoaded', () => {
   const scene = document.querySelector('#ar-scene');
   const arContainer = document.querySelector('#ar-container');
   if (!scene) return;
 
-  const idisTarget = document.querySelector('#idis-target');
-  const atlantaTarget = document.querySelector('#atlanta-target');
+  const idisTargets = Array.from(
+    document.querySelectorAll('[data-coin-side="idis"]')
+  );
+  const atlantaTargets = Array.from(
+    document.querySelectorAll('[data-coin-side="atlanta"]')
+  );
+  const chicagoTargets = Array.from(
+    document.querySelectorAll('[data-coin-side="chicago"]')
+  );
 
   const intro = document.querySelector('#intro');
   const header = document.querySelector('#ar-header');
@@ -26,6 +33,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const statusCopy = document.querySelector('#status-copy');
   const guide = document.querySelector('#scan-guide');
   const sideChip = document.querySelector('#side-chip');
+  const footerEventKicker = document.querySelector('#footer-event-kicker');
+  const footerEventLocation = document.querySelector('#footer-event-location');
 
   const errorCard = document.querySelector('#error-card');
   const errorTitle = document.querySelector('#error-title');
@@ -43,11 +52,21 @@ document.addEventListener('DOMContentLoaded', () => {
   const layerMiddle = document.querySelector('#atlanta-layer-middle');
   const layerFront = document.querySelector('#atlanta-layer-front');
 
+  const chicagoExperience = document.querySelector('#chicago-experience');
+  const chicagoStage = document.querySelector('#chicago-stage');
+  const chicagoLayerBack = document.querySelector('#chicago-layer-back');
+  const chicagoLayerFrames = document.querySelector('#chicago-layer-frames');
+  const chicagoLayerTop = document.querySelector('#chicago-layer-top');
+
+
   const gestureSurface = document.querySelector('#presentation-gesture-surface');
   const presentationUI = document.querySelector('#presentation-ui');
 
   const atlantaVoiceover =
     document.querySelector('#atlanta-voiceover');
+
+  const chicagoVoiceover =
+    document.querySelector('#chicago-voiceover');
 
   const idisVoiceover =
     document.querySelector('#idis-voiceover');
@@ -107,9 +126,17 @@ document.addEventListener('DOMContentLoaded', () => {
   const mindarSceneConfig = scene.getAttribute('mindar-image') || {};
   const TARGET_FILE =
     mindarSceneConfig.imageTargetSrc ||
-    './assets/targets/coin-test.mind';
+    './assets/targets/idis-coins.mind';
+
+  const pageParams = new URLSearchParams(window.location.search);
+  const chicagoTestMode = pageParams.get('test') === 'chicago';
 
   const HOME_DELAY_MS = 3000;
+
+  if (chicagoTestMode && startButton) {
+    const startLabel = startButton.querySelector('.scan-cta-left > span');
+    if (startLabel) startLabel.textContent = 'TEST CHICAGO INTERACTION';
+  }
 
   // IDIS is now media-driven.
   // IDIS uses one transparent WebM only. The camera stays clean behind it
@@ -149,6 +176,8 @@ document.addEventListener('DOMContentLoaded', () => {
   // Atlanta thank-you begins during the final five seconds of the MP3.
   const ATLANTA_THANK_YOU_LEAD_SECONDS = 5;
 
+  const CHICAGO_FALLBACK_DURATION_MS = 45000;
+
   const GUEST_NAME_STORAGE_KEY = 'idis-gsx2026-guest-name';
 
   const COLLECTION_STORAGE_KEY =
@@ -180,7 +209,7 @@ document.addEventListener('DOMContentLoaded', () => {
   let sessionToken = 0;
   let cameraObserver = null;
 
-  // null = scanner mode. atlanta/idis = interactive presentation mode.
+  // null = scanner mode. atlanta/idis/chicago = interactive presentation mode.
   let currentSide = null;
 
   // When true, the Atlanta experience was launched from the saved collection
@@ -197,6 +226,11 @@ document.addEventListener('DOMContentLoaded', () => {
   let atlantaVoiceoverPlaying = false;
   let atlantaThankYouLeadTimer = null;
   let atlantaThankYouFinaleActive = false;
+
+  let chicagoPresentationTimer = null;
+  let chicagoRevealStartedAt = 0;
+  let chicagoVoiceoverPrimed = false;
+  let chicagoVoiceoverPlaying = false;
 
   let endCardTimer = null;
   let endCardFadeTimer = null;
@@ -1125,6 +1159,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // This click is itself a valid user gesture for motion + audio permission.
     primeAtlantaVoiceover();
+    primeChicagoVoiceover();
     primeIDISVoiceover();
 
     if (!motionTiltEnabled) {
@@ -1182,6 +1217,65 @@ document.addEventListener('DOMContentLoaded', () => {
     );
   }
 
+
+  async function launchChicagoExperience(event, options = {}) {
+    if (event) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
+
+    const isTest = !!options.test;
+    if ((!isTest && !collectedCoinIds.has(CHICAGO_2026_COIN_ID)) || starting || active) {
+      return;
+    }
+
+    // Keep Chicago audio inside the original user gesture where possible.
+    primeChicagoVoiceover();
+
+    if (!motionTiltEnabled) {
+      try { await enablePhoneTilt(); } catch (_) {}
+    }
+
+    if (guestNameInput) saveGuestName(guestNameInput.value);
+
+    ++sessionToken;
+    collectionReplayMode = true;
+    starting = false;
+    active = true;
+    currentSide = null;
+
+    hideError();
+    hideEndCard();
+    clearPresentationTimer();
+    stopAtlantaVoiceover(true);
+    hideAllPresentations();
+    hidePresentationControls();
+    stopSwitchWatcher();
+    resetGestureState();
+
+    document.body.classList.add('collection-replay-mode');
+    intro.classList.add('hidden');
+    setARUI(true);
+    hideScanUI();
+    resetPhoneTiltNeutral();
+
+    if (isTest) {
+      try {
+        history.replaceState({}, '', window.location.pathname + window.location.hash);
+      } catch (_) {}
+    }
+
+    window.dispatchEvent(new CustomEvent('idis:experience-replay', {
+      detail: {
+        coinId: CHICAGO_2026_COIN_ID,
+        experience: 'chicago',
+        test: isTest
+      }
+    }));
+
+    beginPresentation('chicago', isTest ? 'test' : 'collection');
+  }
+
   function exitCollectionReplayToHome() {
     ++sessionToken;
 
@@ -1206,6 +1300,7 @@ document.addEventListener('DOMContentLoaded', () => {
     setARUI(false);
     intro.classList.remove('hidden');
 
+    setExperienceFooter('atlanta');
     renderCoinCollection();
   }
 
@@ -1909,6 +2004,8 @@ function updateEndCardPhoto(variant = 'atlanta') {    if (!endCardPhoto) return;
     const warm = () => {
       warmVideo(layerBack);
       warmAudio(atlantaVoiceover);
+      warmVideo(chicagoLayerBack);
+      warmAudio(chicagoVoiceover);
       warmAudio(idisVoiceover);
 
       setTimeout(
@@ -2364,6 +2461,157 @@ function updateEndCardPhoto(variant = 'atlanta') {    if (!endCardPhoto) return;
     }
   }
 
+
+  /* ------------------------------------------------------------------------
+     CHICAGO VOICEOVER + VIDEO
+
+     chicago-voiceover.mp3 owns the Chicago experience duration.
+     layer-1-bottom.mp4 loops silently underneath the two transparent layers.
+  ------------------------------------------------------------------------ */
+
+  function prepareChicagoVoiceover() {
+    if (!chicagoVoiceover) return;
+    try {
+      chicagoVoiceover.preload = 'auto';
+      chicagoVoiceover.loop = false;
+      chicagoVoiceover.volume = 1;
+      chicagoVoiceover.playsInline = true;
+      chicagoVoiceover.setAttribute('playsinline', '');
+    } catch (_) {}
+  }
+
+  function primeChicagoVoiceover() {
+    if (!chicagoVoiceover || chicagoVoiceoverPrimed) return;
+
+    prepareChicagoVoiceover();
+
+    try {
+      chicagoVoiceover.muted = true;
+      chicagoVoiceover.currentTime = 0;
+      const playPromise = chicagoVoiceover.play();
+
+      if (playPromise && typeof playPromise.then === 'function') {
+        playPromise
+          .then(() => {
+            try {
+              chicagoVoiceover.pause();
+              chicagoVoiceover.currentTime = 0;
+              chicagoVoiceover.muted = false;
+              chicagoVoiceoverPrimed = true;
+            } catch (_) {}
+          })
+          .catch(() => {
+            try { chicagoVoiceover.muted = false; } catch (_) {}
+          });
+      } else {
+        try {
+          chicagoVoiceover.pause();
+          chicagoVoiceover.currentTime = 0;
+          chicagoVoiceover.muted = false;
+          chicagoVoiceoverPrimed = true;
+        } catch (_) {}
+      }
+    } catch (_) {}
+  }
+
+  function stopChicagoVoiceover(reset = true) {
+    chicagoVoiceoverPlaying = false;
+    if (!chicagoVoiceover) return;
+
+    try { chicagoVoiceover.pause(); } catch (_) {}
+    if (reset) {
+      try { chicagoVoiceover.currentTime = 0; } catch (_) {}
+    }
+  }
+
+  function prepareChicagoVideo() {
+    if (!chicagoLayerBack || chicagoLayerBack.tagName !== 'VIDEO') return;
+
+    try {
+      chicagoLayerBack.muted = true;
+      chicagoLayerBack.defaultMuted = true;
+      chicagoLayerBack.loop = true;
+      chicagoLayerBack.playsInline = true;
+      chicagoLayerBack.setAttribute('playsinline', '');
+      chicagoLayerBack.setAttribute('webkit-playsinline', '');
+      chicagoLayerBack.preload = 'auto';
+    } catch (_) {}
+  }
+
+  function stopChicagoVideo(reset = true) {
+    if (!chicagoLayerBack || chicagoLayerBack.tagName !== 'VIDEO') return;
+
+    try { chicagoLayerBack.pause(); } catch (_) {}
+    if (reset) {
+      try { chicagoLayerBack.currentTime = 0; } catch (_) {}
+    }
+  }
+
+  function startChicagoVideo() {
+    if (!chicagoLayerBack) return;
+
+    prepareChicagoVideo();
+    stopChicagoVideo(true);
+
+    try {
+      const playPromise = chicagoLayerBack.play();
+      if (playPromise && typeof playPromise.catch === 'function') {
+        playPromise.catch(error => {
+          console.warn('Chicago background video could not start:', error);
+        });
+      }
+    } catch (_) {}
+  }
+
+  function startChicagoVoiceover() {
+    clearChicagoPresentationTimer();
+
+    if (!chicagoVoiceover) {
+      chicagoPresentationTimer = setTimeout(
+        finishChicagoPresentation,
+        CHICAGO_FALLBACK_DURATION_MS
+      );
+      return;
+    }
+
+    prepareChicagoVoiceover();
+    stopChicagoVoiceover(true);
+
+    try {
+      chicagoVoiceover.muted = false;
+      chicagoVoiceover.currentTime = 0;
+    } catch (_) {}
+
+    try {
+      const playPromise = chicagoVoiceover.play();
+
+      if (playPromise && typeof playPromise.then === 'function') {
+        playPromise
+          .then(() => {
+            chicagoVoiceoverPlaying = true;
+          })
+          .catch(error => {
+            console.warn('Chicago voiceover could not autoplay:', error);
+            chicagoVoiceoverPlaying = false;
+            chicagoPresentationTimer = setTimeout(
+              finishChicagoPresentation,
+              CHICAGO_FALLBACK_DURATION_MS
+            );
+          });
+      } else {
+        chicagoVoiceoverPlaying = true;
+      }
+    } catch (error) {
+      console.warn('Chicago voiceover could not start:', error);
+      chicagoVoiceoverPlaying = false;
+      chicagoPresentationTimer = setTimeout(
+        finishChicagoPresentation,
+        CHICAGO_FALLBACK_DURATION_MS
+      );
+    }
+  }
+
+
   /* ------------------------------------------------------------------------
      ATLANTA VIDEO / LAYERS
   ------------------------------------------------------------------------ */
@@ -2467,6 +2715,96 @@ function updateEndCardPhoto(variant = 'atlanta') {    if (!endCardPhoto) return;
         startBackVideo();
       }
     }, 2000);
+
+    renderPresentation();
+  }
+
+
+  /* ------------------------------------------------------------------------
+     CHICAGO / APTA TRANSform 2026 INTERACTION
+  ------------------------------------------------------------------------ */
+
+  function clearChicagoPresentationTimer() {
+    if (chicagoPresentationTimer) {
+      clearTimeout(chicagoPresentationTimer);
+      chicagoPresentationTimer = null;
+    }
+  }
+
+  function setExperienceFooter(side) {
+    if (!footerEventKicker || !footerEventLocation) return;
+
+    if (side === 'chicago') {
+      footerEventKicker.textContent = 'APTA TRANSform 2026';
+      footerEventLocation.textContent = 'CHICAGO, ILLINOIS';
+      return;
+    }
+
+    if (side === 'idis') {
+      footerEventKicker.textContent = 'IDIS AMERICAS';
+      footerEventLocation.textContent = 'SEE SECURITY SMARTER';
+      return;
+    }
+
+    footerEventKicker.textContent = 'GSX 2026';
+    footerEventLocation.textContent = 'ATLANTA, GEORGIA';
+  }
+
+  function hideChicagoPresentation() {
+    clearChicagoPresentationTimer();
+    stopChicagoVoiceover(true);
+    stopChicagoVideo(true);
+
+    if (!chicagoExperience) return;
+
+    chicagoExperience.classList.remove('is-visible');
+    chicagoExperience.classList.add('hidden');
+    chicagoExperience.setAttribute('aria-hidden', 'true');
+
+    [chicagoStage, chicagoLayerBack, chicagoLayerFrames, chicagoLayerTop]
+      .filter(Boolean)
+      .forEach(el => {
+        el.style.transform = '';
+        el.style.webkitTransform = '';
+        el.style.opacity = '';
+      });
+  }
+
+  function finishChicagoPresentation() {
+    if (!active || currentSide !== 'chicago') return;
+
+    clearChicagoPresentationTimer();
+    chicagoVoiceoverPlaying = false;
+    hidePresentationControls();
+
+    // Do not call hideChicagoPresentation here before reading the state,
+    // because that would reset the voiceover. The MP3 has already ended.
+    stopChicagoVideo(true);
+
+    if (chicagoExperience) {
+      chicagoExperience.classList.remove('is-visible');
+      chicagoExperience.classList.add('hidden');
+      chicagoExperience.setAttribute('aria-hidden', 'true');
+    }
+
+    currentSide = null;
+    oppositeVisibleSince = 0;
+    resetGestureState();
+    hideScanUI();
+    showEndCard('chicago');
+  }
+
+  function showChicagoPresentation() {
+    hideChicagoPresentation();
+    if (!chicagoExperience) return;
+
+    chicagoRevealStartedAt = performance.now();
+    chicagoExperience.classList.remove('hidden');
+    chicagoExperience.classList.add('is-visible');
+    chicagoExperience.setAttribute('aria-hidden', 'false');
+
+    startChicagoVideo();
+    startChicagoVoiceover();
 
     renderPresentation();
   }
@@ -3642,11 +3980,87 @@ function updateEndCardPhoto(variant = 'atlanta') {    if (!endCardPhoto) return;
       overlayStage.style.webkitTransform = stageTransform;
     }
 
-    renderCollectionReplayCoinIntro(
-      phoneTilt,
-      gestureRX,
-      gestureRY
+  }
+
+
+  function renderChicago(now) {
+    if (!chicagoExperience || !chicagoStage) return;
+
+    const elapsed = chicagoRevealStartedAt
+      ? now - chicagoRevealStartedAt
+      : 5000;
+
+    const reveal = clamp(elapsed / 1500, 0, 1);
+    const phoneTilt = updatePhoneTilt();
+
+    const gestureRX = clamp(
+      -(panY / Math.max(1, window.innerHeight)) * 9,
+      -6.0,
+      6.0
     );
+
+    const gestureRY = clamp(
+      (panX / Math.max(1, window.innerWidth)) * 11,
+      -7.0,
+      7.0
+    );
+
+    const rx = clamp(
+      gestureRX + phoneTilt.x * 1.05,
+      -12,
+      12
+    );
+
+    const ry = clamp(
+      gestureRY + phoneTilt.y * 1.10,
+      -14,
+      14
+    );
+
+    const stageScale = clamp(
+      .985 + reveal * .015 + (zoom - 1) * .09,
+      .96,
+      1.10
+    );
+
+    const stageTransform =
+      `translate(-50%, -50%) ` +
+      `rotateX(${rx.toFixed(3)}deg) ` +
+      `rotateY(${ry.toFixed(3)}deg) ` +
+      `scale(${stageScale.toFixed(4)})`;
+
+    chicagoStage.style.transform = stageTransform;
+    chicagoStage.style.webkitTransform = stageTransform;
+
+    if (chicagoLayerBack) {
+      const bx = panX * .040 + phoneTilt.y * 1.0;
+      const by = panY * .040 + phoneTilt.x * .8;
+      const t =
+        `translate3d(${bx.toFixed(2)}px, ${by.toFixed(2)}px, -120px) ` +
+        `scale(1.075)`;
+      chicagoLayerBack.style.transform = t;
+      chicagoLayerBack.style.webkitTransform = t;
+    }
+
+    if (chicagoLayerFrames) {
+      const mx = panX * .085 + phoneTilt.y * 1.8;
+      const my = panY * .075 + phoneTilt.x * 1.45;
+      const t =
+        `translate3d(${mx.toFixed(2)}px, ${my.toFixed(2)}px, 70px) ` +
+        `scale(1.025)`;
+      chicagoLayerFrames.style.transform = t;
+      chicagoLayerFrames.style.webkitTransform = t;
+    }
+
+    if (chicagoLayerTop) {
+      const fx = panX * .135 + phoneTilt.y * 2.65;
+      const fy = panY * .120 + phoneTilt.x * 2.20;
+      const t =
+        `translate3d(${fx.toFixed(2)}px, ${fy.toFixed(2)}px, 180px) ` +
+        `scale(1.01)`;
+      chicagoLayerTop.style.transform = t;
+      chicagoLayerTop.style.webkitTransform = t;
+    }
   }
 
   function renderIDISAbstractBackground(phoneTilt) {
@@ -3827,6 +4241,8 @@ function updateEndCardPhoto(variant = 'atlanta') {    if (!endCardPhoto) return;
 
     if (currentSide === 'atlanta') {
       renderAtlanta(now);
+    } else if (currentSide === 'chicago') {
+      renderChicago(now);
     } else if (currentSide === 'idis') {
       renderIDISFeature(now);
     }
@@ -3838,20 +4254,21 @@ function updateEndCardPhoto(variant = 'atlanta') {    if (!endCardPhoto) return;
   /* ------------------------------------------------------------------------
      OPPOSITE FACE WATCHER
 
-     targetFound remains the primary switch trigger. This second path watches
-     MindAR's target entity visibility so an opposite face can interrupt the
-     detached media-driven presentation even on phones where a second targetFound
-     callback is slow or inconsistent.
-
-     coin-test.mind has two targets and maxTrack:2 is enabled on the scene.
+     idis-coins.mind contains nine targets grouped as three variants per face.
+     Any visible variant can switch the detached presentation to its face.
   ------------------------------------------------------------------------ */
 
-  function isAtlantaTargetVisible() {
-    return !!(
-      atlantaTarget &&
-      atlantaTarget.object3D &&
-      atlantaTarget.object3D.visible
+  function isAnyTargetVisible(targets) {
+    return targets.some(target =>
+      !!(target && target.object3D && target.object3D.visible)
     );
+  }
+
+  function getVisibleCoinSide() {
+    if (isAnyTargetVisible(idisTargets)) return 'idis';
+    if (isAnyTargetVisible(atlantaTargets)) return 'atlanta';
+    if (isAnyTargetVisible(chicagoTargets)) return 'chicago';
+    return null;
   }
 
   function stopSwitchWatcher() {
@@ -3875,26 +4292,21 @@ function updateEndCardPhoto(variant = 'atlanta') {    if (!endCardPhoto) return;
         return;
       }
 
+      const visibleSide = getVisibleCoinSide();
       const oppositeSide =
-        currentSide === 'atlanta'
-          ? 'idis'
-          : 'atlanta';
+        visibleSide && visibleSide !== currentSide
+          ? visibleSide
+          : null;
 
-      const oppositeVisible =
-        oppositeSide === 'atlanta'
-          ? isAtlantaTargetVisible()
-          : !!(
-              idisTarget &&
-              idisTarget.object3D &&
-              idisTarget.object3D.visible
-            );
-
-      if (oppositeVisible) {
+      if (oppositeSide) {
         if (!oppositeVisibleSince) {
           oppositeVisibleSince = now;
         }
 
-        if (now - oppositeVisibleSince >= OPPOSITE_FACE_HOLD_MS) {
+        if (
+          now - oppositeVisibleSince >=
+          OPPOSITE_FACE_HOLD_MS
+        ) {
           oppositeVisibleSince = 0;
           beginPresentation(oppositeSide, 'scan');
         }
@@ -3908,12 +4320,14 @@ function updateEndCardPhoto(variant = 'atlanta') {    if (!endCardPhoto) return;
     switchWatcherRAF = requestAnimationFrame(watch);
   }
 
+
   /* ------------------------------------------------------------------------
      MEDIA-DRIVEN PRESENTATION SESSION
 
-     Atlanta ends from the MP3 `ended` event.
+     Atlanta ends from its MP3 `ended` event.
+     Chicago ends from its MP3 `ended` event.
      IDIS ends from its own cinematic media sequence.
-     No fixed countdown remains.
+     No fixed countdown remains during normal playback.
   ------------------------------------------------------------------------ */
 
   function clearPresentationTimer() {
@@ -3928,6 +4342,7 @@ function updateEndCardPhoto(variant = 'atlanta') {    if (!endCardPhoto) return;
     hideCollectionReplayCoinIntro();
     resetAtlantaThankYouFinale();
     hideAtlantaPresentation();
+    hideChicagoPresentation();
 
     if (!options.keepIDISCinematic) {
       removeIDISPresentation();
@@ -3989,6 +4404,12 @@ function updateEndCardPhoto(variant = 'atlanta') {    if (!endCardPhoto) return;
       unlockGSX2026Coin();
     }
 
+    if (source === 'scan' && side === 'chicago') {
+      // Ready for the next .mind file. When Chicago gets its target entity,
+      // a successful scan will unlock the Chicago collectible here.
+      unlockChicago2026Coin();
+    }
+
     // If the same face is recognized again during its active media session,
     // do nothing. It does not restart the voiceover or cinematic sequence.
     if (currentSide === side) return;
@@ -4008,13 +4429,17 @@ function updateEndCardPhoto(variant = 'atlanta') {    if (!endCardPhoto) return;
     hideScanUI();
     showPresentationControls();
 
-    if (side === 'atlanta') {
-      // Atlanta duration is now driven entirely by state-voiceover.mp3.
-      showAtlantaPresentation();
+    setExperienceFooter(side);
 
-      // Show the activated Atlanta coin for six seconds whether it was
-      // physically scanned or replayed from the saved collection.
-      showCollectionReplayCoinIntro();
+    if (side === 'atlanta') {
+      // Atlanta now opens directly into the interaction. The old six-second
+      // Atlanta coin PNG activation intro has been removed.
+      showAtlantaPresentation();
+    } else if (side === 'chicago') {
+      // Chicago test interaction. This same presentation can be connected to
+      // a physical target when Chicago is added to the next .mind file.
+      clearPresentationTimer();
+      showChicagoPresentation();
     } else {
       // IDIS duration is driven by its cinematic media sequence.
       clearPresentationTimer();
@@ -4036,17 +4461,18 @@ function updateEndCardPhoto(variant = 'atlanta') {    if (!endCardPhoto) return;
 
 
   function foundIDIS() {
-    // Scanner mode -> IDIS begins.
-    // Atlanta presentation -> IDIS immediately replaces it.
-    // IDIS already showing -> ignore.
     beginPresentation('idis', 'scan');
   }
 
-  // IMPORTANT:
-  // targetLost intentionally does NOTHING while a presentation is active.
-  // Once the coin has unlocked the scene, the scene is independent.
+  function foundChicago() {
+    beginPresentation('chicago', 'scan');
+  }
+
+  // targetLost intentionally does nothing while a presentation is active.
+  // Once a recognized variant unlocks the scene, tracking is detached.
   function lostAtlanta() {}
   function lostIDIS() {}
+  function lostChicago() {}
 
   /* ------------------------------------------------------------------------
      START / STOP AR
@@ -4054,6 +4480,11 @@ function updateEndCardPhoto(variant = 'atlanta') {    if (!endCardPhoto) return;
 
   async function startAR() {
     if (starting || active) return;
+
+    if (chicagoTestMode) {
+      await launchChicagoExperience(null, { test: true });
+      return;
+    }
 
     collectionReplayMode = false;
 
@@ -4064,6 +4495,7 @@ function updateEndCardPhoto(variant = 'atlanta') {    if (!endCardPhoto) return;
     // Prime the scene audio while this function still has the original
     // START THE EXPERIENCE user gesture. Do this before any await.
     primeAtlantaVoiceover();
+    primeChicagoVoiceover();
     primeIDISVoiceover();
 
     // Request motion access while we are still inside the user's Start AR tap.
@@ -4101,7 +4533,7 @@ function updateEndCardPhoto(variant = 'atlanta') {    if (!endCardPhoto) return;
       if (!targetReady) {
         showError(
           'Tracking file is missing.',
-          'Keep gsx2026-two-sided.mind inside assets/targets/.',
+          'Keep idis-coins.mind inside assets/targets/.',
           'TARGET FILE MISSING'
         );
         return;
@@ -4272,6 +4704,40 @@ function updateEndCardPhoto(variant = 'atlanta') {    if (!endCardPhoto) return;
       if (!idisSequenceActive || currentSide !== 'idis') return;
       beginIDISThankYouFinale();
     });
+  }
+
+  if (chicagoLayerBack) {
+    prepareChicagoVideo();
+  }
+
+  if (chicagoVoiceover) {
+    prepareChicagoVoiceover();
+
+    chicagoVoiceover.addEventListener(
+      'ended',
+      () => {
+        chicagoVoiceoverPlaying = false;
+        if (active && currentSide === 'chicago') {
+          finishChicagoPresentation();
+        }
+      }
+    );
+
+    chicagoVoiceover.addEventListener(
+      'error',
+      () => {
+        if (
+          active &&
+          currentSide === 'chicago' &&
+          !chicagoPresentationTimer
+        ) {
+          chicagoPresentationTimer = setTimeout(
+            finishChicagoPresentation,
+            CHICAGO_FALLBACK_DURATION_MS
+          );
+        }
+      }
+    );
   }
 
   if (atlantaVoiceover) {
@@ -4451,15 +4917,20 @@ function updateEndCardPhoto(variant = 'atlanta') {    if (!endCardPhoto) return;
     }
   });
 
-  if (idisTarget) {
-    idisTarget.addEventListener('targetFound', foundIDIS);
-    idisTarget.addEventListener('targetLost', lostIDIS);
-  }
+  idisTargets.forEach(target => {
+    target.addEventListener('targetFound', foundIDIS);
+    target.addEventListener('targetLost', lostIDIS);
+  });
 
-  if (atlantaTarget) {
-    atlantaTarget.addEventListener('targetFound', foundAtlanta);
-    atlantaTarget.addEventListener('targetLost', lostAtlanta);
-  }
+  atlantaTargets.forEach(target => {
+    target.addEventListener('targetFound', foundAtlanta);
+    target.addEventListener('targetLost', lostAtlanta);
+  });
+
+  chicagoTargets.forEach(target => {
+    target.addEventListener('targetFound', foundChicago);
+    target.addEventListener('targetLost', lostChicago);
+  });
 
 
   gestureSurface.addEventListener(
@@ -4501,6 +4972,9 @@ function updateEndCardPhoto(variant = 'atlanta') {    if (!endCardPhoto) return;
     if (replayCoin === GSX_2026_COIN_ID && collectedCoinIds.has(GSX_2026_COIN_ID)) {
       history.replaceState({}, '', window.location.pathname + window.location.hash);
       setTimeout(() => launchCollectedAtlantaExperience(), 180);
+    } else if (replayCoin === CHICAGO_2026_COIN_ID && collectedCoinIds.has(CHICAGO_2026_COIN_ID)) {
+      history.replaceState({}, '', window.location.pathname + window.location.hash);
+      setTimeout(() => launchChicagoExperience(null, { test: false }), 180);
     }
   } catch (_) {}
 

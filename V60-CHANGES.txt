@@ -1,0 +1,54 @@
+IDIS BUILD 60 — CHICAGO REAL ASSETS + 9-TARGET MIND
+
+SCANNER
+-------
+New target database:
+  assets/targets/idis-coins.mind
+
+Target mapping:
+  0 = IDIS black
+  1 = IDIS white
+  2 = IDIS tan
+  3 = Atlanta black
+  4 = Atlanta white
+  5 = Atlanta tan
+  6 = Chicago black
+  7 = Chicago white
+  8 = Chicago tan
+
+All three variants for a face launch the same interaction.
+Atlanta and Chicago each unlock only one collection item.
+
+CHICAGO
+-------
+Real uploaded assets:
+  assets/parallax/chicago/layer-1-bottom.mp4
+  assets/parallax/chicago/Chicago-Layer-Frames-Bottom.webp
+  assets/parallax/chicago/Chicago-Layer-TopArt.webp
+  assets/audio/chicago-voiceover.mp3
+
+The Chicago voiceover is approximately 44.3 seconds and now owns the
+interaction duration. The 9.9-second video loops silently for the duration.
+
+Chicago layer order:
+  back = MP4
+  middle = Frames-Bottom WebP
+  front = TopArt WebP
+
+All three layers use detached drag / pinch / phone-tilt parallax.
+
+ATLANTA
+-------
+The old six-second Atlanta PNG activation intro remains removed.
+Atlanta opens directly into its existing interaction.
+
+TEST
+----
+Open:
+  test-build60.html
+or:
+  index.html?test=chicago
+
+CACHE KEY
+---------
+20260923-chicago60

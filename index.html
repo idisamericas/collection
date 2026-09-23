@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <meta name="idis-build" content="20260911-collection55" />
+  <meta name="idis-build" content="20260923-chicago60" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" />
   <meta name="theme-color" content="#02070a" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -17,8 +17,8 @@
   <!-- Proven working A-Frame + MindAR load order restored for camera stability. -->
   <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
-  <link rel="stylesheet" href="./styles.css?v=20260917-chicago58" />
-  <script defer src="./ar.js?v=20260917-chicago58"></script>
+  <link rel="stylesheet" href="./styles.css?v=20260923-chicago60" />
+  <script defer src="./ar.js?v=20260923-chicago60"></script>
 
   <style id="idis-luxury-landing-v45">
     /* LANDING V45 ONLY. AR presentation styles remain in styles.css. */
@@ -1061,14 +1061,19 @@
 </head>
 <body>
   <!--
-    IMPORTANT — MASTER MIND TARGET ORDER
-      targetIndex 0 = IDIS Americas shared side
-      targetIndex 1 = Atlanta / Georgia physical coin
-      targetIndex 2 = Chicago / Illinois coin
-      targetIndex 3 = Atlanta / Georgia paper card
+    IDIS COINS MASTER MIND TARGET ORDER
+      targetIndex 0 = IDIS black background
+      targetIndex 1 = IDIS white background
+      targetIndex 2 = IDIS tan background
+      targetIndex 3 = Atlanta black background
+      targetIndex 4 = Atlanta white background
+      targetIndex 5 = Atlanta tan background
+      targetIndex 6 = Chicago black background
+      targetIndex 7 = Chicago white background
+      targetIndex 8 = Chicago tan background
 
-    Atlanta physical + Atlanta paper are alternate recognition targets for
-    ONE Atlanta interactive experience and ONE Atlanta collectible.
+    Each three-target group launches the same face-specific interaction.
+    Background variants improve recognition across lighting/background changes.
   -->
 
   <main id="app-ui" aria-live="polite">
@@ -1148,7 +1153,7 @@
                       aria-disabled="false"
                       aria-label="APTA TRANSform 2026 Chicago coin. Scan to collect or open your collection if already collected.">
                 <span class="new-coin-ribbon" aria-hidden="true">NEW</span>
-                <img src="./assets/thumbs/apta-transform-2026-chicago.webp?v=20260917-chicago58"
+                <img src="./assets/thumbs/apta-transform-2026-chicago.webp?v=20260923-chicago60"
                      alt="APTA TRANSform 2026 Chicago collectible coin" />
                 <span class="landing-coin-status">
                   <span class="status-locked">SCAN NOW</span>
@@ -1265,8 +1270,8 @@
 
     <footer id="ar-footer" class="ar-ui hidden">
       <div>
-        <span class="footer-kicker">GSX 2026</span>
-        <strong>ATLANTA, GEORGIA</strong>
+        <span id="footer-event-kicker" class="footer-kicker">GSX 2026</span>
+        <strong id="footer-event-location">ATLANTA, GEORGIA</strong>
       </div>
       <a href="https://idisamericas.com/" target="_blank" rel="noopener">EXPLORE IDIS <span>↗</span></a>
     </footer>
@@ -1293,31 +1298,41 @@
       </div>
     </div>
 
+
+
+
     <!--
-      COLLECTION REPLAY 3D COIN
-      Appears only when the saved GSX collectible is replayed from the homepage.
-      The full PNG is lazy-loaded at replay time so it does not add homepage bandwidth.
+      CHICAGO / APTA TRANSform 2026 INTERACTION
+      Real Chicago assets. The 44-second MP3 owns the presentation duration.
+      The 9.9-second background video loops beneath the two transparent WebP
+      layers and the whole detached scene responds to touch + phone tilt.
     -->
-    <div id="collection-replay-coin"
-         class="collection-replay-coin hidden"
+    <div id="chicago-experience"
+         class="chicago-experience hidden"
          aria-hidden="true">
-      <div id="collection-replay-coin-flight"
-           class="collection-replay-coin-flight">
-        <div id="collection-replay-coin-tilt"
-             class="collection-replay-coin-tilt">
-          <div class="collection-replay-coin-object">
-            <span class="collection-coin-rear-plate" aria-hidden="true"></span>
-            <span class="collection-coin-metal-disc" aria-hidden="true"></span>
-            <span class="collection-coin-rim-highlight" aria-hidden="true"></span>
-            <img id="collection-replay-coin-face"
-                 class="collection-replay-coin-face"
-                 data-src="./assets/reference/GSX2026-Coin-Back.png?v=20260911-collection55"
-                 alt="GSX 2026 Atlanta collectible coin" />
-            <span class="collection-replay-coin-shine shine-a" aria-hidden="true"></span>
-            <span class="collection-replay-coin-shine shine-b" aria-hidden="true"></span>
-            <span class="collection-replay-coin-shine shine-c" aria-hidden="true"></span>
-          </div>
-        </div>
+      <div class="chicago-background-wash" aria-hidden="true"></div>
+      <div id="chicago-stage" class="chicago-stage">
+        <video id="chicago-layer-back"
+               class="chicago-layer chicago-layer-back"
+               preload="metadata"
+               muted
+               loop
+               playsinline
+               webkit-playsinline
+               aria-hidden="true">
+          <source src="./assets/parallax/chicago/layer-1-bottom.mp4?v=20260923-chicago60"
+                  type="video/mp4" />
+        </video>
+
+        <img id="chicago-layer-frames"
+             class="chicago-layer chicago-layer-frames"
+             src="./assets/parallax/chicago/Chicago-Layer-Frames-Bottom.webp?v=20260923-chicago60"
+             alt="" />
+
+        <img id="chicago-layer-top"
+             class="chicago-layer chicago-layer-top"
+             src="./assets/parallax/chicago/Chicago-Layer-TopArt.webp?v=20260923-chicago60"
+             alt="" />
       </div>
     </div>
 
@@ -1331,6 +1346,15 @@
            playsinline
            aria-hidden="true">
       <source src="./assets/audio/state-voiceover.mp3?v=20260911-collection55"
+              type="audio/mpeg" />
+    </audio>
+
+    <!-- Chicago voiceover is the master duration for the Chicago experience. -->
+    <audio id="chicago-voiceover"
+           preload="metadata"
+           playsinline
+           aria-hidden="true">
+      <source src="./assets/audio/chicago-voiceover.mp3?v=20260923-chicago60"
               type="audio/mpeg" />
     </audio>
 
@@ -1501,7 +1525,7 @@
   <a-scene
     id="ar-scene"
     class="ar-stage"
-    mindar-image="imageTargetSrc: ./assets/targets/coin-test.mind; autoStart: false; uiLoading: no; uiError: no; uiScanning: no; filterMinCF: 0.0001; filterBeta: 0.001; warmupTolerance: 8; missTolerance: 20; maxTrack: 2;"
+    mindar-image="imageTargetSrc: ./assets/targets/idis-coins.mind; autoStart: false; uiLoading: no; uiError: no; uiScanning: no; filterMinCF: 0.0001; filterBeta: 0.001; warmupTolerance: 8; missTolerance: 20; maxTrack: 2;"
     color-space="sRGB"
     renderer="colorManagement: true; alpha: true; antialias: false;"
     vr-mode-ui="enabled: false"
@@ -1511,8 +1535,20 @@
 <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
 
     <!-- Target order MUST match the grouped MindAR compiler order. -->
-    <a-entity id="atlanta-target" mindar-image-target="targetIndex: 0"></a-entity>
-    <a-entity id="idis-target" mindar-image-target="targetIndex: 1"></a-entity>
+    <!-- IDIS target variants -->
+    <a-entity id="idis-target-black" data-coin-side="idis" mindar-image-target="targetIndex: 0"></a-entity>
+    <a-entity id="idis-target-white" data-coin-side="idis" mindar-image-target="targetIndex: 1"></a-entity>
+    <a-entity id="idis-target-tan" data-coin-side="idis" mindar-image-target="targetIndex: 2"></a-entity>
+
+    <!-- Atlanta target variants -->
+    <a-entity id="atlanta-target-black" data-coin-side="atlanta" mindar-image-target="targetIndex: 3"></a-entity>
+    <a-entity id="atlanta-target-white" data-coin-side="atlanta" mindar-image-target="targetIndex: 4"></a-entity>
+    <a-entity id="atlanta-target-tan" data-coin-side="atlanta" mindar-image-target="targetIndex: 5"></a-entity>
+
+    <!-- Chicago target variants -->
+    <a-entity id="chicago-target-black" data-coin-side="chicago" mindar-image-target="targetIndex: 6"></a-entity>
+    <a-entity id="chicago-target-white" data-coin-side="chicago" mindar-image-target="targetIndex: 7"></a-entity>
+    <a-entity id="chicago-target-tan" data-coin-side="chicago" mindar-image-target="targetIndex: 8"></a-entity>
   </a-scene>
   </div>
 
