@@ -9,7 +9,7 @@
   MindAR is used for recognition; presentations render detached from tracking.
 */
 
-console.info('[IDIS WebAR] Build 64 Chicago Shared Atlanta Parallax: 20260923-chicago64');
+console.info('[IDIS WebAR] Build 65 State Auto Zoom: 20261005-statezoom65');
 
 document.addEventListener('DOMContentLoaded', () => {
   const scene = document.querySelector('#ar-scene');
@@ -132,6 +132,16 @@ document.addEventListener('DOMContentLoaded', () => {
   const chicagoTestMode = pageParams.get('test') === 'chicago';
 
   const HOME_DELAY_MS = 3000;
+
+  // State-side framing behavior. Atlanta and Chicago finish their three-layer
+  // reveal at 3 seconds, then ease to the widest view over 10 seconds.
+  // After the viewer drags or pinches, their chosen view is held for 8 seconds
+  // before the scene eases back to the widest centered view.
+  const STATE_REVEAL_WAIT_MS = 3000;
+  const STATE_AUTO_ZOOM_MS = 10000;
+  const STATE_INTERACTION_HOLD_MS = 8000;
+  const STATE_MAX_ZOOM_OUT = 0.58;
+  const STATE_START_ZOOM = 1.0;
 
   if (chicagoTestMode && startButton) {
     const startLabel = startButton.querySelector('.scan-cta-left > span');
@@ -315,6 +325,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
   let lastInteractionAt = 0;
   let returningHome = false;
+
+  // State-side automatic camera/framing state.
+  let stateAutoMode = 'off';
+  let stateRevealStartAt = 0;
+  let stateReturnStartAt = 0;
+  let stateReturnFromPanX = 0;
+  let stateReturnFromPanY = 0;
+  let stateReturnFromZoom = STATE_START_ZOOM;
 
   // Phone motion / orientation tilt.
   let motionTiltEnabled = false;
@@ -2750,6 +2768,7 @@ function updateEndCardPhoto(variant = 'atlanta') {    if (!endCardPhoto) return;
     overlay.classList.add('is-visible');
 
     revealStartedAt = performance.now();
+    startStateAutoZoom(revealStartedAt);
 
     // The voiceover and visual reveal start from the same presentation unlock.
     startAtlantaVoiceover();
@@ -2876,6 +2895,7 @@ function updateEndCardPhoto(variant = 'atlanta') {    if (!endCardPhoto) return;
     overlay.classList.add('is-visible');
     overlay.setAttribute('aria-hidden', 'false');
     revealStartedAt = performance.now();
+    startStateAutoZoom(revealStartedAt);
 
     startChicagoVoiceover();
 
@@ -3770,18 +3790,109 @@ function updateEndCardPhoto(variant = 'atlanta') {    if (!endCardPhoto) return;
      SHARED INTERACTIVE SCENE CONTROLS
   ------------------------------------------------------------------------ */
 
+  function isStateSide() {
+    return currentSide === 'atlanta' || currentSide === 'chicago';
+  }
+
+  function resetStateAutoZoom() {
+    stateAutoMode = 'off';
+    stateRevealStartAt = 0;
+    stateReturnStartAt = 0;
+    stateReturnFromPanX = 0;
+    stateReturnFromPanY = 0;
+    stateReturnFromZoom = STATE_START_ZOOM;
+  }
+
+  function startStateAutoZoom(revealStartTime = performance.now()) {
+    stateRevealStartAt = revealStartTime;
+    panX = 0;
+    panY = 0;
+    zoom = STATE_START_ZOOM;
+    lastInteractionAt = 0;
+    returningHome = false;
+    stateAutoMode = 'reveal';
+  }
+
+  function beginStateReturn(now) {
+    stateReturnFromPanX = panX;
+    stateReturnFromPanY = panY;
+    stateReturnFromZoom = zoom;
+    stateReturnStartAt = now;
+    stateAutoMode = 'returning';
+  }
+
+  function updateStateAutoZoom(now) {
+    if (!isStateSide()) return;
+
+    // Never fight an active drag or pinch.
+    if (pointers.size > 0) return;
+
+    // After the 3-second layer reveal, begin a 10-second ease to the
+    // widest framing so the complete graphic becomes visible.
+    if (stateAutoMode === 'reveal') {
+      const zoomOutStartAt = stateRevealStartAt + STATE_REVEAL_WAIT_MS;
+      if (now < zoomOutStartAt) return;
+
+      stateReturnFromPanX = panX;
+      stateReturnFromPanY = panY;
+      stateReturnFromZoom = zoom;
+      stateReturnStartAt = zoomOutStartAt;
+      stateAutoMode = 'returning';
+    }
+
+    // A user's last drag/pinch view stays untouched for eight seconds.
+    if (stateAutoMode === 'user-hold') {
+      if (!lastInteractionAt) return;
+      if (now - lastInteractionAt < STATE_INTERACTION_HOLD_MS) return;
+      beginStateReturn(now);
+    }
+
+    // Once fully zoomed out, remain there until the viewer interacts.
+    if (stateAutoMode === 'resting') return;
+
+    if (stateAutoMode === 'returning') {
+      const progress = clamp(
+        (now - stateReturnStartAt) / STATE_AUTO_ZOOM_MS,
+        0,
+        1
+      );
+      const eased = easeOutCubic(progress);
+
+      panX = lerp(stateReturnFromPanX, 0, eased);
+      panY = lerp(stateReturnFromPanY, 0, eased);
+      zoom = lerp(stateReturnFromZoom, STATE_MAX_ZOOM_OUT, eased);
+
+      if (progress >= 1) {
+        panX = 0;
+        panY = 0;
+        zoom = STATE_MAX_ZOOM_OUT;
+        stateAutoMode = 'resting';
+        stateReturnStartAt = 0;
+        lastInteractionAt = 0;
+      }
+    }
+  }
+
   function resetGestureState() {
     pointers.clear();
     panX = 0;
     panY = 0;
-    zoom = 1;
+    zoom = STATE_START_ZOOM;
     lastInteractionAt = 0;
     returningHome = false;
+    resetStateAutoZoom();
   }
 
   function noteInteraction() {
     lastInteractionAt = performance.now();
     returningHome = false;
+
+    // State-side interactions preserve the viewer's chosen framing for
+    // eight seconds before the automatic wide-view return begins.
+    if (isStateSide()) {
+      stateAutoMode = 'user-hold';
+      stateReturnStartAt = 0;
+    }
   }
 
   function pointerDistance(a, b) {
@@ -3913,6 +4024,13 @@ function updateEndCardPhoto(variant = 'atlanta') {    if (!endCardPhoto) return;
   }
 
   function updateAutoHome(now) {
+    // Atlanta and Chicago use the slower cinematic state-side framing.
+    if (isStateSide()) {
+      updateStateAutoZoom(now);
+      return;
+    }
+
+    // Preserve the existing IDIS interaction return behavior.
     if (!currentSide || pointers.size > 0 || !lastInteractionAt) return;
 
     if (!returningHome && now - lastInteractionAt >= HOME_DELAY_MS) {
