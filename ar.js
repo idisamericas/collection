@@ -155,17 +155,13 @@ document.addEventListener('DOMContentLoaded', () => {
   const IDIS_BURST_REVEAL_DELAY_MS = 15000;
   const IDIS_BURST_INTERVAL_MS = 4100;
   const IDIS_ENDCARD_PHOTO_SRC = './assets/idis-burst/set-1/shot-00.webp';
+  // IDIS image sequence order:
+  //   1) Run every image from set-2 first.
+  //   2) Then move to set-1.
+  //   3) If the IDIS sequence is still running after set-1 finishes,
+  //      continue cycling set-1 only.
+  // shot-00 stays reserved for the final personalized end card.
   const IDIS_BURST_ASSET_SETS = [
-    [
-      './assets/idis-burst/set-1/shot-01.webp',
-      './assets/idis-burst/set-1/shot-02.webp',
-      './assets/idis-burst/set-1/shot-03.webp',
-      './assets/idis-burst/set-1/shot-04.webp',
-      './assets/idis-burst/set-1/shot-05.webp',
-      './assets/idis-burst/set-1/shot-06.webp',
-      './assets/idis-burst/set-1/shot-07.webp',
-      './assets/idis-burst/set-1/shot-08.webp'
-    ],
     [
       './assets/idis-burst/set-2/shot-09.webp',
       './assets/idis-burst/set-2/shot-11.webp',
@@ -175,6 +171,16 @@ document.addEventListener('DOMContentLoaded', () => {
       './assets/idis-burst/set-2/shot-55.webp',
       './assets/idis-burst/set-2/shot-66.webp',
       './assets/idis-burst/set-2/shot-77.webp'
+    ],
+    [
+      './assets/idis-burst/set-1/shot-01.webp',
+      './assets/idis-burst/set-1/shot-02.webp',
+      './assets/idis-burst/set-1/shot-03.webp',
+      './assets/idis-burst/set-1/shot-04.webp',
+      './assets/idis-burst/set-1/shot-05.webp',
+      './assets/idis-burst/set-1/shot-06.webp',
+      './assets/idis-burst/set-1/shot-07.webp',
+      './assets/idis-burst/set-1/shot-08.webp'
     ]
   ];
   const IDIS_ENDCARD_LEAD_SECONDS = 0;
@@ -3395,36 +3401,43 @@ function updateEndCardPhoto(variant = 'atlanta') {    if (!endCardPhoto) return;
   }
 
   function getActiveIDISBurstAssets() {
-    const preferred = idisBurstLoadedSets[idisBurstActiveSet] || [];
-    if (preferred.length) return preferred;
-    const other = idisBurstLoadedSets[idisBurstActiveSet === 0 ? 1 : 0] || [];
-    return other;
+    // Use the declared source order directly. Images are already preloaded as
+    // an optimization, but the presentation must not depend on asynchronous
+    // preload completion because that can make an entire folder appear skipped.
+    return IDIS_BURST_ASSET_SETS[idisBurstActiveSet] || [];
   }
 
-  function selectIDISBurstSetFromVideo() {
-    if (!idisShowcaseVideo || !Number.isFinite(idisShowcaseVideo.duration) || idisShowcaseVideo.duration <= 0) {
-      return 0;
+  function advanceIDISBurstSequenceIfNeeded() {
+    const activeAssets = getActiveIDISBurstAssets();
+    if (!activeAssets.length) return;
+
+    // After every set-2 image has appeared once, move to set-1.
+    if (idisBurstActiveSet === 0 && idisBurstCursor >= activeAssets.length) {
+      idisBurstActiveSet = 1;
+      idisBurstCursor = 0;
+      return;
     }
-    return idisShowcaseVideo.currentTime >= idisShowcaseVideo.duration * 0.5 ? 1 : 0;
+
+    // After set-1 completes, stay in set-1 and cycle it if more runtime remains.
+    if (idisBurstActiveSet === 1 && idisBurstCursor >= activeAssets.length) {
+      idisBurstCursor = 0;
+    }
   }
 
+  // Kept as a harmless compatibility hook for the existing video timeupdate
+  // listener. Folder changes are no longer tied to video percentage.
   function updateIDISBurstSetFromVideo() {
-    if (!idisSequenceActive || currentSide !== 'idis') return;
-    const nextSet = selectIDISBurstSetFromVideo();
-    if (nextSet === idisBurstActiveSet) return;
-    idisBurstActiveSet = nextSet;
-    idisBurstCursor = 0;
-
-    // Do not inject an extra card at the halfway switch. The next scheduled
-    // top/bottom slot simply starts using the second image folder. This keeps
-    // the sequence strictly one image at a time.
+    return;
   }
 
   function spawnIDISBurstCard() {
-    const activeAssets = getActiveIDISBurstAssets();
-    if (!idisBurstField || !activeAssets.length || !idisSequenceActive || currentSide !== 'idis') return;
+    if (!idisBurstField || !idisSequenceActive || currentSide !== 'idis') return;
 
-    const src = activeAssets[idisBurstCursor % activeAssets.length];
+    advanceIDISBurstSequenceIfNeeded();
+    const activeAssets = getActiveIDISBurstAssets();
+    if (!activeAssets.length) return;
+
+    const src = activeAssets[idisBurstCursor];
     idisBurstCursor += 1;
 
     const card = document.createElement('div');
@@ -3474,10 +3487,9 @@ function updateEndCardPhoto(variant = 'atlanta') {    if (!endCardPhoto) return;
     preloadIDISBurstAssets();
     idisBurstField.classList.add('is-visible');
 
-    // The first folder runs during the first half of the showcase video.
-    // Once the video crosses 50%, new cards come from set-2 without removing
-    // cards already on screen.
-    idisBurstActiveSet = selectIDISBurstSetFromVideo();
+    // Always start with set-2. After all set-2 images have appeared once,
+    // spawnIDISBurstCard() advances to set-1 automatically.
+    idisBurstActiveSet = 0;
     idisBurstCursor = 0;
     idisBurstZoneCursor = 0;
     if (idisBurstInterval) clearInterval(idisBurstInterval);
